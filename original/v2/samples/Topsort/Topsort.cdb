@@ -1,0 +1,45 @@
+#include <stdio.h>
+#include <string.h>
+
+schema Topsort Schema; 
+
+main()
+{
+   prop Vertex VFrom, VTo, V;
+   prop Mark ZeroDegree, NonZeroDegree;
+   prop Label VFromLabel, VToLabel;
+   prop Arc A;
+
+
+   ZeroDegree = invoke NewMark();
+   NonZeroDegree = invoke NewMark();
+
+   /* input the graph */
+ 
+   while (scanf("%s %s", VFromLabel, VToLabel) != EOF)
+   {
+      if V in VertexWithLabel(VFromLabel) in Schema VFrom = V;
+      else VFrom = invoke NewVertex(VFromLabel, ZeroDegree, 0);
+
+      if V in VertexWithLabel(VToLabel)
+         VTo = invoke IncreaseIndegree(V, NonZeroDegree);
+      else
+         VTo = invoke NewVertex(VToLabel, NonZeroDegree, 1);
+
+      invoke NewArc(VFrom, VTo);
+   }
+
+   /* perform topological sort */
+
+   while V in VertexWithMark(ZeroDegree)
+   {
+      printf("%s\n", V@Label);
+      while A in OutArc(V)
+      {
+         invoke DecreaseIndegree(A@ToVertex);
+         if (A@ToVertex@Indegree == 0) invoke ChgMark(A@ToVertex, ZeroDegree);
+         invoke DelArc(A);
+      }
+      invoke DelVertex(V);
+   }
+}

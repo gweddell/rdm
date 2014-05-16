@@ -1,0 +1,32 @@
+/*
+ * A simple News application.  The program reads news headlines and
+ * queries from the standard input file.  The keyword END signals the
+ * end of each headline, and the keyword QUERIES signals the start of
+ * some simple keyword queries.  Exact syntax for the input can be
+ * determined by examining the contents of file "news.y".  Running
+ * news will cause the headline and keyword information to be printed
+ * to the standard outline, followed by the results of executing the
+ * queries.  A command to run news with headlines in file "newsdata" and
+ * queries in file "queries" is as follows:
+ *
+ *    cat newsdata queries | news
+ *
+ * This example program is an example of using the RDM tool set together
+ * with the lex and yacc language preprocessors.
+ */
+
+#include <stdio.h>
+#include <string.h>
+schema news Schema;
+#include "lex.yy.c"
+#include "y.tab.c"
+
+
+main()
+{
+   int  Result;
+   Initnews(&Schema);
+   Result = yyparse(); 
+   if ( Result ) return(Result);
+
+}

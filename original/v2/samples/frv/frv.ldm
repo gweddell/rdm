@@ -1,0 +1,93 @@
+% A schema for finding reachable verticies in a directed graph.
+
+schema frv
+
+
+% Data Definition
+
+   class Vertex properties Label, Mark
+
+   class Mark
+
+   class Arc properties FromVertex, ToVertex
+   constraints Id determined by FromVertex, ToVertex
+
+   property Label on String maxlen 20
+   property FromVertex on Vertex
+   property ToVertex on Vertex
+
+
+% Data Manipulation - graph generation
+
+   % A vertex with a given label.
+
+   query VertexWithLabel given L from Label
+   select one V from Vertex where V.Label = L
+
+   % Create and return a new vertex.
+
+   transaction NewVertex given L, M from Label, Mark
+   declare V from Vertex
+   insert V (V.Label := L; V.Mark := M)
+   return V
+
+   % Create and return a new mark.
+
+   transaction NewMark
+   declare M from Mark
+   insert M
+   return M
+
+   % Create a new arc.
+
+   transaction NewArc given VFrom, VTo from Vertex, Vertex
+   declare A from Arc
+   insert A (A.FromVertex := VFrom; A.ToVertex := VTo)
+
+
+% Data Manipulation - graph search
+
+   % An arbitrary vertex with a given mark.
+
+   query VertexWithMark given M from Mark
+   select one V from Vertex where V.Mark = M
+
+   % All vertices with a given mark that are immediately reachable
+   % from a given vertex.
+
+   query ConnectedVertices given VFrom, M from Vertex, Mark
+   select VTo from Vertex
+   where VTo.Mark = M and
+         Arc {VFrom as FromVertex, VTo as ToVertex}
+
+   % Change the mark of a vertex.
+
+   transaction ChgMark given V, M from Vertex, Mark
+   V.Mark := M
+
+
+% Data Manipulation - Graph Output
+
+   % All vertices in with a given mark.
+
+   query VerticesWithMark given M from Mark
+   select V from Vertex where V.Mark = M
+
+
+% Data statistics
+
+   size Vertex 100
+   size Mark 3
+   size Arc 200
+
+
+% Storage definition
+
+   index VertexList on Vertex of type distributed list on Mark
+
+   index ArcList on Arc of type distributed list on FromVertex
+
+   store VertexStore of type dynamic
+   storing Vertex, Mark
+
+   store ArcStore of type dynamic storing Arc

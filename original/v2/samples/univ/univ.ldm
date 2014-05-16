@@ -1,0 +1,309 @@
+schema univ
+
+class Person
+properties Name, Age
+constraints
+   Id determined by Name
+   cover by Student, Teacher
+
+class Student isa Person
+
+class Teacher isa Person
+constraints cover by GradStudent, Professor
+
+class GradStudent isa Student, Teacher
+properties Supervisor
+
+class Professor isa Teacher
+
+class Course
+properties TaughtBy, Name
+constraints Id determined by Name
+
+class EnrolledIn
+properties Student, Course, Grade
+constraints Id determined by Student, Course
+
+property Name on String maxlen 20
+property Age on Integer range 16 to 75
+property Supervisor on Professor
+property TaughtBy on Teacher
+property Grade on Integer range 0 to 100
+
+size Student 500
+size GradStudent 100
+size Course 200
+size EnrolledIn 4000
+size Professor 50
+
+index PersonTree on Person of type binary tree
+ordered by Student, GradStudent, Supervisor asc
+
+index TeacherTree on Teacher of type binary tree
+ordered by Professor
+
+index EDistList1 on EnrolledIn of type distributed list on Course
+index EDistList2 on EnrolledIn of type distributed list on Student
+
+index CDistList on Course of type distributed list on TaughtBy
+
+store PersonStore of type dynamic storing Student, GradStudent
+store ProfStore of type dynamic storing Professor
+store EnrollStore of type dynamic storing EnrolledIn
+store CourseStore of type dynamic storing Course
+
+
+% ***** TEST TRANSACTIONS *****
+
+
+
+
+% Example 1. "Assign a teacher to teach a course."
+
+transaction AssignTeacher given T, C from Teacher, Course
+C.TaughtBy := T
+
+
+
+
+
+% Example 2. "Create a new course with a given name and teacher."
+
+transaction NewCourse given T, N from Teacher, Name
+declare C from Course
+insert C (C.TaughtBy := T; C.Name := N)
+return C
+
+
+
+
+
+% Example 3. "Change the supervisor of a grad student."
+
+transaction ChangeSupervisor given G, P from GradStudent, Professor
+G.Supervisor := P
+
+
+
+
+
+% Example 4. "Delete a student from the database."
+
+transaction RemStudent given S from Student
+delete S
+
+
+
+
+
+% Example 5. "Change the name of a student."
+
+transaction ChangeStudentName given S, N from Student, Name
+S.Name := N
+
+
+
+
+
+% Example 6. "Enter a student into graduate school."
+
+transaction BecomeGrad given S, P from Student, Professor
+declare G from GradStudent
+insert G (G.Name := S.Name; G.Age := S.Age; G.Supervisor := P);
+G.Id := S
+return P
+
+
+
+
+
+% Example 7. "Enroll a student in a given course."
+
+transaction EnrollStudent given S, C from Student, Course
+declare E from EnrolledIn
+insert E (E.Student := S; E.Course := C)
+
+
+
+
+
+
+%Example 8. "Enter a student into the data base."
+
+transaction EnterStudent given N, A from Name, Age
+declare S from Student
+insert S (S.Name := N; S.Age := A)
+
+
+
+
+
+%Example 9. "Enter a professor into the data base."
+
+transaction EnterProfessor given N, A from Name, Age
+declare S from Professor
+insert S (S.Name := N; S.Age := A)
+
+
+
+
+
+%Example 10. "Assign a Make to EnrolledIn"
+
+transaction AssignMark given E, M from EnrolledIn, Grade 
+E.Grade := M
+
+
+
+
+% ***** TEST QUERIES *****
+
+
+
+query AllPeople
+select P
+from Person
+
+
+
+
+
+query AllGrad
+select P
+from GradStudent
+
+
+
+
+query AllCourses
+select C
+from Course
+
+
+
+
+query AllEnroll
+select E
+from EnrolledIn
+
+
+
+
+
+query PersonWithName
+given N from Name
+select P from Person where P.Name = N
+
+
+
+
+query StudentWithName
+given N from Name
+select P from Student where P.Name = N
+
+
+
+
+query ProfWithName
+given N from Name
+select P from Professor where P.Name = N
+
+
+
+query TeacherWithName
+given N from Name
+select P from Teacher where P.Name = N
+
+
+
+
+
+query CourseWithName
+given N from Name
+select P from Course where P.Name = N
+
+
+
+
+query FindEnrolledIn
+given S, C from Name, Name
+select E from EnrolledIn where E.Student.Name = S and E.Course.Name = C
+
+
+
+
+% Example 2. "All students older than 30 enrolled in
+%             a given course."
+
+query OldStudentsInCourse
+given C from Course
+select S from Student
+where S.Age > 30 and EnrolledIn {S as Student, C as Course}
+
+
+
+
+
+% Example 3. "All the various ages of students."
+%
+%query StudentAges
+%select A from Age
+%where exist S from Student where S.Age = A
+%order by A desc
+
+
+
+
+
+% Example 4. "A graduate student supervised by a given teacher."
+
+query GradsWithSupervisorName
+given N from Name
+select one G from GradStudent where G.Supervisor.Name = N
+
+
+
+
+
+% Example 5. "All undergraduates who received the highest
+%             grade in any course."
+
+query SmartUndergrads
+select S from Student
+where not GradStudent {S as Id} and (
+      exist C, E from Course, EnrolledIn
+      where E.Student = S and
+            E has max Grade where E.Course = C)
+
+
+
+
+
+% Example 6. "An undergraduate who received a grade in a
+%             course higher than any graduate student also
+%             enrolled in the course."
+
+query PossibleGrad
+select one S from Student
+where not GradStudent {S as Id} and (
+      exist E1 from EnrolledIn
+      where E1.Student = S and
+            not (exist E2 from EnrolledIn
+            where E2.Course = E1.Course and
+                  E2.Grade >= E1.Grade and
+                  GradStudent {E2.Student as Id}))
+
+
+
+
+
+% Example 8. "All graduates supervised by a professor who has
+%             taught a course in which a student with a specific
+%             name has enrolled."
+%
+%query SpecialGrads given N from Name
+%select G from GradStudent
+%where exist P from Professor where
+%      G.Supervisor = P and
+%      EnrolledIn {N as Student.Name, P as Course.TaughtBy}
+%precomputed

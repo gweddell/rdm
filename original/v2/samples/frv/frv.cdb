@@ -1,0 +1,64 @@
+#include <stdio.h>
+#include <string.h>
+
+schema frv Schema;
+prop Mark Unexplored, Boundary, Explored;
+
+
+
+
+
+void InputGraph ()
+{
+   prop Vertex VStart, VFrom, VTo, V;
+   prop Label VStartLabel, VFromLabel, VToLabel;
+
+   scanf("%s", VStartLabel);
+   VStart = invoke NewVertex(VStartLabel, Boundary);
+
+   while (scanf("%s %s", VFromLabel, VToLabel) != EOF)
+   {
+      if V in VertexWithLabel(VFromLabel) VFrom = V;
+      else VFrom = invoke NewVertex(VFromLabel, Unexplored);
+
+      if V in VertexWithLabel(VToLabel) VTo = V;
+      else VTo = invoke NewVertex(VToLabel, Unexplored);
+
+      invoke NewArc(VFrom, VTo);
+   }
+}
+
+
+
+void FindReachableVertices()
+{
+   prop Vertex VTo, V;
+
+   while V in VertexWithMark(Boundary)
+   {
+      invoke ChgMark(V, Explored);
+      for VTo in ConnectedVertices(V, Unexplored) invoke ChgMark(VTo, Boundary);
+   }
+}
+
+
+main()
+{
+   prop Vertex V;
+	Initfrv(&Schema);
+   Unexplored = invoke NewMark();
+   Boundary = invoke NewMark();
+   Explored = invoke NewMark();
+
+   /* input the graph */
+ 
+   InputGraph();
+
+   /* find all reachable vertices */
+
+   FindReachableVertices();
+
+   /* print the reachable vertices  */
+
+   for V in VerticesWithMark(Explored) printf("%s\n", V@Label);
+}

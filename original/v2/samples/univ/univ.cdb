@@ -1,0 +1,56 @@
+#include <stdio.h>
+#include <string.h>
+
+schema univ Schema;
+
+main()
+{
+   prop Student S;
+   prop GradStudent G;
+   prop Person P;
+   prop EnrolledIn E;
+   prop Teacher T;
+   prop Professor Pro;
+   prop Course C;
+   prop Name N1;
+   prop Name N2;
+   prop Age A;
+   prop Grade Mark;
+   int j;
+
+   Inituniv(&Schema);
+
+   while (scanf("%s %s %d %d", N1, N2, &A, &j) != EOF)
+   {
+      if (j == 1) invoke EnterStudent(N1, A) in Schema;   
+      else if (j == 2) invoke EnterProfessor(N1, A); 
+      else if (j == 0) for S in StudentWithName(N1) invoke RemStudent(S); 
+      else if (j == 3) for S in StudentWithName(N1) for Pro in ProfWithName(N2) invoke BecomeGrad(S, Pro);
+      else if (j == 4) for T in TeacherWithName(N2) invoke NewCourse(T, N1);
+      else if (j == 5) for S in StudentWithName(N1) for C in CourseWithName(N2) invoke EnrollStudent(S, C);
+      else if (j == 6) for E in FindEnrolledIn(N1, N2) {Mark = A; invoke AssignMark(E, Mark);} 
+   }
+
+   printf("\n***** All People in the data base ******\n");
+   for P in AllPeople in Schema printf("%s   %d \n", P@Name , P@Age);
+
+   printf("\n***** All GradStudents in the data base ******\n");
+     for G in AllGrad in Schema printf("%s   %d   %s\n", G@Name , G@Age, G@Supervisor@Name); 
+
+   printf("\n***** All courses in the data base ******\n");
+   for C in AllCourses in Schema printf("%s   %s \n", C@Name , C@TaughtBy@Name);
+
+   printf("\n***** All Enrollment in the data base ******\n");
+   for E in AllEnroll in Schema printf("%s   %s   %d \n", E@Student@Name , E@Course@Name, E@Grade);
+
+   strcpy(N1, "CS111");
+   printf("\n***** Query : OldStudentsInCourse CS111. ******\n");
+   for C in CourseWithName (N1) for S in OldStudentsInCourse(C) printf("%s   %d \n", S@Name , S@Age);
+
+   printf("\n***** Query : SmartUndergrads. ******\n");
+   for S in SmartUndergrads printf("%s   %d \n", S@Name , S@Age);
+
+   printf("\n***** Query : PossibleGrad. ******\n");
+   for S in PossibleGrad printf("%s   %d \n", S@Name , S@Age);
+
+}

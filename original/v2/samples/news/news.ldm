@@ -1,0 +1,55 @@
+schema news
+
+class Headline
+properties Content
+
+class Keyword
+properties Headline, KeyVal
+constraints Id determined by Headline, KeyVal
+
+property Content on String maxlen 255
+property KeyVal on String maxlen 20
+
+transaction NewHeadline
+%  given C from Content
+declare H from Headline
+insert H (H.Content := " ")
+return H
+
+transaction NewKeyword given H, KVal from Headline, KeyVal
+declare K from Keyword
+insert K (K.Headline := H; K.KeyVal := KVal)
+
+transaction ChgContent given H, C from Headline, Content
+H.Content := C
+
+query OneKeyQuery given K1 from KeyVal
+select H from Headline
+where Keyword {H as Headline, K1 as KeyVal}
+
+query TwoKeyQuery given K1, K2 from KeyVal, KeyVal
+select H from Headline
+where Keyword {H as Headline, K1 as KeyVal} and
+      Keyword {H as Headline, K2 as KeyVal}
+
+query ThreeKeyQuery given K1, K2, K3 from KeyVal, KeyVal, KeyVal
+select H from Headline
+where Keyword {H as Headline, K1 as KeyVal} and
+      Keyword {H as Headline, K2 as KeyVal} and
+      Keyword {H as Headline, K3 as KeyVal}
+
+query Headlines
+select H from Headline
+
+query KeywordsOfHeadline given H from Headline
+select K from Keyword
+where K.Headline = H
+
+size Headline 100
+size Keyword 400
+
+index KeywordList on Keyword of type distributed list on Headline
+index HeadlineList on Headline of type list
+
+store HeadlineStore of type dynamic storing Headline
+store KeywordStore of type dynamic storing Keyword

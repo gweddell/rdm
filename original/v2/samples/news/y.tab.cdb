@@ -1,0 +1,269 @@
+
+
+
+
+
+
+
+
+
+extern int yychar;
+extern short yyerrflag;
+
+
+
+
+
+
+int yylval, yyval;
+
+
+
+
+
+prop Headline H;
+prop Content C;
+prop KeyVal K1, K2, K3;
+prop Keyword K;
+short yyexca[] ={
+-1, 1,
+	0, -1,
+	-2, 0,
+	};
+
+
+short yyact[]={
+
+  10,  11,  12,  13,  16,  17,  14,  37,  24,  32,
+  24,  25,  24,  24,   5,  18,  23,  31,   3,  15,
+   8,   7,   4,  36,   9,   6,   2,  19,  20,  21,
+  22,   1,   0,   0,   0,   0,  26,  27,   0,  28,
+   0,   0,  29,  30,   0,   0,   0,  34,  33,  35,
+   0,   0,  38 };
+short yypact[]={
+
+-243,-1000,-243,-1000,-1000,-1000,-260,-1000,-253,-1000,
+-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-246,-246,
+-246,-245,-245,-1000,-1000,-1000,-1000,-1000,-245,-248,
+-248,-1000,-1000,-1000,-245,-250,-1000,-1000,-245 };
+short yypgo[]={
+
+   0,  31,  26,  25,  24,  15,  16,  17,  23,  18,
+  22,  20,  19 };
+short yyr1[]={
+
+   0,   1,   3,   3,   4,   4,   4,   4,   5,   5,
+   6,   7,   8,   2,   2,   9,  10,  11,  11,  12,
+  12 };
+short yyr2[]={
+
+   0,   2,   0,   2,   4,   6,   8,   2,   0,   2,
+   1,   1,   1,   1,   2,   4,   1,   0,   2,   1,
+   1 };
+short yychk[]={
+
+-1000,  -1,  -2,  -9, -10, 257,  -3,  -9, -11,  -4,
+ 260, 261, 262, 263, 259, -12, 257, 258,  -5,  -5,
+  -5,  -5,  -5,  -6, 258, 257,  -6,  -6,  -5,  -5,
+  -5,  -7, 257,  -7,  -5,  -5,  -8, 257,  -5 };
+short yydef[]={
+
+   0,  -2,   2,  13,  17,  16,   1,  14,   0,   3,
+   8,   8,   8,   8,   8,  18,  19,  20,   0,   0,
+   0,   7,  15,   8,   9,  10,   8,   8,   4,   0,
+   0,   8,  11,   8,   5,   0,   8,  12,   6 };
+
+static char yaccpar_sccsid[] = "@(#)yaccpar	4.1	(Berkeley)	2/11/83";
+
+
+
+
+
+
+
+
+
+
+
+int yyv[150]; 
+int yychar = -1; 
+int yynerrs = 0;  
+short yyerrflag = 0;  
+
+yyparse() {
+
+	short yys[150];
+	short yyj, yym;
+	register int *yypvt;
+	register short yystate, *yyps, yyn;
+	register int *yypv;
+	register short *yyxi;
+
+	yystate = 0;
+	yychar = -1;
+	yynerrs = 0;
+	yyerrflag = 0;
+	yyps= &yys[-1];
+	yypv= &yyv[-1];
+
+ yystack:    
+
+
+		if( ++yyps> &yys[150] ) { yyerror( "yacc stack overflow" ); return(1); }
+		*yyps = yystate;
+		++yypv;
+		*yypv = yyval;
+
+ yynewstate:
+
+	yyn = yypact[yystate];
+
+	if( yyn<= -1000 ) goto yydefault; 
+
+	if( yychar<0 ) if( (yychar=yylex())<0 ) yychar=0;
+	if( (yyn += yychar)<0 || yyn >= 53 ) goto yydefault;
+
+	if( yychk[ yyn=yyact[ yyn ] ] == yychar ){ 
+		yychar = -1;
+		yyval = yylval;
+		yystate = yyn;
+		if( yyerrflag > 0 ) --yyerrflag;
+		goto yystack;
+		}
+
+ yydefault:
+	
+
+	if( (yyn=yydef[yystate]) == -2 ) {
+		if( yychar<0 ) if( (yychar=yylex())<0 ) yychar = 0;
+		
+
+		for( yyxi=yyexca; (*yyxi!= (-1)) || (yyxi[1]!=yystate) ; yyxi += 2 ) ; 
+
+		while( *(yyxi+=2) >= 0 ){
+			if( *yyxi == yychar ) break;
+			}
+		if( (yyn = yyxi[1]) < 0 ) return(0);   
+		}
+
+	if( yyn == 0 ){ 
+		
+
+		switch( yyerrflag ){
+
+		case 0:   
+
+			yyerror( "syntax error" );
+		yyerrlab:
+			++yynerrs;
+
+		case 1:
+		case 2: 
+
+			yyerrflag = 3;
+
+			
+
+			while ( yyps >= yys ) {
+			   yyn = yypact[*yyps] + 256;
+			   if( yyn>= 0 && yyn < 53 && yychk[yyact[yyn]] == 256 ){
+			      yystate = yyact[yyn];  
+			      goto yystack;
+			      }
+			   yyn = yypact[*yyps];
+
+			   
+
+
+			   --yyps;
+			   --yypv;
+			   }
+
+			
+
+	yyabort:
+			return(1);
+
+
+		case 3:  
+
+
+
+			if( yychar == 0 ) goto yyabort; 
+			yychar = -1;
+			goto yynewstate;   
+
+			}
+
+		}
+
+	
+
+
+		yyps -= yyr2[yyn];
+		yypvt = yypv;
+		yypv -= yyr2[yyn];
+		yyval = yypv[1];
+		yym=yyn;
+			
+		yyn = yyr1[yyn];
+		yyj = yypgo[yyn] + *yyps + 1;
+		if( yyj>=53 || yychk[ yystate = yyact[yyj] ] != -yyn ) yystate = yyact[yypgo[yyn]];
+		switch(yym){
+			
+case 4:
+
+{
+	   printf("Headlines with keyword \"%s\":\n", K1);
+	   for H in OneKeyQuery(K1) in Schema  printf("%s\n", H@Content);
+	} break;
+case 5:
+
+{
+	   printf("Headlines with keywords \"%s\" and \"%s\":\n", K1, K2);
+	   for H in TwoKeyQuery(K1, K2)  in Schema printf("%s\n", H@Content);
+	} break;
+case 6:
+
+{
+	   printf("Headlines with keywords \"%s\", \"%s\" and \"%s\":\n",
+	           K1, K2, K3);
+	   for H in ThreeKeyQuery(K1, K2, K3) in Schema  printf("%s\n", H@Content);
+	} break;
+case 7:
+
+{
+	   printf("HEADLINE REPORT\n\n");
+	   for H in Headlines in Schema
+	   {
+	      printf("HEADLINE\n%s\nKeywords:", H@Content);
+	      for K in KeywordsOfHeadline(H)  in Schema printf(" %s", K@KeyVal);
+	      printf("\n\n");
+	   }
+	} break;
+case 10:
+
+{ strcpy(K1, yytext); } break;
+case 11:
+
+{ strcpy(K2, yytext); } break;
+case 12:
+
+{ strcpy(K3, yytext); } break;
+case 15:
+
+{ invoke ChgContent(H, C) in Schema ; } break;
+case 16:
+
+{ H = invoke NewHeadline() in Schema ; strcpy(C, yytext);
+		  strcpy(K1, yytext); invoke NewKeyword(H, K1) in Schema ; } break;
+case 18:
+
+{ strcat(C, yytext); } break;
+case 19:
+
+{ strcpy(K1, yytext); invoke NewKeyword(H, K1) in Schema ; } break;
+		}
+		goto yystack;  
+
+	}

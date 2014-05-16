@@ -1,0 +1,39 @@
+#include <stdio.h>
+
+schema PeopleDB DB1, DB2; 
+
+main()
+{
+   prop Person P1, P2;
+   prop Name N;
+   prop Age A;
+
+   int DBNum;
+   char Type[10];
+
+   invoke InitPeopleDB() in DB1;
+   invoke InitPeopleDB() in DB2;
+
+   /* input */
+ 
+   while (scanf("%d %s %s %d", &DBNum, Type, N, &A) != EOF)
+     if (DBNum == 1)
+        if (strcmp(Type, "Man") == 0)
+           invoke EnterMan(N, A) in DB1;
+        else   
+           invoke EnterWoman(N, A) in DB1;
+     else
+        if (strcmp(Type, "Man") == 0)
+           invoke EnterMan(N, A) in DB2;
+        else   
+           invoke EnterWoman(N, A) in DB2;
+  
+     /* query */
+  
+  for P1 in AllPeople in DB1
+  {
+     printf("%s %d \n", P1@Name, P1@Age);
+     if P2 in ManWithName(P1@Name) in DB2
+        printf("-------------------------\n");
+  }
+}

@@ -1,0 +1,104 @@
+% A schema topologically sorting verticies in a directed graph.
+
+schema Topsort
+
+
+% Data Definition
+
+   class Vertex properties Label, Mark, Indegree
+   constraints Id determined by Label
+
+   class Mark
+
+   class Arc properties FromVertex, ToVertex
+   constraints Id determined by FromVertex, ToVertex
+
+   property Label on String maxlen 20
+   property Indegree on Integer range 0 to 10
+   property FromVertex on Vertex
+   property ToVertex on Vertex
+
+
+% Data Manipulation - graph generation
+
+   % Create and return a new mark.
+
+   transaction NewMark
+   declare M from Mark
+   insert M
+   return M
+
+   % A vertex with a given label.
+
+   query VertexWithLabel given L from Label
+   select one V from Vertex where V.Label = L
+
+   % Create and return a new vertex.
+
+   transaction NewVertex given L, M, D from Label, Mark, Indegree
+   declare V from Vertex
+   insert V (V.Label := L; V.Mark := M; V.Indegree := D)
+   return V
+
+   % Increase the Indegree of a vertex.
+
+   transaction IncreaseIndegree given V, M from Vertex, Mark
+   V.Indegree := V.Indegree + 1;
+   V.Mark := M
+   return V
+
+   % Create a new arc.
+
+   transaction NewArc given VFrom, VTo from Vertex, Vertex
+   declare A from Arc
+   insert A (A.FromVertex := VFrom; A.ToVertex := VTo)
+
+
+% Data Manipulation - graph search
+
+   % An arbitrary vertex with a given mark.
+
+   query VertexWithMark given M from Mark
+   select one V from Vertex where V.Mark = M
+
+   % An arbitrary outgoing arc for a given vertex.
+
+   query OutArc given V from Vertex
+   select one A from Arc where A.FromVertex = V
+
+   % Change the mark of a vertex.
+
+   transaction ChgMark given V, M from Vertex, Mark
+   V.Mark := M
+
+   % Decrease the Indegree of a given vertex.
+
+   transaction DecreaseIndegree given V from Vertex
+   V.Indegree := V.Indegree - 1
+
+   % Remove an arc from the database.
+
+   transaction DelArc given A from Arc
+   delete A
+
+   % Remove a Vertex from the database.
+
+   transaction DelVertex given V from Vertex
+   delete V
+
+% Data statistics
+
+   size Vertex 100
+   size Mark 2
+   size Arc 200
+
+
+% Storage definition
+
+   index VertexList on Vertex of type list
+
+   index ArcList on Arc of type list
+
+   store VertexStore of type dynamic storing Vertex, Mark
+
+   store ArcStore of type dynamic storing Arc

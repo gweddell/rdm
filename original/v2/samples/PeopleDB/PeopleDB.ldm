@@ -1,0 +1,42 @@
+schema PeopleDB 
+
+class Person
+properties Name, Age
+constraints
+   Id determined by Name
+   cover by Man, Woman
+
+class Man isa Person
+
+class Woman isa Person
+
+property Name on String maxlen 20
+property Age on Integer range 16 to 75
+
+size Man 500
+size Woman 500
+
+index PersonTree on Person of type binary tree
+ordered by Name asc 
+
+store PersonStore of type dynamic storing Man, Woman
+
+% ***** QUERIES *****
+
+query AllPeople
+select P
+from Person
+
+query ManWithName
+given N from Name
+select M from Man where M.Name = N
+
+% ***** TRANSACTIONS *****
+
+transaction EnterMan given N, A from Name, Age
+declare M from Man
+insert M (M.Name := N; M.Age := A)
+
+transaction EnterWoman given N, A from Name, Age
+declare W from Woman
+insert W (W.Name := N; W.Age := A)
