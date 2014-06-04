@@ -4,25 +4,26 @@
 
 ;********************* PATTERN MATCHER / BUILDER ***********************
 
-(declare
-   (special Schema)
-   (special Classes)
-   (special BuiltInClasses)
-   (special Properties)
-   (special Queries)
-   (special Indices)
-   (special Stores)
-   (special Transactions)
-   (special QueryName?)
-   (special QueryOrTransName)
-   (special Source)
-   (special PDMPort)
-   (special DefaultRCntEst)
-   (special VarStack)
-   (special MatchVarStack)
-   (special FreeMatchVars)
-   (special MatchVar))
+;(declare
+   ;(special Schema)
+   ;(special Classes)
+   ;(special BuiltInClasses)
+   ;(special Properties)
+   ;(special Queries)
+   ;(special Indices)
+   ;(special Stores)
+   ;(special Transactions)
+   ;(special QueryName?)
+   ;(special QueryOrTransName)
+   ;(special Source)
+   ;(special PDMPort)
+   ;(special DefaultRCntEst)
+   ;(special VarStack)
+   ;(special MatchVarStack)
+   ;(special FreeMatchVars)
+   ;(special MatchVar))
 
+(defun putprop (sym ind val) (setf (get sym ind) val))
 ;***********************************************************************
 ; PushMatchVar and PopMatchVar are used to maintain MatchVarStack and
 ; FreeMatchVars.  The latter are used for encoding matched pattern
@@ -186,16 +187,16 @@
 ; to the corresponding atom Ai.  Returns that last Fi.
 ;***********************************************************************
 
-(defun Bindq fexpr (BList)
-   (do ((BList BList (cddr BList)) (Fn nil))
-       ((null BList) Fn)
-      (PutBindVal (car BList) (setq Fn (eval (cadr BList))))))
+;(defun Bindq fexpr (BList)
+;   (do ((BList BList (cddr BList)) (Fn nil))
+;       ((null BList) Fn)
+;      (PutBindVal (car BList) (setq Fn (eval (cadr BList))))))
 
 ;***********************************************************************
 ; Bind is equivalent to Bindq, except that it evaluates each Ai.
 ;***********************************************************************
 
-(defun Bind fexpr (BList)
-   (do ((BList BList (cddr BList)) (Fn nil))
-       ((null BList) Fn)
-      (PutBindVal (eval (car BList)) (setq Fn (eval (cadr BList))))))
+;(defun Bind fexpr (BList)
+;   (do ((BList BList (cddr BList)) (Fn nil))
+;       ((null BList) Fn)
+;      (PutBindVal (eval (car BList)) (setq Fn (eval (cadr BList))))))

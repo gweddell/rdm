@@ -1,0 +1,343 @@
+.NH
+COMPILER PASSES
+.LP
+There are currently five subtasks or phases in the compilation of an
+LDM specification.  The subtasks are organized in a sequence of five
+passes.
+.IP Pass\ 1: 8
+(initial parse / semantic check) 
+The LDM source is parsed, and an initial check is made for semantic
+correctness.  The internal data structures produced by this pass are described
+in the next section.
+.IP Pass\ 2:
+(query optimization)
+Query optimization translates queries expressed with high-level non-procedural
+constructs of an access specification language (ASL) into low-level procedural
+constructs of the same language.  There are three steps: normalization of query
+bodies, join order selection and conjunct order selection.
+.IP Pass\ 3:
+(remaining physical design)
+There are four issues in object representation: index selection, object
+store management, object identification, and property representation.
+At present, the user must specify a selection of indices and store
+managers.  This pass accomplishes the remaining physical design.
+First, the method of object identification is determined for each class.
+There are five possibilities, with the first reserved for built-in
+system classes.  The remaining four
+depend on the store type declared for a class, and on use of the
+identity assignment operation.  Property representation mainly involves
+record type generation.  Record fields are generated for user-defined
+properties and indices.
+.IP Pass\ 4:
+(transaction compilation)
+Transaction bodies are compiled into procedures that explicitly encode
+operations for index and store maintenance.
+.IP Pass\ 5:
+(PDM source generation)
+A PDM source file is generated for the original LDM specification.
+PDM code for queries is in the form of a low-level access strategy
+language.  For transactions, the PDM code is roughly at the level
+of C or Pascal, with the addition of generic index update and store
+operations.  For object representation, PDM code is roughly at the
+level of Pascal record type declarations.
+.NH
+INTERNAL DATA STRUCTURES
+.LP
+Executing "PassOne" of the LDM compiler results in an assignment to
+the property list of atoms (that correspond to names of classes, properties,
+queries, transactions, indices and stores) parse information of input
+source.  A number of global variables are also assigned to initial
+values.  A list of these global variables together with an indication of
+the form of their values is given in Table\ 1 below.
+.KS
+.sp
+.TS
+center;
+l l.
+\fBGlobal Variable\fR	\fBValue\fR
+.sp .5
+Schema	<SchemaName>
+Classes	(<ClassName>...)
+Properties	(<PropName>...)
+Queries	(<QueryName>...)
+Transactions	(<TransName>...)
+QueryOrTransName	<QueryOrTransName>
+Indices	(<IndexName>...)
+Stores	(<StoreName>...)
+.TE
+.sp
+.ce 1
+\fBTable 1.\fR global variables
+.sp
+.KE
+The form of the property list entries together with their indicators
+is given in Table\ 2.
+.KF
+.sp
+.TS
+center;
+lfB l l.
+	\fBVariable\fR	\fBValue\fR
+.sp .5
+Classes	Class?	t
+\^	SupClasses	(<ClassName>...)
+\^	SupClasses*	(<ClassName>...)
+\^	SubClasses	(<ClassName>...)
+\^	SubClasses+	(<ClassName>...)
+\^	ClassProps	(<PropName>...)
+\^	ClassConstraints	(<ClassConstraint>...)
+\^	ClassReference	<ClassEntRepSpec>
+\^	ClassExtension	<ClassName>
+\^	ClassFields	(<PropName>...)
+\^	ClassIndices	(<IndexName>...)
+\^	ClassDistIndices	(<IndexName>...)
+\^	ClassStore	<StoreName>
+\^	RCntEst	<Real>
+.sp .5
+Properties	Prop?	t
+\^	Updated?	t
+\^	PropType	<ClassName>
+\^	PropConstraint	<PropConstraint>
+.sp .5
+Queries	Query?	t
+\^	QueryBody	<Query>
+.sp .5
+Transactions	Trans?	t
+\^	TransBody	<Transaction>
+.sp .5
+Indices	Index?	<IndexDesc>
+\^	IndexClass	<ClassName>
+\^	IndexType	<IndexType>
+\^	IndexSearchConds	(<SearchCond>...)
+\^	Distributed?	t
+\^	DistPF	<PathFunction>
+\^	StaticIndex?	t
+\^	IndexSize	<Integer>
+.sp .5
+Stores	Store?	t
+\^	StoreClasses	(<ClassName>...)
+\^	StaticStore?	t
+\^	StoreSize	<Integer>
+.TE
+.sp
+.ce 1
+\fBTable 2.\fR property list forms
+.sp
+.KE
+The following BNF-like grammar rules indicate the parse formats mentioned
+in the above tables.  Note that "..." indicates one or more occurrences
+of the preceeding construct.
+.DS
+<ClassConstraint>
+	(Pfd <PathFunction> (<PathFunction>...))
+	(Cover (<ClassName>...))
+.DE
+.DS
+<PropConstraint>
+	(Range <Integer> <Integer>)
+	(Maxlen <Integer>)
+.DE
+.DS
+<Query>
+	(AllQuery <QueryName> (<Var>...) <AccessSpec>)
+	(OneQuery <QueryName> (<Var>...) <AccessSpec>)
+.DE
+.DS
+<Transaction>
+	(ExprTrans <TransName> (<Var>...) <Action> <Expr>)
+	(StmtTrans <TransName> (<Var>...) <Action>)
+.DE
+.DS
+<Var>
+	(QVar <VarName> <PropName>)
+	(PVar <VarName> <PropName>)
+	(LVar <VarName> <PropName>)
+	(EVar <VarName> <PropName>)
+.DE
+.DS
+<Constant>
+	(Constant "<STRING>" <BuiltInClass>))
+	Null
+.DE
+.DS
+<BuiltInClass>
+	Integer
+	String
+	Real
+	DoubleReal
+.DE
+.DS
+<Term>
+	<Constant>
+	<Var>
+	(UnMinusOp <Term>)
+	(ModOp <Term> <Term>)
+	(TimesOp <Term> <Term>)
+	(DivOp <Term> <Term>)
+	(AddOp <Term> <Term>)
+	(SubOp <Term> <Term>)
+	(Apply <Var> <PathFunction>)
+	(As <Term> <ClassName>)
+.DE
+.DS
+<PathFunction>
+	(<PropName>...)
+.DE
+.DS
+<SimpPF>
+	(<PropName>)
+.DE
+.DS
+<Action>
+	(Block (<Var>...) <Stmt>...)
+.DE
+.DS
+<Stmt>
+	(Assign <LeftTerm> <Term>)
+	(Insert (<Var>...) <Stmt>...)
+	(Delete (<Var>...))
+	(Add <IndexName> <Term>)
+	(Sub <IndexName> <Term>)
+	(Cre <IndexName> <Term>)
+	(Des <IndexName> <Term>)
+	(Alloc <StoreName> <Term>)
+	(Free <StoreName> <Term>)
+	(IndirectAlloc <StoreName> <Term>)
+	(IndirectFree <StoreName> <Term>)
+	(AllocId <Term>)
+	(FreeId <Term>)
+	(AssignId <Term>)
+	(If <Pred> <Stmt>)
+	(If <Pred> <Stmt> <Stmt))
+.DE
+.DS
+<AccessSpec>
+	(Find <FindInfo> <FindType> <FindEntry>...)
+.DE
+.DS
+<FindInfo>
+	(<CostInfo> <CondInfo> <BoundVars> <ProjectionInfo>)
+.DE
+.DS
+<CostInfo>
+	<Real>
+.DE
+.DS
+<CondInfo>
+	<GlobalCondGraph> <LocalCondGraph>
+.DE
+.DS
+<ProjectionInfo>
+	<NotFDEVars> <NotFDSortedEVars>
+.DE
+.DS
+<BoundVars>
+	(<Var>...)
+.DE
+.DS
+<NotFDEVars>
+	(<Var>...)
+.DE
+.DS
+<NotFDSortedEVars>
+	(<Var>...)
+.DE
+.DS
+<FindType>
+	<PredFindType>
+	(All <Var>...)
+.DE
+.DS
+<PredFindType>
+	(One)
+.DE
+.DS
+<FindEntry>
+	(AndHeap <Pred>...)
+	(ScanHeap <Var>...)
+	<Pred>
+	(Cut <Var>)
+	(Project <Var>...)
+	(Scan <Var> <ScanSpec>)
+	(AltFind (<AccessSpec>...) <SubGoalSpec>)
+.DE
+.DS
+<SubGoalSpec>
+	<AccessSpec> <Integer> <AccessSpec> <AccessSpec>...
+.DE
+.DS
+<OrderDir>
+	Asc
+	Desc
+.DE
+.DS
+<Pred>
+	(EQ <Expr> <Expr>)
+	(LT <Expr> <Expr>)
+	(GT <Expr> <Expr>)
+	(LE <Expr> <Expr>)
+	(GE <Expr> <Expr>)
+	(Not <Pred>)
+	(Find <FindInfo> <PredFindType> <ScanEntry>...)
+	(In <Term> <ClassName>)
+	(Is <Term> <ClassName>)
+.DE
+.DS
+<IndexDesc>
+	(<SearchCond>...)
+.DE
+.DS
+<SearchCond>
+	(PFCond <PathFunction> <Dir>)
+	(SCCond <ClassName>)
+.DE
+.DS
+<Dir>
+	<OrderDir>
+	NoOrder
+.DE
+.DS
+<StoreType>
+	(Dynamic)
+	(Static <Integer>)
+.DE
+.DS
+<ScanSpec>
+	(Log)
+	(Iter <IndexName> [<SelectCond> ...])
+	(SCIter <IndexName> [<SelectCond> ...])
+	(Lookup <IndexName> [<SelectCond> ...])
+	(SCLookup <IndexName> [<SelectCond> ...])
+	(Substitute <Expr>)
+	(CondSubstitute <Expr>)
+.DE
+.DS
+<SelectCond>
+	(QualSC <ClassName>)
+        (QualPF <PathFunction> <Expr>)
+.DE
+.DS
+<ClassReference>
+	System
+        Pointer
+	IndPointer
+	Offset
+	IndOffset
+.DE
+.NH
+PDM FILE FORMAT
+.LP
+The PDM source file contains the following information.
+.IP \(bu 6
+specification of record types for object representation (including
+index fields)
+.IP \(bu
+specification of query access strategies
+.IP \(bu
+compiled transaction code, indicating index and store maintenance
+requirements
+.IP \(bu
+index declarations
+.IP \(bu
+store declarations
+.bp
