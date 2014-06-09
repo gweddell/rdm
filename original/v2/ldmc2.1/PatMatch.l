@@ -23,7 +23,22 @@
    ;(special FreeMatchVars)
    ;(special MatchVar))
 
-(defun putprop (sym ind val) (setf (get sym ind) val))
+;(defun putprop (sym ind val) (setf (get sym ind) val))
+(defun putprop (sym ind val) 
+   (cond 
+    ((not (boundp ind)) (setq ind nil))
+    (t (print "DEBUG 1"))
+   )
+   (cond 
+    ((not (boundp sym)) (setq sym nil))
+    (t (print "DEBUG 2"))
+   )
+   (cond
+    ((eq nil sym) (setq sym (cons (cons ind val) nil)))
+    ((not (eq nil sym)) (cons (cons ind val) sym))
+    (t (print "DEBUG 3"))
+   )
+)
 ;***********************************************************************
 ; PushMatchVar and PopMatchVar are used to maintain MatchVarStack and
 ; FreeMatchVars.  The latter are used for encoding matched pattern
@@ -32,20 +47,20 @@
 
 (defun PushMatchVar ()
    (setq MatchVarStack (cons MatchVar MatchVarStack))
-   (if (null FreeMatchVars) then
-      (setq MatchVar (gensym 'P))
-    else
+   (if (null FreeMatchVars) 
+      (setq MatchVar (gensym))
+   (progn  
       (setq MatchVar (car FreeMatchVars))
-      (setq FreeMatchVars (cdr FreeMatchVars))))
+      (setq FreeMatchVars (cdr FreeMatchVars)))))
 
 (defun PopMatchVar ()
-   (if (null MatchVarStack) then
+   (if (null MatchVarStack) 
       (Diagnostic "Error in maintaining match var stack.")
-    else
+   (progn 
       (setq FreeMatchVars (cons MatchVar FreeMatchVars))
       (setq MatchVar (car MatchVarStack))
-      (setq MatchVarStack (cdr MatchVarStack)))
-   nil)
+      (setq MatchVarStack (cdr MatchVarStack))
+      nil)))
 
 (defun GetBindVal (Var) (get Var MatchVar))
 
