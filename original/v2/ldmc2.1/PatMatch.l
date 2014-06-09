@@ -25,30 +25,25 @@
 
 ;(defun putprop (sym ind val) (setf (get sym ind) val))
 ; Expected: 
-;>>(setq obj0 (cons (cons a0 0) nil))
-;(cons (cons 'a1 1) obj0)
 
-(defun putprop (sym ind val) 
-   (cond 
-    ((not (boundp ind)) (print "DEBUG unbound ind") (setq ind nil))
-    (t ())
-   )
-   (cond 
-    ((not (boundp sym)) (print "DEBUG unbound sym") (setq sym nil))
-    (t ())
-   )
-   (cond
-    ((eq nil sym) (print "DEBUG nil sym") (setq sym (cons (cons ind val) nil)))
-    ((not (eq nil sym)) (print "DEBUG insert cons cell") (cons (cons ind val) sym))
-    (t (print "DEBUG error here"))
-   )
+(defun putprop (sym ind val)
+; (cond 
+;  ((not (boundp (eval sym))) (print "DEBUG unbound sym") (set sym nil))
+; )
+; (cond
+;  ((eq nil (eval ind)) (setq ind ind))
+; )
+ (set sym (cons (cons ind val) (eval sym)))
 )
 
-(defun simpleputprop (sym ind val)
- (setf sym (cons (cons ind val) sym))
- (print sym)
- (print sym0)
+(defun popprop (sym)
+ (set sym (cdr (eval sym)))
 )
+
+(defun peekprop (sym)
+ (car (eval sym))
+)
+
 (defun acl2putprop (symb key value world-alist)
         (declare (xargs :guard (and (symbolp symb)
                                     (symbolp key)
@@ -56,10 +51,22 @@
                (cons (cons symb (cons key value))
                              world-alist))
  
-(defun setup () 
-    (setq sym0 nil)
-    (setq ind0 'ind0)
-    (setq ind1 'ind1)
+(defun pptest1 ()
+ (print "putprop test")
+ (setq sym0 nil)
+ (putprop 'sym0 'ind0 0)
+ (putprop 'sym0 'ind1 1)
+ (putprop 'sym0 'ind2 2)
+)
+
+(defun pptest2 ()
+ (print "popprop test")
+ (popprop 'sym0)
+)
+
+(defun pptest3()
+ (print "peekprop test")
+ (peekprop 'sym0)
 )
 ;***********************************************************************
 ; PushMatchVar and PopMatchVar are used to maintain MatchVarStack and
