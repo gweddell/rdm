@@ -24,20 +24,42 @@
    ;(special MatchVar))
 
 ;(defun putprop (sym ind val) (setf (get sym ind) val))
+; Expected: 
+;>>(setq obj0 (cons (cons a0 0) nil))
+;(cons (cons 'a1 1) obj0)
+
 (defun putprop (sym ind val) 
    (cond 
-    ((not (boundp ind)) (setq ind nil))
-    (t (print "DEBUG 1"))
+    ((not (boundp ind)) (print "DEBUG unbound ind") (setq ind nil))
+    (t ())
    )
    (cond 
-    ((not (boundp sym)) (setq sym nil))
-    (t (print "DEBUG 2"))
+    ((not (boundp sym)) (print "DEBUG unbound sym") (setq sym nil))
+    (t ())
    )
    (cond
-    ((eq nil sym) (setq sym (cons (cons ind val) nil)))
-    ((not (eq nil sym)) (cons (cons ind val) sym))
-    (t (print "DEBUG 3"))
+    ((eq nil sym) (print "DEBUG nil sym") (setq sym (cons (cons ind val) nil)))
+    ((not (eq nil sym)) (print "DEBUG insert cons cell") (cons (cons ind val) sym))
+    (t (print "DEBUG error here"))
    )
+)
+
+(defun simpleputprop (sym ind val)
+ (setf sym (cons (cons ind val) sym))
+ (print sym)
+ (print sym0)
+)
+(defun acl2putprop (symb key value world-alist)
+        (declare (xargs :guard (and (symbolp symb)
+                                    (symbolp key)
+                                    (plist-worldp world-alist))))
+               (cons (cons symb (cons key value))
+                             world-alist))
+ 
+(defun setup () 
+    (setq sym0 nil)
+    (setq ind0 'ind0)
+    (setq ind1 'ind1)
 )
 ;***********************************************************************
 ; PushMatchVar and PopMatchVar are used to maintain MatchVarStack and
