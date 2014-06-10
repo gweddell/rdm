@@ -23,51 +23,10 @@
    ;(special FreeMatchVars)
    ;(special MatchVar))
 
-;(defun putprop (sym ind val) (setf (get sym ind) val))
-; Expected: 
+(defvar MatchVarStack nil)
+(defvar FreeMatchVars nil)
+(defvar MatchVar nil)
 
-(defun putprop (sym ind val)
-; (cond 
-;  ((not (boundp (eval sym))) (print "DEBUG unbound sym") (set sym nil))
-; )
-; (cond
-;  ((eq nil (eval ind)) (setq ind ind))
-; )
- (set sym (cons (cons ind val) (eval sym)))
-)
-
-(defun popprop (sym)
- (set sym (cdr (eval sym)))
-)
-
-(defun peekprop (sym)
- (car (eval sym))
-)
-
-(defun acl2putprop (symb key value world-alist)
-        (declare (xargs :guard (and (symbolp symb)
-                                    (symbolp key)
-                                    (plist-worldp world-alist))))
-               (cons (cons symb (cons key value))
-                             world-alist))
- 
-(defun pptest1 ()
- (print "putprop test")
- (setq sym0 nil)
- (putprop 'sym0 'ind0 0)
- (putprop 'sym0 'ind1 1)
- (putprop 'sym0 'ind2 2)
-)
-
-(defun pptest2 ()
- (print "popprop test")
- (popprop 'sym0)
-)
-
-(defun pptest3()
- (print "peekprop test")
- (peekprop 'sym0)
-)
 ;***********************************************************************
 ; PushMatchVar and PopMatchVar are used to maintain MatchVarStack and
 ; FreeMatchVars.  The latter are used for encoding matched pattern
@@ -93,6 +52,7 @@
 
 (defun GetBindVal (Var) (get Var MatchVar))
 
+(defun putprop (Var Val Ind) (setf (get Var Ind) Val))
 (defun PutBindVal (Var Val) (putprop Var Val MatchVar))
 
 ;***********************************************************************
