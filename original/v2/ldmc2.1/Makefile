@@ -14,10 +14,10 @@ LDMCompLib.o: LDMCompLib.l
 LDMErrorProcs.o: LDMErrorProcs.l
 			liszt LDMErrorProcs.l
 LDMParser: LDMParser.c LDMGrammar.y LDMScanner.l
-			yacc -d LDMGrammar.y
-			lex LDMScanner.l
-			cc -w LDMParser.c -ll -o LDMParser
-			rm lex.yy.c y.tab.c y.tab.h 
+			bison -d LDMGrammar.y
+			flex LDMScanner.l
+			gcc -w LDMParser.c -ll -o LDMParser
+			rm flex.yy.c LDMGrammar.tab.c LDMGrammar.tab.h 
 LDMPassFive.o: LDMPassFive.l
 			liszt LDMPassFive.l
 LDMPassFour.o: LDMPassFour.l
@@ -37,7 +37,7 @@ RuleUse.o: RuleUse.l
 SelCond.o: SelCond.l
 			liszt SelCond.l
 ldmc: LDMCompControl.c
-			cc -o ldmc LDMCompControl.c
+			gcc -o ldmc LDMCompControl.c
 clean:
 			rm CostProb.o FuncDep.o GenCCode.o LDMComp.o
 			rm LDMCompLib.o LDMErrorProcs.o LDMParser LDMPassFive.o

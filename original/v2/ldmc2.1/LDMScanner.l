@@ -2,10 +2,10 @@
 /*
  * Copyright (C) 1989, G. E. Weddell.
  */
-#include "y.tab.h"
+#include "LDMGrammar.tab.h"
 #include <stdio.h>
 #include <ctype.h>
-extern char yytext[];
+//extern char yytext[];
 int LineNumber = 1;
 char LineBuffer[200];
 %}
@@ -116,6 +116,7 @@ E			[Ee][+-]?{D}+
 ">"			{ strcat(LineBuffer, yytext); return('>'); }
 
 " "			{ strcat(LineBuffer, yytext); }
+"\r"			{ strcat(LineBuffer, yytext); }
 .			{ strcat(LineBuffer, yytext);
 			  yyerror("illegal character"); }
 %%

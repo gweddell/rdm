@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 #include "lex.yy.c"
-#include "y.tab.c"
+#include "LDMGrammar.tab.c"
 
 main()
 {

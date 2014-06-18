@@ -403,4 +403,4 @@ LDMStoreTypeSpec
  * Copyright (C) 1989, G. E. Weddell.
  */
 
-extern char yytext[];
+extern char* yytext;
