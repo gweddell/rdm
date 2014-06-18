@@ -18,10 +18,13 @@
 ;   (special Source)
 ;   (special PDMPort)
 ;   (special DefaultRCntEst)
-;  (special VarStack)
+;   (special VarStack)
 ;   (special MatchVarStack)
 ;   (special FreeMatchVars)
 ;   (special MatchVar))
+(defvar MatchVarStack)
+(defvar FreeMatchVars)
+(defvar MatchVar)
 
 ;***********************************************************************
 ; ApplyRuleControl applies the rule control strategy specified as its
@@ -117,7 +120,7 @@
 ;***********************************************************************
 
 (defun LoadRules (RList)
-   (mapc '(lambda (Rule) (putprop (car Rule) (cdr Rule) 'RWRule)) RList))
+   (mapc (function (lambda (Rule) (putprop (car Rule) (cdr Rule) 'RWRule))) RList))
 
 ;***********************************************************************
 ; LoadControl loads a rule control stategy for subsequent reference.
