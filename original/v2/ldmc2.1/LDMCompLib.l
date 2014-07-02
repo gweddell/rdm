@@ -2,24 +2,23 @@
 ; Copyright (C) 1989, G. E. Weddell.
 ;***********************************************************************
 
-(declare
-   (special Schema)
-   (special Classes)
-   (special BuiltInClasses)
-   (special Properties)
-   (special Queries)
-   (special Indices)
-   (special Stores)
-   (special Transactions)
-   (special QueryName?)
-   (special QueryOrTransName)
-   (special Source)
-   (special PDMPort)
-   (special DefaultRCntEst)
-   (special VarStack)
-   (special MatchVarStack)
-   (special FreeMatchVars)
-   (special MatchVar))
+(defvar Schema nil)
+(defvar Classes nil)
+(defvar BuiltInClasses nil)
+(defvar Properties nil)
+(defvar Queries nil)
+(defvar Indices nil)
+(defvar Stores nil)
+(defvar Transactions nil)
+(defvar QueryName? nil)
+(defvar QueryOrTransName nil)
+(defvar Source nil)
+(defvar PDMPort nil)
+(defvar DefaultRCntEst nil)
+(defvar VarStack nil)
+(defvar MatchVarStack nil)
+(defvar FreeMatchVars nil)
+(defvar MatchVar nil)
 
 ;************************* GENERAL ROUTINES ****************************
 
@@ -48,20 +47,20 @@
 
 (defun Dom (PF) (ClassOf (car (last PF))))
 
-(defun Type (E &aux T1 T2)
-   (caseq (car E)
+(defun ExpressionType (E &aux T1 T2)
+   (case (car E)
       (Constant (caddr E))
       ((QVar PVar LVar EVar ReType) (ClassOf (caddr E)))
-      (UnMinusOp (Type (cadr E)))
+      (UnMinusOp (ExpessionType (cadr E)))
       ((TimesOp DivOp AddOp SubOp)
-         (setq T1 (Type (cadr E)) T2 (Type (caddr E)))
+         (setq T1 (ExpessionType (cadr E)) T2 (ExpessionType (caddr E)))
          (caseq T1
             (Integer T2)
             (Real (if (eq T2 'Integer) T1 T2))
-            (t (if (memq T2 '(Integer Real DoubleReal)) then T1 else T2))))
+            (t (if (memq T2 '(Integer Real DoubleReal)) T1 T2))))
       (Apply
-         (setq T1 (Type (cadr E)))
-         (do PList (caddr E) (cdr PList) (or (null PList) (eq (car PList) 'Id))
+         (setq T1 (ExpessionType (cadr E)))
+         (do (PList (caddr E) (cdr PList)) (or (null PList) (eq (car PList) 'Id))
             (setq T1 (ClassOf (car PList))))
          T1)))
 
@@ -87,17 +86,17 @@
 	 ,(cadr TermWithApply)
 	 ,(reverse (cdr (reverse (caddr TermWithApply)))))))
 
-(defun Substitute (Form Var Term)
+(defun SubstituteVar (Form Var Term)
    (cond
       ((null Form) nil)
       ((atom Form) Form)
       ((and (eq (car Form) 'Apply) (equal (cadr Form) Var))
-         (if (memq (Type Term) (SubClasses* (Type Var)))
+         (if (memq (ExpessionType Term) (SubClasses* (ExpessionType Var)))
             (AppendPF Term (caddr Form))
             Form))
       ((equal Form Var) Term)
-      (t (cons (Substitute (car Form) Var Term)
-            (Substitute (cdr Form) Var Term)))))
+      (t (cons (SubstituteVar (car Form) Var Term)
+            (SubstituteVar (cdr Form) Var Term)))))
 
 (defun ReplaceVar (Form Var NewVar)
    (cond
