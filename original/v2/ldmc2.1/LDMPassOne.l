@@ -4,22 +4,22 @@
 
 ;***************************** PASS ONE ********************************
 
-(defvar Classes nil)
-(defvar BuiltInClasses nil)
-(defvar Properties nil)
-(defvar Queries nil)
-(defvar Indices nil)
-(defvar Stores nil)
-(defvar Transactions nil)
-(defvar QueryName? nil)
-(defvar QueryOrTransName nil)
-(defvar Source nil)
-(defvar PDMPort nil)
-(defvar DefaultRCntEst nil)
-(defvar VarStack nil)
-(defvar MatchVarStack nil)
-(defvar FreeMatchVars nil)
-(defvar MatchVar nil)
+;(defvar Classes nil)
+;(defvar BuiltInClasses nil)
+;(defvar Properties nil)
+;(defvar Queries nil)
+;(defvar Indices nil)
+;(defvar Stores nil)
+;(defvar Transactions nil)
+;(defvar QueryName? nil)
+;(defvar QueryOrTransName nil)
+;(defvar Source nil)
+;(defvar PDMPort nil)
+;(defvar DefaultRCntEst nil)
+;(defvar VarStack nil)
+;(defvar MatchVarStack nil)
+;(defvar FreeMatchVars nil)
+;(defvar MatchVar nil)
 
 ;***********************************************************************
 ; This file contains the procedures to perform the initial parse
