@@ -37,7 +37,7 @@
 ;***********************************************************************
 
 (defun PassOne ()
-   (eval Source)
+   (eval 'Source)
    (setq Queries (reverse Queries))
    (setq Transactions (reverse Transactions))
    (setq Indices (reverse Indices))
@@ -71,10 +71,10 @@
 
 (defun AsOpList (V P)
    (caseq (car P)
-      ('AsOp `((EQ ,(ParseTerm (cadr P))
+      ('AsOp `((gEQ ,(ParseTerm (cadr P))
                 ,(ValidateApply (AppendPF V (PathFunc (caddr P)))))))
       ('AsOpList
-         (cons `(EQ ,(ParseTerm (cadr P))
+         (cons `(gEQ ,(ParseTerm (cadr P))
                   ,(ValidateApply (AppendPF V (PathFunc (caddr P)))))
             (AsOpList V (cadddr P))))))
 
@@ -141,7 +141,7 @@
                (ReportError `(BadArithExpr
                             ,(if QueryName? then 'query else 'transaction)
                             ,QueryOrTransName))))
-         (Apply (ValidateApply Term)))
+         (gApply (ValidateApply Term)))
       Term))
 
 (defun ParseIdList (L)
@@ -303,22 +303,22 @@
 (defun Forall (fexpr L)
    (let ((Vars (VarDecl 'EVar (car L))) Pred)
       (PushVars Vars) (setq Pred (eval (cadr L))) (PopVars)
-      `(Not (Find () (One) (ScanHeap ,@Vars) (AndHeap (Not ,Pred))))))
+      `(gNot (Find () (One) (ScanHeap ,@Vars) (AndHeap (gNot ,Pred))))))
 
 (defun Implies (fexpr L)
-   `(Not (Find () (One)
-      (ScanHeap) (AndHeap ,(eval (car L)) (Not ,(eval (cadr L)))))))
+   `(gNot (Find () (One)
+      (ScanHeap) (AndHeap ,(eval (car L)) (gNot ,(eval (cadr L)))))))
 
-(defun Or (fexpr L)
-   `(Not (Find () (One)
-      (ScanHeap) (AndHeap (Not ,(eval (car L))) (Not ,(eval (cadr L)))))))
+(defun gOr (fexpr L)
+   `(gNot (Find () (One)
+      (ScanHeap) (AndHeap (gNot ,(eval (car L))) (gNot ,(eval (cadr L)))))))
 
-(defun And (fexpr L)
+(defun gAnd (fexpr L)
    `(Find () (One) (ScanHeap) (AndHeap ,(eval (car L)) ,(eval (cadr L)))))
 
-(defun Not (fexpr L) `(Not ,(eval (car L))))
+(defun gNot (fexpr L) `(gNot ,(eval (car L))))
 
-(defun EQ (fexpr L) `(EQ ,(ParseTerm (car L)) ,(ParseTerm (cadr L))))
+(defun gEQ (fexpr L) `(gEQ ,(ParseTerm (car L)) ,(ParseTerm (cadr L))))
 
 (defun LT (fexpr L) `(LT ,(ParseTerm (car L)) ,(ParseTerm (cadr L))))
 
@@ -328,23 +328,23 @@
 
 (defun GE (fexpr L) `(GE ,(ParseTerm (car L)) ,(ParseTerm (cadr L))))
 
-(defun NE (fexpr L) `(Not (EQ ,(ParseTerm (car L)) ,(ParseTerm (cadr L)))))
+(defun NE (fexpr L) `(gNot (gEQ ,(ParseTerm (car L)) ,(ParseTerm (cadr L)))))
 
 (defun HasMax (fexpr L)
    (let ((Var (ParseTerm (car L)))
          (PF (PathFunc (cadr L)))
          NewVar)
       (setq NewVar (NewVariable 'EVar (caddr Var)))
-      `(Not (Find () (One) (ScanHeap ,NewVar)
-         (AndHeap (GT (Apply ,NewVar ,PF) (Apply ,Var ,PF)))))))
+      `(gNot (Find () (One) (ScanHeap ,NewVar)
+         (AndHeap (GT (gApply ,NewVar ,PF) (gApply ,Var ,PF)))))))
 
 (defun HasMin (fexpr L)
    (let ((Var (ParseTerm (car L)))
          (PF (PathFunc (cadr L)))
          NewVar)
       (setq NewVar (NewVariable 'EVar (caddr Var)))
-      `(Not (Find () (One) (ScanHeap ,NewVar)
-         (AndHeap (LT (Apply ,NewVar ,PF) (Apply ,Var ,PF)))))))
+      `(gNot (Find () (One) (ScanHeap ,NewVar)
+         (AndHeap (LT (gApply ,NewVar ,PF) (gApply ,Var ,PF)))))))
 
 (defun HasMaxPred (fexpr L)
    (let ((Var (ParseTerm (car L)))
@@ -353,9 +353,9 @@
          NewVar)
       (setq NewVar (NewVariable 'EVar (caddr Var)))
       `(Find () (One) (ScanHeap) (AndHeap ,Pred
-         (Not (Find () (One) (ScanHeap ,NewVar) (AndHeap
+         (gNot (Find () (One) (ScanHeap ,NewVar) (AndHeap
             ,(ReplaceVar Pred Var NewVar)
-            (GT (Apply ,NewVar ,PF) (Apply ,Var ,PF)))))))))
+            (GT (gApply ,NewVar ,PF) (gApply ,Var ,PF)))))))))
 
 (defun HasMinPred (fexpr L)
    (let ((Var (ParseTerm (car L)))
@@ -364,9 +364,9 @@
          NewVar)
       (setq NewVar (NewVariable 'EVar (caddr Var)))
       `(Find () (One) (ScanHeap) (AndHeap ,Pred
-         (Not (Find () (One) (ScanHeap ,NewVar) (AndHeap
+         (gNot (Find () (One) (ScanHeap ,NewVar) (AndHeap
             ,(ReplaceVar Pred Var NewVar)
-            (LT (Apply ,NewVar ,PF) (Apply ,Var ,PF)))))))))
+            (LT (gApply ,NewVar ,PF) (gApply ,Var ,PF)))))))))
 
 (defun Pred (fexpr L)
    (let ((NewVar (NewVariable 'EVar (car L))))
@@ -397,7 +397,7 @@
 
 (defun Constant (fexpr L) (cons 'Constant L))
 
-(defun Apply (fexpr L) `(Apply ,(ParseTerm (car L)) ,(PathFunc (cadr L))))
+(defun gApply (fexpr L) `(gApply ,(ParseTerm (car L)) ,(PathFunc (cadr L))))
 
 (defun Trans (fexpr L)
    (setq QueryName? nil)
@@ -443,7 +443,7 @@
       (PushVars Vars) (setq IList (InitList (cadr L))) (PopVars)
       `((Insert ,Vars ,@IList))))
 
-(defun Delete (fexpr L) `((Delete ,(ParseIdList (car L)))))
+(defun gDelete (fexpr L) `((gDelete ,(ParseIdList (car L)))))
 
 (defun Assign (fexpr L)
    (let ((LHS (ParseTerm (car L))) Prop)
@@ -495,11 +495,11 @@
       (setq Indices (cons IName Indices))))
 
 
-(defun List (fexpr L)
+(defun gList (fexpr L)
    (putprop (car L) (cadr L) 'IndexClass)
    (putprop (car L) 'List 'IndexType))
 
-(defun Array (fexpr L)
+(defun gArray (fexpr L)
    (putprop (car L) (cadr L) 'IndexClass)
    (putprop (car L) 'Array 'IndexType)
    (putprop (car L) (eval (cadddr L)) 'IndexSearchConds)
@@ -657,7 +657,7 @@
 
 
 (defun ValidateAssign (Assign)
-   (if (Match '(Assign (Apply ? (Id)) ?) Assign) then
+   (if (Match '(Assign (gApply ? (Id)) ?) Assign) then
       Assign
     else
       (ValidateInit Assign)))
