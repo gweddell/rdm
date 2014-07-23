@@ -37,7 +37,7 @@
 ;***********************************************************************
 
 (defun PassOne ()
-   (eval 'Source)
+   (eval Source)
    (setq Queries (reverse Queries))
    (setq Transactions (reverse Transactions))
    (setq Indices (reverse Indices))

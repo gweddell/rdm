@@ -35,6 +35,7 @@
 (defun MAIN ()
    (setq LDMPort (open "ldmc.in"))
    (setq Source (LDMIn LDMPort))
+  ;(setq Source (SourceTrans Source)) 
    (setq PDMPort (open "ldmc.out"))
    (InitGlobals)
    (PassOne)
@@ -46,6 +47,37 @@
   ; (Diagnostic "generating code.")
   ; (PassFive)
 )
+
+;*************************************************************************
+;TODO: 
+; 1. runable function, but we should come back to verify the output and further
+;    debug it
+; 2. Create a full list of TOKENS
+; 3. Remove fexpr's in LDMPassOne.l
+; 4. Place these functions in suitable places
+; 5. Stay happy :)
+
+(setq TokenList '(SCHEMA) )
+
+(defun SourceTrans (Source)
+  (if (eq nil Source)
+      Source
+      (progn
+         (setq head (list (car Source)))
+         (setq tail (map 'list' (lambda (SubSource) (SourceTrans SubSource))
+                                (list (cdr Source))))
+         (if (eq nil (member head TokenList)) 
+           ; Id not a token
+           (append head tail)
+           ; Id is a token
+           (append head '(tail))
+         )
+      )
+  )
+ )
+
+
+;***********************************************************************
 
 ;***********************************************************************
 ; Inputs a postfix surface parse of LDM source code, and converts to
