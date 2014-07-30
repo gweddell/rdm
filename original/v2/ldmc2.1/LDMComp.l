@@ -35,7 +35,7 @@
 (defun MAIN ()
    (setq LDMPort (open "ldmc.in"))
    (setq Source (LDMIn LDMPort))
-  ;(setq Source (SourceTrans Source)) 
+   (setq Source (SourceTrans Source)) 
    (setq PDMPort (open "ldmc.out"))
    (InitGlobals)
    (PassOne)
@@ -50,29 +50,21 @@
 
 ;*************************************************************************
 ;TODO: 
-; 1. runable function, but we should come back to verify the output and further
-;    debug it
+; 1. Debug test1.ldm in TopoSort folder, progressively remove content from
+;    TopoSort
 ; 2. Place these functions in suitable places
 
 (setq TokenList '(IMPLIES OR AND NOT LE GE NE HAS MAX MIN AS ASC DESC MOD ASSIGN SIZE SELECTIVITY OVERLAP FREQUENCY UNIT TIME SPACE STORE STORING DYNAMIC STATIC OF TYPE ORDERED BY INDEX LIST ARRAY BINARY TREE DISTRIBUTED POINTER SCHEMA IDENTIFIER CLASS ISA PROPERTIES CONSTRAINTS PROPERTY ON DETERMINED COVER QUERY GIVEN FROM SELECT WHERE ORDER PRECOMPUTED ONE EXIST FOR ALL TRANSACTION INTCLASS STRCLASS INTEGER REAL DOUBLEREAL STRING MAXLEN RANGE TO INSERT END CHANGE DELETE DECLARE RETURN))
 
 (defun SourceTrans (Source)
-  (if (eq nil Source)
-      Source
-      (progn
-         (setq head (list (car Source)))
-         (setq tail (map 'list' (lambda (SubSource) (SourceTrans SubSource))
-                                (list (cdr Source))))
-         (if (eq nil (member head TokenList)) 
-           ; Id not a token
-           (append head tail)
-           ; Id is a token
-           (append head '(tail))
-         )
-      )
-  )
- )
-
+  (if (listp Source)
+     (if (member (car Source) TokenList)
+       (cons (car Source) 
+        (list
+          (cons 'quote (list (mapcar 'SourceTrans (cdr Source))))))
+       Source)
+     Source))
+          
 
 ;***********************************************************************
 
