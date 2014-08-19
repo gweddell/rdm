@@ -33,12 +33,12 @@
 ;***********************************************************************
 
 (defun MAIN ()
-   (setq LDMPort (open "ldmc.in"))
-   (setq Source (LDMIn LDMPort))
-   (setq Source (SourceTrans Source)) 
-   (setq PDMPort (open "ldmc.out"))
-   (InitGlobals)
-   (PassOne)
+    (setq LDMPort (open "ldmc.in"))
+    (setq Source (LDMIn LDMPort))
+    (setq Source (SourceTrans Source))
+    (setq PDMPort (open "ldmc.out"))
+    (InitGlobals)
+  ; (PassOne)
   ; (Diagnostic "optimizing queries.")
   ; (PassTwo)
   ; (PassThree)
@@ -62,7 +62,7 @@
        (cons (car Source) 
         (list
           (cons 'quote (list (mapcar 'SourceTrans (cdr Source))))))
-       Source)
+          (cons (car Source) (mapcar 'SourceTrans (cdr Source))))
      Source))
           
 
