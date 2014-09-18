@@ -4,24 +4,24 @@
 
 ;******************************* PASS TWO ******************************
 
-(declare
-   (special Schema)
-   (special Classes)
-   (special BuiltInClasses)
-   (special Properties)
-   (special Queries)
-   (special Indices)
-   (special Stores)
-   (special Transactions)
-   (special QueryName?)
-   (special QueryOrTransName)
-   (special Source)
-   (special PDMPort)
-   (special DefaultRCntEst)
-   (special VarStack)
-   (special MatchVarStack)
-   (special FreeMatchVars)
-   (special MatchVar))
+;(declare
+;   (special Schema)
+;   (special Classes)
+;   (special BuiltInClasses)
+;   (special Properties)
+;   (special Queries)
+;   (special Indices)
+;   (special Stores)
+;   (special Transactions)
+;   (special QueryName?)
+;   (special QueryOrTransName)
+;   (special Source)
+;   (special PDMPort)
+;   (special DefaultRCntEst)
+;   (special VarStack)
+;   (special MatchVarStack)
+;   (special FreeMatchVars)
+;   (special MatchVar))
 
 ;***********************************************************************
 ; PassTwo compiles queries into low level ASL code suitable for final
@@ -34,7 +34,7 @@
 ;
 ;***********************************************************************
 
- (sstatus nofeature TraceRules)   ; normal mode
+; (sstatus nofeature TraceRules)   ; normal mode
 ;(sstatus feature TraceRules)     ; trace application of rewrite rules
 
 (defun PassTwo ()
