@@ -54,23 +54,23 @@
       (cons (cadr P) (IdList (caddr P)))))
 
 (defun ClassConList (P)
-   (caseq (car P)
+   (case (car P)
       ('Pfd `((Pfd ,(PathFunc (cadr P)) ,(PathFuncList (caddr P)))))
       ('Cover `((Cover ,(IdList (cadr P)))))
       (t `(,@(ClassConList (cadr P)) ,@(ClassConList (caddr P))))))
 
 (defun PathFuncList (P)
-   (caseq (car P)
+   (case (car P)
       ('PathFuncList `(,(PathFunc (cadr P)) ,@(PathFuncList (caddr P))))
       (t (list (PathFunc P)))))
 
 (defun PathFunc (P)
-   (caseq (car P)
+   (case (car P)
       ('SimpPF (cdr P))
       ('CompPF (cons (cadr P) (PathFunc (caddr P))))))
 
 (defun AsOpList (V P)
-   (caseq (car P)
+   (case (car P)
       ('AsOp `((gEQ ,(ParseTerm (cadr P))
                 ,(ValidateApply (AppendPF V (PathFunc (caddr P)))))))
       ('AsOpList
@@ -79,7 +79,7 @@
             (AsOpList V (cadddr P))))))
 
 (defun InitList (P)
-   (caseq (car P)
+   (case (car P)
       ('Init
          (list (ValidateInit `(Assign ,(ValidateApply
                (AppendPF (ParseTerm (cadr P)) (PathFunc (caddr P))))
@@ -123,7 +123,7 @@
       Vars))
 
 (defun PopVars ()
-   (caseq (caar VarStack) ('**frame** (PopVar)) (t (PopVar) (PopVars))))
+   (case (caar VarStack) ('**frame** (PopVar)) (t (PopVar) (PopVars))))
 
 (defun PopVar () (setq VarStack (cdr VarStack)))
 
@@ -135,7 +135,7 @@
                             ,QueryOrTransName)) T))
     else
       (setq Term (eval T))
-      (caseq (car Term)
+      (case (car Term)
          ((UnMinusOp ModOp TimesOp DivOp AddOp SubOp)
             (if (not (memq (Type Term) '(Integer Real DoubleReal))) then
                (ReportError `(BadArithExpr
@@ -484,7 +484,7 @@
                  (not (UserClass? (Dom (DistPF IName))))) then
             (ReportError `(BadIndexDistPF ,IName))))
       (do SCondList (IndexSearchConds IName) (cdr SCondList) (null SCondList)
-         (caseq (caar SCondList)
+         (case (caar SCondList)
             (PFCond
                (if (not (CheckPF IClass (cadar SCondList))) then
                   (ReportError `(BadIndexPFSort ,IName))))
@@ -558,7 +558,7 @@
             (ReportError `(MultipleClassStore ,(car CList))))
          (putprop SName (cons (car CList) (StoreClasses SName)) 'StoreClasses)
          (putprop (car CList) SName 'ClassStore))
-      (caseq (caadr L)
+      (case (caadr L)
          (Dynamic
             (putprop SName 'Dynamic 'StoreType))
          (Static

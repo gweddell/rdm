@@ -268,12 +268,8 @@ select one G from GradStudent where G.Supervisor.Name = N
 % Example 5. "All undergraduates who received the highest
 %             grade in any course."
 
-query SmartUndergrads
-select S from Student
-where not GradStudent {S as Id} and (
-      exist C, E from Course, EnrolledIn
-      where E.Student = S and
-            E has max Grade where E.Course = C)
+:q
+
 
 
 
