@@ -38,7 +38,7 @@
     (setq Source (SourceTrans Source))
     (setq PDMPort (open "ldmc.out"))
     (InitGlobals)
-    (PassOne)
+  ; (PassOne)
   ; (Diagnostic "optimizing queries.")
   ; (PassTwo)
   ; (PassThree)
