@@ -1424,7 +1424,8 @@
                (return (car (Build '(< P1)))))
               ((equal (car Code) 'Id)
                (return (cadr Code)))
-              (t
+              (t:q
+
                (Print "***warning: from FixSubstitution1")))))
 
 
