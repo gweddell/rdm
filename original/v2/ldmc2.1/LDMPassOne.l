@@ -127,14 +127,14 @@
 
 (defun PopVar () (setq VarStack (cdr VarStack)))
 
-(defun ParseTerm (T &aux Term)
-   (if (atom T) then
-      (cond ((cadr (assq T VarStack)))
-            (t (ReportError `(UndefVar ,T
+(defun ParseTerm (S &aux Term)
+   (if (atom S) then
+      (cond ((cadr (assq S VarStack)))
+            (t (ReportError `(UndefVar ,S
                             ,(if QueryName? then 'query else 'transaction)
-                            ,QueryOrTransName)) T))
+                            ,QueryOrTransName)) S))
     else
-      (setq Term (eval T))
+      (setq Term (eval S))
       (case (car Term)
          ((UnMinusOp ModOp TimesOp DivOp AddOp SubOp)
             (if (not (memq (Type Term) '(Integer Real DoubleReal))) then
@@ -162,7 +162,7 @@
    (ValidateSchema)
    (eval (caddr L))) 
 
-(defun Class (L) (NewClass (car L)))
+(defun RDMClass (L) (NewClass (car L)))
 
 (defun SubClass (L)
    (NewClass (car L))
@@ -483,7 +483,7 @@
          (if (or (not (CheckPF IClass (DistPF IName)))
                  (not (UserClass? (Dom (DistPF IName))))) then
             (ReportError `(BadIndexDistPF ,IName))))
-      (do SCondList (IndexSearchConds IName) (cdr SCondList) (null SCondList)
+      (do ((SCondList (IndexSearchConds IName) (cdr SCondList))) ((null SCondList))
          (case (caar SCondList)
             (PFCond
                (if (not (CheckPF IClass (cadar SCondList))) then
@@ -551,7 +551,7 @@
    (let ((SName (car L)))
       (if (Store? SName) then (ReportError `(StoreExists ,SName)))
       (putprop SName t 'Store?)
-      (do CList (IdList (caddr L)) (cdr CList) (null CList)
+      (do ((CList (IdList (caddr L)) (cdr CList))) ((null CList))
          (if (null (UserClass? (car CList))) then
             (ReportError `(UndefClass ,(car CList) store ,SName)))
          (if (ClassStore (car CList)) then
@@ -563,9 +563,9 @@
             (putprop SName 'Dynamic 'StoreType))
          (Static
             (let ((Family nil))
-               (do CList (StoreClasses SName) (cdr CList) (null CList)
+               (do ((CList (StoreClasses SName) (cdr CList))) ((null CList))
                   (setq Family (SetUnion Family (SubClasses* (car CList)))))
-               (do CList Family (cdr CList) (null CList)
+               (do ((CList Family (cdr CList))) ((null CList))
                   (if (and (null (ClassCovers (car CList)))
                            (not (memq (car CList) (StoreClasses SName))))
                      (ReportError `(BadStaticStore ,SName)))))
@@ -603,25 +603,25 @@
                `(UndefClass ,(PropType PName) property ,PName))))
       Properties)
    (mapc #'(lambda (CName)
-         (do SCList (SupClasses CName) (cdr SCList) (null SCList)
+         (do ((SCList (SupClasses CName) (cdr SCList))) ((null SCList))
             (if (not (UserClass? (car SCList))) then
                (ReportError `(NotUserClass
                             ,(car SCList) class ,CName))))
-         (do PList (ClassProps CName) (cdr PList) (null PList)
+         (do ((PList (ClassProps CName) (cdr PList))) ((null PList))
             (if (not (Prop? (car PList))) then
                (ReportError `(UndefProp
                             ,(car PList) class ,CName))))
-         (do SCList (SupClasses+ CName) (cdr SCList) (null SCList)
+         (do ((SCList (SupClasses+ CName) (cdr SCList))) ((null SCList))
             (setq CProps (SetIntersection (ClassProps CName)
                   (ClassProps (car SCList))))
             (if CProps then
                (ReportError `(MultipleClassProp ,(car CProps) ,CName))))
-         (do CoverList (ClassCovers CName) (cdr CoverList) (null CoverList)
+         (do ((CoverList (ClassCovers CName) (cdr CoverList))) ((null CoverList))
             (if (SetDifference (car CoverList) (SubClasses CName)) then
                (ReportError `(BadCoverConstraint ,CName))))
-         (do PfdList (ClassPfds CName) (cdr PfdList) (null PfdList)
+         (do ((PfdList (ClassPfds CName) (cdr PfdList))) ((null PfdList))
             (CheckClassPF CName (caar PfdList))
-            (do PFList (cadar PfdList) (cdr PFList) (null PFList) 
+            (do ((PFList (cadar PfdList) (cdr PFList))) ((null PFList))
                (CheckClassPF CName (car PFList)))))
       Classes))
 
