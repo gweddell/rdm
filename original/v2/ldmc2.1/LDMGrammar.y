@@ -45,7 +45,7 @@ Identifier
 
 LDMDDLSpec
 	: CLASS Identifier
-		{ printf("Class 1 "); }
+		{ printf("RDMClass 1 "); }
 	| CLASS Identifier LDMIsa
 		{ printf("SubClass 2 "); }
 	| CLASS Identifier LDMProperties
