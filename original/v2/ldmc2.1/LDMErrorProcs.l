@@ -2,24 +2,24 @@
 ; Copyright (C) 1989, G. E. Weddell.
 ;***********************************************************************
 
-(declare
-   (special Schema)
-   (special Classes)
-   (special BuiltInClasses)
-   (special Properties)
-   (special Queries)
-   (special Indices)
-   (special Stores)
-   (special Transactions)
-   (special QueryName?)
-   (special QueryOrTransName)
-   (special Source)
-   (special PDMPort)
-   (special DefaultRCntEst)
-   (special VarStack)
-   (special MatchVarStack)
-   (special FreeMatchVars)
-   (special MatchVar))
+;(declare
+;   (special Schema)
+;   (special Classes)
+;   (special BuiltInClasses)
+;   (special Properties)
+;   (special Queries)
+;   (special Indices)
+;   (special Stores)
+;   (special Transactions)
+;   (special QueryName?)
+;   (special QueryOrTransName)
+;   (special Source)
+;   (special PDMPort)
+;   (special DefaultRCntEst)
+;   (special VarStack)
+;   (special MatchVarStack)
+;   (special FreeMatchVars)
+;   (special MatchVar))
 
 ;***********************************************************************
 ; Reports syntax and semantic errors to the standard error file.
@@ -40,7 +40,7 @@
 ;***********************************************************************
 
 (defun ReportError (Msg)
-   (patom "** error: " errport)
+   (princ "** error: " *error-output*)
    (do ((Text
       (explodec (cadr (assq (car Msg) '(
          (CyclicSchema "class schema is cyclic.")
@@ -70,47 +70,47 @@
          (BadIndexPFSort "illegal path function sort for index ?.")
          (BadIndexSCSort "illegal subclass sort for index ?.")
          )))) (cdr Text)))
-      ((null Text) (terpri errport))
+      ((null Text) (terpri *error-output*))
       (caseq (car Text)
          (?
             (setq Msg (cdr Msg))
-            (patom (car Msg) errport))
+            (princ (car Msg) *error-output*))
          (/
-            (terpri errport)
-            (patom "          " errport))
+            (terpri *error-output*)
+            (princ "          " *error-output*))
          (t
-            (patom (car Text) errport))))
+            (princ (car Text) *error-output*))))
    (exit))
 
 
 (defun Diagnostic (Msg)
    (cond
       ((null Msg)
-	 (terpri errport)
+	 (terpri *error-output*)
 	 t)
       ((atom Msg)
-	 (patom Msg errport)
+	 (princ Msg *error-output*)
 	 (Diagnostic nil))
       (t
-	 (patom (car Msg) errport)
+	 (princ (car Msg) *error-output*)
 	 (Diagnostic (cdr Msg)))))
 
 
 (defun ReportWarning (Msg)
-   (patom "** warning: " errport)
+   (princ "** warning: " *error-output*)
    (do ((Text
       (explodec (cadr (assq (car Msg) '(
          (NoStrategyFound "no execution strategy for query ? has been found.")
          (SortUsed "a sort operation for query ? has been used.")
          (ProjectionUsed "a projection operation for query ? has been used.")
          )))) (cdr Text)))
-      ((null Text) (terpri errport))
+      ((null Text) (terpri *error-output*))
       (caseq (car Text)
          (?
             (setq Msg (cdr Msg))
-            (patom (car Msg) errport))
+            (princ (car Msg) *error-output*))
          (/
-            (terpri errport)
-            (patom "          " errport))
+            (terpri *error-output*)
+            (princ "          " *error-output*))
          (t
-            (patom (car Text) errport)))))
+            (princ (car Text) *error-output*)))))

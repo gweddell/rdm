@@ -4,28 +4,27 @@
 
 ;*************************** SCHEMA ACCESS *****************************
 
-(declare
-   (special DefaultQueryFreqEst)
-   (special DefaultTransFreqEst))
+(defvar DefaultQueryFreqEst)
+(defvar DefaultTransFreqEst)
 
-(declare
-   (special Schema)
-   (special Classes)
-   (special BuiltInClasses)
-   (special Properties)
-   (special Queries)
-   (special Indices)
-   (special Stores)
-   (special Transactions)
-   (special QueryName?)
-   (special QueryOrTransName)
-   (special Source)
-   (special PDMPort)
-   (special DefaultRCntEst)
-   (special VarStack)
-   (special MatchVarStack)
-   (special FreeMatchVars)
-   (special MatchVar))
+;(declare
+;   (special Schema)
+;   (special Classes)
+;   (special BuiltInClasses)
+;   (special Properties)
+;   (special Queries)
+;   (special Indices)
+;   (special Stores)
+;   (special Transactions)
+;   (special QueryName?)
+;   (special QueryOrTransName)
+;   (special Source)
+;   (special PDMPort)
+;   (special DefaultRCntEst)
+;   (special VarStack)
+;   (special MatchVarStack)
+;   (special FreeMatchVars)
+;   (special MatchVar))
 
 ;***********************************************************************
 ; The routines in this file non-destructively access schema information.
@@ -59,8 +58,8 @@
 
 (defun ClassProps* (CName)
    (prog (PropList)
-      (do ClassList (SupClasses* CName) (cdr ClassList)
-            (null ClassList)
+      (do ((ClassList (SupClasses* CName) (cdr ClassList)))
+            ((null ClassList))
          (setq PropList (SetUnion (ClassProps (car ClassList)) PropList)))
       (return PropList)))
 
@@ -107,9 +106,9 @@
 
 (defun QueryBody (Q) (get Q 'QueryBody))
 
-(defun Trans? (T) (get T 'Trans?))
+(defun Trans? (S) (get S 'Trans?))
 
-(defun TransBody (T) (get T 'TransBody))
+(defun TransBody (S) (get S 'TransBody))
 
 (defun Index? (I) (get I 'Index?)) 
 
@@ -145,8 +144,8 @@
    (let ((Freq (get Q 'QueryFreqEst)))
       (if (null Freq) DefaultQueryFreqEst Freq)))
 
-(defun TransFreqEst (T)
-   (let ((Freq (get T 'TransFreqEst)))
+(defun TransFreqEst (S)
+   (let ((Freq (get S 'TransFreqEst)))
       (if (null Freq) DefaultTransFreqEst Freq)))
 
 
@@ -172,7 +171,7 @@
 
 (defun SubSupClasses* (CName &aux CList)
    (setq CList (SupClasses* CName))
-   (do SubCList (SubClasses+ CName) (cdr SubCList) (null SubCList)
+   (do ((SubCList (SubClasses+ CName) (cdr SubCList))) ((null SubCList))
       (setq CList (SetUnion CList (SupClasses* (car SubCList)))))
    CList)
 
@@ -206,7 +205,7 @@
 
 (defun SubStore* (CName &aux CList SList)
    (setq SList nil)
-   (do CList (SubClasses* CName) (cdr CList) (null CList)
+   (do ((CList (SubClasses* CName) (cdr CList))) ((null CList))
       (if (not (memq (ClassStore (car CList)) SList))
          (setq SList (cons (ClassStore (car CList)) SList))))
    SList)

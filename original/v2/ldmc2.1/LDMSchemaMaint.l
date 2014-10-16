@@ -4,24 +4,24 @@
 
 ;************************** SCHEMA MAINTENANCE *************************
 
-(declare
-   (special Schema)
-   (special Classes)
-   (special BuiltInClasses)
-   (special Properties)
-   (special Queries)
-   (special Indices)
-   (special Stores)
-   (special Transactions)
-   (special QueryName?)
-   (special QueryOrTransName)
-   (special Source)
-   (special PDMPort)
-   (special DefaultRCntEst)
-   (special VarStack)
-   (special MatchVarStack)
-   (special FreeMatchVars)
-   (special MatchVar))
+;(declare
+;   (special Schema)
+;   (special Classes)
+;   (special BuiltInClasses)
+;   (special Properties)
+;   (special Queries)
+;   (special Indices)
+;   (special Stores)
+;   (special Transactions)
+;   (special QueryName?)
+;   (special QueryOrTransName)
+;   (special Source)
+;   (special PDMPort)
+;   (special DefaultRCntEst)
+;   (special VarStack)
+;   (special MatchVarStack)
+;   (special FreeMatchVars)
+;   (special MatchVar))
 
 ;***********************************************************************
 ; The following functions add or delete schema information.
@@ -98,7 +98,7 @@
    (mapc '(lambda (C) (GenIsaClose C C)) Classes)
    (mapc '(lambda (C)
          (putprop C (remove C (SubClasses+ C)) 'SubClasses+)
-         (do SCList (SupClasses C) (cdr SCList) (null SCList)
+         (do ((SCList (SupClasses C) (cdr SCList))) ((null SCList))
             (putprop (car SCList)
                (cons C (SubClasses (car SCList))) 'SubClasses)))
       Classes))
@@ -107,7 +107,7 @@
    (if (not (memq SC (SupClasses* C))) then
       (putprop C (cons SC (SupClasses* C)) 'SupClasses*)
       (putprop SC (cons C (SubClasses+ SC)) 'SubClasses+)
-      (do SCList (SupClasses SC) (cdr SCList) (null SCList)
+      (do ((SCList (SupClasses SC) (cdr SCList))) ((null SCList))
          (if (eq C (car SCList)) then
             (ReportError '(CyclicSchema))
           else

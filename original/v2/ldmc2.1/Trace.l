@@ -6,7 +6,7 @@
    (ApplyRuleControl if (atom (arg 1)) printargs
 		     (lambda (args)
 			(terpri)
-			(patom "*** Rule: ")
+			(princ "*** Rule: ")
 			(print (car (setq ARG args)))
 			(if (memq (car ARG) '(
 PreJoinOrder
@@ -38,10 +38,10 @@ ReplaceSubstitute
 ReplaceSubstitute2
 EstimateFindCost
 				 )) then
-			      (patom "*** Result is:")
+			      (princ "*** Result is:")
 			      (pp-form (cadr ARG))
 			    else
-			      (patom "*** Applied."))
+			      (princ "*** Applied."))
 			 else
-			   (patom "*** NotApplied."))
+			   (princ "*** NotApplied."))
 			(terpri)(terpri))))
