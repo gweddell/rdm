@@ -33,19 +33,21 @@
 ;***********************************************************************
 
 (defun MAIN ()
-    (setq LDMPort (open "ldmc.in"))
-    (setq Source (LDMIn LDMPort))
-    (setq Source (SourceTrans Source))
-    (setq PDMPort (open "ldmc.out"))
-    (InitGlobals)
-  ; (PassOne)
-  ; (Diagnostic "optimizing queries.")
-  ; (PassTwo)
-  ; (PassThree)
-  ; (Diagnostic "compiling transactions.")
-  ; (PassFour)
-  ; (Diagnostic "generating code.")
-  ; (PassFive)
+  (setq LDMPort (open "ldmc.in"))
+  (setq Source (LDMIn LDMPort))
+  (setq Source (SourceTrans Source))
+  (setq PDMPort (open "ldmc.out"
+    :if-does-not-exist :create
+    :if-exists :supersede))
+  (InitGlobals)
+  (PassOne)
+  ;(Diagnostic "optimizing queries.")
+  ;(PassTwo)
+  ;(PassThree)
+  ;(Diagnostic "compiling transactions.")
+  ;(PassFour)
+  ;(Diagnostic "generating code.")
+  ;(PassFive)
 )
 
 ;*************************************************************************
@@ -54,7 +56,7 @@
 ;    TopoSort
 ; 2. Place these functions in suitable places
 
-(setq TokenList '(IMPLIES OR AND NOT LE GE NE HAS MAX MIN AS ASC DESC MOD ASSIGN
+(defvar TokenList '(IMPLIES OR AND NOT LE GE NE HAS MAX MIN AS ASC DESC MOD ASSIGN
                   SIZE SELECTIVITY OVERLAP FREQUENCY UNIT TIME SPACE STORE
                   STORING DYNAMIC STATIC OF TYPE ORDERED BY INDEX LIST ARRAY
                   BINARY TREE DISTRIBUTED POINTER IDENTIFIER RDMCLASS ISA
@@ -62,7 +64,7 @@
                   GIVEN FROM SELECT WHERE ORDER PRECOMPUTED ONE EXIST FOR ALL
                   TRANSACTION INTCLASS STRCLASS INTEGER REAL DOUBLEREAL STRING
                   MAXLEN RANGE TO INSERT END CHANGE DELETE DECLARE RETURN
-                  SCHEMA CLASS SUBCLASS CLASSWCON CLASSWPROPS SUBCLASSWPROPS
+                  SCHEMA SUBCLASS CLASSWCON CLASSWPROPS SUBCLASSWPROPS
                   SUBCLASSWCON CLASSWPROPSCON SUBCLASSWPROPSCON PROP STRINGPROP
                   INTPROP QUERY PARAMQUERY ALLBODY ALLBODYPRED ALLBODYORDER
                   ALLBODYPREDORDER ALLBODYPROJ ALLBODYPREDPROJ ALLBODYORDERPROJ
