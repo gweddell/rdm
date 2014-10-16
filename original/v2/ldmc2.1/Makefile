@@ -16,8 +16,8 @@ LDMErrorProcs.o: LDMErrorProcs.l
 LDMParser: LDMParser.c LDMGrammar.y LDMScanner.l
 			bison -d LDMGrammar.y
 			flex LDMScanner.l
-			gcc -w LDMParser.c -ll -o LDMParser
-			rm flex.yy.c LDMGrammar.tab.c LDMGrammar.tab.h 
+			gcc -w LDMParser.c -o LDMParser
+			rm -f lex.yy.c LDMGrammar.tab.c LDMGrammar.tab.h 
 LDMPassFive.o: LDMPassFive.l
 			liszt LDMPassFive.l
 LDMPassFour.o: LDMPassFour.l
@@ -39,8 +39,8 @@ SelCond.o: SelCond.l
 ldmc: LDMCompControl.c
 			gcc -o ldmc LDMCompControl.c
 clean:
-			rm CostProb.o FuncDep.o GenCCode.o LDMComp.o
-			rm LDMCompLib.o LDMErrorProcs.o LDMParser LDMPassFive.o
-			rm LDMPassFour.o LDMPassOne.o LDMPassThree.o LDMSchemaAccess.o
-			rm LDMSchemaMaint.o PDMParser PatMatch.o 
-			rm RuleUse.o SelCond.o ldmc
+			rm -f CostProb.o FuncDep.o GenCCode.o LDMComp.o
+			rm -f LDMCompLib.o LDMErrorProcs.o LDMParser LDMPassFive.o
+			rm -f LDMPassFour.o LDMPassOne.o LDMPassThree.o LDMSchemaAccess.o
+			rm -f LDMSchemaMaint.o PDMParser PatMatch.o 
+			rm -f RuleUse.o SelCond.o ldmc
