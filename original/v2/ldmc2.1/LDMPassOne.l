@@ -98,22 +98,22 @@
 (defun VarDecl (Type L &aux VList)
    (setq VList (VarDeclList Type (cadr L) (caddr L)))
    (mapc #'(lambda (Var)
-         (if (null (Class? (Type Var))) then
+         (if (null (Class? (Type Var)))
             (ReportError `(BadVarType
-                         ,(if QueryName? then 'query else 'transaction)
+                         ,(if QueryName? 'query else 'transaction)
                          ,QueryOrTransName))))
       VList)
    VList)
 
 (defun VarDeclList (Type L1 L2)
-   (if (and (atom L1) (atom L2)) then
+   (if (and (atom L1) (atom L2)) 
       `((,Type ,L1 ,L2))
-    elseif (and (listp L1) (listp L2)) then
+    elseif (and (listp L1) (listp L2))
       (cons `(,Type ,(cadr L1) ,(cadr L2))
             (VarDeclList Type (caddr L1) (caddr L2)))
     else
       (ReportError `(BadVarDecl
-                   ,(if QueryName? then 'query else 'transaction)
+                   ,(if QueryName? 'query else 'transaction)
                    ,QueryOrTransName))))
       
 (defun PushVars (Vars)
@@ -128,24 +128,24 @@
 (defun PopVar () (setq VarStack (cdr VarStack)))
 
 (defun ParseTerm (S &aux Term)
-   (if (atom S) then
+   (if (atom S)
       (cond ((cadr (assq S VarStack)))
             (t (ReportError `(UndefVar ,S
-                            ,(if QueryName? then 'query else 'transaction)
+                            ,(if QueryName? 'query else 'transaction)
                             ,QueryOrTransName)) S))
     else
       (setq Term (eval S))
       (case (car Term)
          ((UnMinusOp ModOp TimesOp DivOp AddOp SubOp)
-            (if (not (memq (Type Term) '(Integer Real DoubleReal))) then
+            (if (not (memq (Type Term) '(Integer Real DoubleReal)))
                (ReportError `(BadArithExpr
-                            ,(if QueryName? then 'query else 'transaction)
+                            ,(if QueryName? 'query else 'transaction)
                             ,QueryOrTransName))))
          (gApply (ValidateApply Term)))
       Term))
 
 (defun ParseIdList (L)
-   (if (atom L) then
+   (if (atom L)
       (list (ParseTerm L))
     else
       (cons (ParseTerm (cadr L)) (ParseIdList (caddr L)))))
@@ -447,9 +447,9 @@
 
 (defun Assign (L)
    (let ((LHS (ParseTerm (car L))) Prop)
-      (if (eq (car LHS) 'Apply) then
+      (if (eq (car LHS) 'Apply)
          (setq Prop (car (last (caddr LHS))))
-         (if (not (eq Prop 'Id)) then (putprop Prop t 'Updated?)))
+         (if (not (eq Prop 'Id))  (putprop Prop t 'Updated?)))
       (list (ValidateAssign `(Assign ,LHS ,(ParseTerm (cadr L)))))))
 
 (defun DefSizeEst (L) (putprop (car L) (Valof (cadr L)) 'RCntEst))
@@ -473,23 +473,23 @@
 
 (defun Index (L)
    (let ((IName (car L)) (IClass (cadr L)))
-      (if (Index? IName) then (ReportError `(IndexExists ,IName)))
+      (if (Index? IName)  (ReportError `(IndexExists ,IName)))
       (putprop IName t 'Index?)
       (eval `(,(caaddr L) ,IName ,IClass ,(cadaddr L) ,(caddaddr L)))
-      (if (not (UserClass? IClass)) then
+      (if (not (UserClass? IClass)) 
          (ReportError `(UndefClass ,IClass index ,IName)))
       (AddClassIndex IClass IName)
-      (if (Distributed? IName) then
+      (if (Distributed? IName) 
          (if (or (not (CheckPF IClass (DistPF IName)))
-                 (not (UserClass? (Dom (DistPF IName))))) then
+                 (not (UserClass? (Dom (DistPF IName))))) 
             (ReportError `(BadIndexDistPF ,IName))))
       (do ((SCondList (IndexSearchConds IName) (cdr SCondList))) ((null SCondList))
          (case (caar SCondList)
             (PFCond
-               (if (not (CheckPF IClass (cadar SCondList))) then
+               (if (not (CheckPF IClass (cadar SCondList))) 
                   (ReportError `(BadIndexPFSort ,IName))))
             (SCCond
-               (if (not (memq (cadar SCondList) (SubClasses+ IClass))) then
+               (if (not (memq (cadar SCondList) (SubClasses+ IClass))) 
                   (ReportError `(BadIndexSCSort ,IName)))
                (setq IClass (cadar SCondList)))))
       (setq Indices (cons IName Indices))))
@@ -549,12 +549,12 @@
 
 (defun Store (L)
    (let ((SName (car L)))
-      (if (Store? SName) then (ReportError `(StoreExists ,SName)))
+      (if (Store? SName) (ReportError `(StoreExists ,SName)))
       (putprop SName t 'Store?)
       (do ((CList (IdList (caddr L)) (cdr CList))) ((null CList))
-         (if (null (UserClass? (car CList))) then
+         (if (null (UserClass? (car CList))) 
             (ReportError `(UndefClass ,(car CList) store ,SName)))
-         (if (ClassStore (car CList)) then
+         (if (ClassStore (car CList)) 
             (ReportError `(MultipleClassStore ,(car CList))))
          (putprop SName (cons (car CList) (StoreClasses SName)) 'StoreClasses)
          (putprop (car CList) SName 'ClassStore))
@@ -581,14 +581,14 @@
 
 (defun ValidateInsert (VList)
    (mapc #'(lambda (V)
-         (if (ClassCovers (Type V)) then
+         (if (ClassCovers (Type V)) 
              (ReportError `(BadCreate ,QueryOrTransName))))
       VList)
    VList)
       
 
 (defun ValidateSchema (&aux CProps)
-   (mapc #'(lambda (C) (if (not (Prop? C)) then (NewProp C C))) Classes)
+   (mapc #'(lambda (C) (if (not (Prop? C)) (NewProp C C))) Classes)
    (mapc #'(lambda (C)
          (putprop C t 'UserClass?)
          (putprop C (ClassProps C) 'ClassUserProps)
@@ -598,26 +598,26 @@
    (mapc 'NewClass BuiltInClasses)
    (IsaClose)
    (mapc #'(lambda (PName)
-         (if (not (Class? (PropType PName))) then
+         (if (not (Class? (PropType PName))) 
             (ReportError
                `(UndefClass ,(PropType PName) property ,PName))))
       Properties)
    (mapc #'(lambda (CName)
          (do ((SCList (SupClasses CName) (cdr SCList))) ((null SCList))
-            (if (not (UserClass? (car SCList))) then
+            (if (not (UserClass? (car SCList))) 
                (ReportError `(NotUserClass
                             ,(car SCList) class ,CName))))
          (do ((PList (ClassProps CName) (cdr PList))) ((null PList))
-            (if (not (Prop? (car PList))) then
+            (if (not (Prop? (car PList))) 
                (ReportError `(UndefProp
                             ,(car PList) class ,CName))))
          (do ((SCList (SupClasses+ CName) (cdr SCList))) ((null SCList))
             (setq CProps (SetIntersection (ClassProps CName)
                   (ClassProps (car SCList))))
-            (if CProps then
+            (if CProps 
                (ReportError `(MultipleClassProp ,(car CProps) ,CName))))
          (do ((CoverList (ClassCovers CName) (cdr CoverList))) ((null CoverList))
-            (if (SetDifference (car CoverList) (SubClasses CName)) then
+            (if (SetDifference (car CoverList) (SubClasses CName)) 
                (ReportError `(BadCoverConstraint ,CName))))
          (do ((PfdList (ClassPfds CName) (cdr PfdList))) ((null PfdList))
             (CheckClassPF CName (caar PfdList))
@@ -627,44 +627,44 @@
 
 
 (defun CheckClassPF (CName PF)
-   (if (null (CheckPF CName PF)) then
+   (if (null (CheckPF CName PF)) 
       (ReportError `(BadPfdConstraint ,CName))))
 
 
 (defun ValidateStores ()
    (mapc #'(lambda (CName)
-         (if (and (UserClass? CName) (not (ClassCovers CName))) then
-            (if (null (ClassStore CName)) then
+         (if (and (UserClass? CName) (not (ClassCovers CName))) 
+            (if (null (ClassStore CName)) 
                (ReportError `(UndefClassStore ,CName)))))
       Classes))
 
 
 (defun ValidateApply (Term)
    (if (or (neq (car Term) 'Apply)
-           (CheckPF (Type (cadr Term)) (caddr Term))) then
+           (CheckPF (Type (cadr Term)) (caddr Term))) 
       Term
     else
       (ReportError `(BadPfInExpr
-                   ,(if QueryName? then 'query else 'transaction)
+                   ,(if QueryName? 'query else 'transaction)
                    ,QueryOrTransName))))
 
 
 (defun ValidateInit (Init)
-   (if (memq (Type (cadr Init)) (SupClasses* (Type (caddr Init)))) then
+   (if (memq (Type (cadr Init)) (SupClasses* (Type (caddr Init)))) 
       Init
     else
       (ReportError `(BadAssign ,QueryOrTransName))))
 
 
 (defun ValidateAssign (Assign)
-   (if (Match '(Assign (gApply ? (Id)) ?) Assign) then
+   (if (Match '(Assign (gApply ? (Id)) ?) Assign) 
       Assign
     else
       (ValidateInit Assign)))
 
 
 (defun CheckPF (CName PF)
-   (if (null PF) then t
+   (if (null PF) t
     else (or (equal PF '(Id))
              (and (memq (car PF) (ClassProps* CName))
                   (CheckPF (PropType (car PF)) (cdr PF))))))

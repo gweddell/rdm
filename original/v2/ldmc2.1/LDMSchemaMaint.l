@@ -28,7 +28,7 @@
 ;***********************************************************************
 
 (defun NewClass (C)
-   (if (Class? C) then (ReportError `(ClassExists ,C)))
+   (if (Class? C) (ReportError `(ClassExists ,C)))
    (putprop C t 'Class?)
    (putprop C nil 'SupClasses)
    (putprop C nil 'ClassProps)
@@ -56,7 +56,7 @@
    (putprop C (cons I (ClassDistIndices C)) 'ClassDistIndices))
 
 (defun NewProp (P C)
-   (if (Prop? P) then (ReportError `(PropExists ,P)))
+   (if (Prop? P) (ReportError `(PropExists ,P)))
    (putprop P t 'Prop?)
    (putprop P C 'PropType)
    (putprop P nil 'PropConstraint)
@@ -72,13 +72,13 @@
       CPList))
 
 (defun NewQuery (N Body)
-   (if (Query? N) then (ReportError `(QueryExists ,N)))
+   (if (Query? N) (ReportError `(QueryExists ,N)))
    (putprop N t 'Query?)
    (putprop N Body 'QueryBody)
    (setq Queries (cons N Queries)))
 
 (defun NewTrans (N Body)
-   (if (Trans? N) then (ReportError `(TransExists ,N)))
+   (if (Trans? N) (ReportError `(TransExists ,N)))
    (putprop N t 'Trans?)
    (putprop N Body 'TransBody)
    (setq Transactions (cons N Transactions)))
@@ -104,11 +104,11 @@
       Classes))
 
 (defun GenIsaClose (C SC)
-   (if (not (memq SC (SupClasses* C))) then
+   (if (not (memq SC (SupClasses* C))) 
       (putprop C (cons SC (SupClasses* C)) 'SupClasses*)
       (putprop SC (cons C (SubClasses+ SC)) 'SubClasses+)
       (do ((SCList (SupClasses SC) (cdr SCList))) ((null SCList))
-         (if (eq C (car SCList)) then
+         (if (eq C (car SCList)) 
             (ReportError '(CyclicSchema))
           else
             (GenIsaClose C (car SCList))))))
