@@ -42,7 +42,7 @@
 (defun ReportError (Msg)
    (princ "** error: " *error-output*)
    (do ((Text
-      (explodec (cadr (assq (car Msg) '(
+      (coerce (cadr (assoc (car Msg) '(
          (CyclicSchema "class schema is cyclic.")
          (UndefVar "undefined variable ? in ? ?.")
          (UndefProp "symbol ? occurring in ? ?/is not a property.")
@@ -69,13 +69,13 @@
          (BadIndexDistPF "illegal distributed path function for index ?.")
          (BadIndexPFSort "illegal path function sort for index ?.")
          (BadIndexSCSort "illegal subclass sort for index ?.")
-         )))) (cdr Text)))
+         ))) 'list) (cdr Text)))
       ((null Text) (terpri *error-output*))
-      (caseq (car Text)
-         (?
+      (case (car Text)
+         (#\?
             (setq Msg (cdr Msg))
             (princ (car Msg) *error-output*))
-         (/
+         (#\/
             (terpri *error-output*)
             (princ "          " *error-output*))
          (t
@@ -99,17 +99,17 @@
 (defun ReportWarning (Msg)
    (princ "** warning: " *error-output*)
    (do ((Text
-      (explodec (cadr (assq (car Msg) '(
+      (coerce (cadr (assoc (car Msg) '(
          (NoStrategyFound "no execution strategy for query ? has been found.")
          (SortUsed "a sort operation for query ? has been used.")
          (ProjectionUsed "a projection operation for query ? has been used.")
-         )))) (cdr Text)))
+         ))) 'list) (cdr Text)))
       ((null Text) (terpri *error-output*))
-      (caseq (car Text)
-         (?
+      (case (car Text)
+         (#\?
             (setq Msg (cdr Msg))
             (princ (car Msg) *error-output*))
-         (/
+         (#\/
             (terpri *error-output*)
             (princ "          " *error-output*))
          (t

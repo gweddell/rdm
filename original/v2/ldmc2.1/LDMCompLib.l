@@ -54,7 +54,7 @@
       (UnMinusOp (ExpessionType (cadr E)))
       ((TimesOp DivOp AddOp SubOp)
          (setq T1 (ExpessionType (cadr E)) T2 (ExpessionType (caddr E)))
-         (caseq T1
+         (case T1
             (Integer T2)
             (Real (if (eq T2 'Integer) T1 T2))
             (t (if (memq T2 '(Integer Real DoubleReal)) T1 T2))))
