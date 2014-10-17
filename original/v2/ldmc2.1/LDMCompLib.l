@@ -57,7 +57,7 @@
          (case T1
             (Integer T2)
             (Real (if (eq T2 'Integer) T1 T2))
-            (t (if (memq T2 '(Integer Real DoubleReal)) T1 T2))))
+            (t (if (member T2 '(Integer Real DoubleReal)) T1 T2))))
       (Apply
          (setq T1 (ExpessionType (cadr E)))
          (do (PList (caddr E) (cdr PList)) (or (null PList) (eq (car PList) 'Id))
@@ -91,7 +91,7 @@
       ((null Form) nil)
       ((atom Form) Form)
       ((and (eq (car Form) 'Apply) (equal (cadr Form) Var))
-         (if (memq (ExpessionType Term) (SubClasses* (ExpessionType Var)))
+         (if (member (ExpessionType Term) (SubClasses* (ExpessionType Var)))
             (AppendPF Term (caddr Form))
             Form))
       ((equal Form Var) Term)

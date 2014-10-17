@@ -30,7 +30,8 @@
 ; The routines in this file non-destructively access schema information.
 ;***********************************************************************
 
-(defun Valof (Constant) (readlist (exploden (cadr Constant))))
+ 
+(defun Valof (Constant) (read-from-string (caadr (cadr Constant))))
 
 (defun ClassOf (PName) (PropType PName))
 
@@ -40,7 +41,7 @@
 
 (defun SupClasses* (CName) (get CName 'SupClasses*))
 
-(defun SupClasses+ (CName) (remq CName (SupClasses* CName)))
+(defun SupClasses+ (CName) (remove CName (SupClasses* CName)))
 
 (defun SubClasses (CName) (get CName 'SubClasses))
 
@@ -206,6 +207,6 @@
 (defun SubStore* (CName &aux CList SList)
    (setq SList nil)
    (do ((CList (SubClasses* CName) (cdr CList))) ((null CList))
-      (if (not (memq (ClassStore (car CList)) SList))
+      (if (not (member (ClassStore (car CList)) SList))
          (setq SList (cons (ClassStore (car CList)) SList))))
    SList)

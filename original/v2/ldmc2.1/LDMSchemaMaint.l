@@ -44,7 +44,7 @@
    (putprop C (append PList (ClassProps C)) 'ClassProps))
 
 (defun DelClassProp (C P)
-   (putprop C (remq P (ClassProps C)) 'ClassProps))
+   (putprop C (remove P (ClassProps C)) 'ClassProps))
 
 (defun AddClassConstraints (C ConList)
    (putprop C (append ConList (ClassConstraints C)) 'ClassConstraints))
@@ -66,7 +66,7 @@
 
 (defun NewClassProps (CPList)
    (mapc
-      '(lambda (CPDecl)
+      #'(lambda (CPDecl)
          (NewProp (cadr CPDecl) (caddr CPDecl))
          (AddClassProps (car CPDecl) (list (cadr CPDecl))))
       CPList))
@@ -91,12 +91,12 @@
 ;***********************************************************************
 
 (defun IsaClose ()
-   (mapc '(lambda (C)
+   (mapc #'(lambda (C)
          (putprop C nil 'SupClasses*)
          (putprop C nil 'SubClasses+)
          (putprop C nil 'SubClasses)) Classes)
-   (mapc '(lambda (C) (GenIsaClose C C)) Classes)
-   (mapc '(lambda (C)
+   (mapc #'(lambda (C) (GenIsaClose C C)) Classes)
+   (mapc #'(lambda (C)
          (putprop C (remove C (SubClasses+ C)) 'SubClasses+)
          (do ((SCList (SupClasses C) (cdr SCList))) ((null SCList))
             (putprop (car SCList)
@@ -104,11 +104,11 @@
       Classes))
 
 (defun GenIsaClose (C SC)
-   (if (not (memq SC (SupClasses* C))) 
-      (putprop C (cons SC (SupClasses* C)) 'SupClasses*)
-      (putprop SC (cons C (SubClasses+ SC)) 'SubClasses+)
-      (do ((SCList (SupClasses SC) (cdr SCList))) ((null SCList))
-         (if (eq C (car SCList)) 
-            (ReportError '(CyclicSchema))
-          else
-            (GenIsaClose C (car SCList))))))
+   (if (not (member SC (SupClasses* C)))
+      (progn 
+         (putprop C (cons SC (SupClasses* C)) 'SupClasses*)
+         (putprop SC (cons C (SubClasses+ SC)) 'SubClasses+)
+         (do ((SCList (SupClasses SC) (cdr SCList))) ((null SCList))
+            (if (eq C (car SCList)) 
+               (ReportError '(CyclicSchema))
+               (GenIsaClose C (car SCList)))))))
