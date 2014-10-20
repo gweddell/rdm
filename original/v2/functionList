@@ -1,0 +1,13 @@
+Replace readlist and exploden
+for if statement, no else or elseif
+replace assq with assoc
+replace patom with princ 
+replace memq with member
+replace caseq with case 
+replace Type with ExpressionType
+replace readlist (exploden with read-from-string
+replace remq with remove
+put # before an anonymous function
+use progn to group statements together
+replace setq with defvar 
+replace explodec with coerce
