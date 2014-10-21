@@ -22,6 +22,10 @@
 
 ;************************* GENERAL ROUTINES ****************************
 
+(defun caddddr (L) (car (cddddr L)))
+(defun cadaddr (L) (car (cdaddr L)))
+(defun caddaddr (L) (caddr (caddr L)))
+
 (defun SetUnion (L1 L2)
    (if (null L1)
       L2
@@ -43,7 +47,7 @@
 	 (SetDifference (cdr L1) L2)
 	 (cons (car L1) (SetDifference (cdr L1) L2)))))
 
-(defun NewVariable (Type Class) `(,Type ,(gensym Class) ,Class))
+(defun NewVariable (Type Class) `(,Type ,(gensym (string Class)) ,Class))
 
 (defun Dom (PF) (ClassOf (car (last PF))))
 
@@ -51,16 +55,16 @@
    (case (car E)
       (Constant (caddr E))
       ((QVar PVar LVar EVar ReType) (ClassOf (caddr E)))
-      (UnMinusOp (ExpessionType (cadr E)))
+      (UnMinusOp (ExpressionType (cadr E)))
       ((TimesOp DivOp AddOp SubOp)
-         (setq T1 (ExpessionType (cadr E)) T2 (ExpessionType (caddr E)))
+         (setq T1 (ExpressionType (cadr E)) T2 (ExpressionType (caddr E)))
          (case T1
             (Integer T2)
             (Real (if (eq T2 'Integer) T1 T2))
             (t (if (member T2 '(Integer Real DoubleReal)) T1 T2))))
-      (Apply
-         (setq T1 (ExpessionType (cadr E)))
-         (do (PList (caddr E) (cdr PList)) (or (null PList) (eq (car PList) 'Id))
+      (gApply
+         (setq T1 (ExpressionType (cadr E)))
+         (do ((PList (caddr E) (cdr PList))) ((or (null PList) (eq (car PList) 'Id)))
             (setq T1 (ClassOf (car PList))))
          T1)))
 
@@ -76,13 +80,13 @@
    (cond
       ((null PF) Term)
       ((equal PF '(Id)) Term)
-      ((eq (car Term) 'Apply) `(Apply ,(cadr Term) (,@(caddr Term) ,@PF)))
-      (t `(Apply ,Term ,PF))))
+      ((eq (car Term) 'gApply) `(gApply ,(cadr Term) (,@(caddr Term) ,@PF)))
+      (t `(gApply ,Term ,PF))))
 
 (defun RemoveLastProp (TermWithApply)
    (if (= (length (caddr TermWithApply)) 1)
       (cadr TermWithApply)
-      `(Apply
+      `(gApply
 	 ,(cadr TermWithApply)
 	 ,(reverse (cdr (reverse (caddr TermWithApply)))))))
 
@@ -90,8 +94,8 @@
    (cond
       ((null Form) nil)
       ((atom Form) Form)
-      ((and (eq (car Form) 'Apply) (equal (cadr Form) Var))
-         (if (member (ExpessionType Term) (SubClasses* (ExpessionType Var)))
+      ((and (eq (car Form) 'gApply) (equal (cadr Form) Var))
+         (if (member (ExpressionType Term) (SubClasses* (ExpressionType Var)))
             (AppendPF Term (caddr Form))
             Form))
       ((equal Form Var) Term)
@@ -107,5 +111,5 @@
             (ReplaceVar (cdr Form) Var NewVar)))))
 
 (defun TermLength (Term)
-   (if (eq (car Term) 'Apply) (length (caddr Term)) 0))
+   (if (eq (car Term) 'gApply) (length (caddr Term)) 0))
 

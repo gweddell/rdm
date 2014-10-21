@@ -31,7 +31,7 @@
 ;***********************************************************************
 
  
-(defun Valof (Constant) (read-from-string (caadr (cadr Constant))))
+(defun Valof (Constant) (read-from-string (cadr Constant)))
 
 (defun ClassOf (PName) (PropType PName))
 

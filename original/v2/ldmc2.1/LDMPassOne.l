@@ -4,23 +4,6 @@
 
 ;***************************** PASS ONE ********************************
 
-;(defvar Classes nil)
-;(defvar BuiltInClasses nil)
-;(defvar Properties nil)
-;(defvar Queries nil)
-;(defvar Indices nil)
-;(defvar Stores nil)
-;(defvar Transactions nil)
-;(defvar QueryName? nil)
-;(defvar QueryOrTransName nil)
-;(defvar Source nil)
-;(defvar PDMPort nil)
-;(defvar DefaultRCntEst nil)
-;(defvar VarStack nil)
-;(defvar MatchVarStack nil)
-;(defvar FreeMatchVars nil)
-;(defvar MatchVar nil)
-
 ;***********************************************************************
 ; This file contains the procedures to perform the initial parse
 ; of LDM source.  Semantic checks that are performed:
@@ -36,8 +19,15 @@
 ; 9. static store declarations include complete family.
 ;***********************************************************************
 
+(defvar TokenList '(SCHEMA RDMCLASS SUBCLASS CLASSWCON CLASSWPROPS SUBCLASSWPROPS SUBCLASSWCON CLASSWPROPSCON SUBCLASSWPROPSCON PROP STRINGPROP INTPROP QUERY PARAMQUERY ALLBODY ALLBODYPRED ALLBODYORDER ALLBODYPREDORDER ALLBODYPROJ ALLBODYPREDPROJ ALLBODYORDERPROJ ALLBODYPREDORDERPROJ ONEBODYVAR ONEBODYPRED ONEBODYVARPRED EXIST EXISTPRED FORALL IMPLIES GOR GAND GNOT GEQ LT GT LE GE NE HASMAX HASMIN HASMAXPRED HASMINPRED PRED ORDERASC ORDERDESC ORDERASCLIST ORDERDESCLIST ADDOP SUBOP MODOP TIMESOP DIVOP UNMINUSOP CONSTANT GAPPLY TRANS PARAMTRANS BODY BODYWLOCVARS RETURNBODY RETURNBODYWLOCVARS INSERT INSERTWINITS GDELETE ASSIGN DEFSIZEEST DEFSELECTEST DEFOVERLAPEST DEFFREQEST DEFUNITTIME DEFUNITSPACE INDEX GLIST GARRAY BINARYTREE DISTLIST DISTPOINTER DISTBINARYTREE SEARCHCONDLIST ASCSEARCHCOND DESCSEARCHCOND SCSEARCHCOND STORE))
+
+(defun evalfexpr (L)
+   (if (member (car L) TokenList)
+      (eval (list (car L) (list 'quote (cdr L))))
+      (eval (cons (car L) (mapcar (lambda (e) (list 'quote (evalfexpr e))) (cdr L))))))
+
 (defun PassOne ()
-   (eval Source)
+   (evalfexpr Source)
    (setq Queries (reverse Queries))
    (setq Transactions (reverse Transactions))
    (setq Indices (reverse Indices))
@@ -128,12 +118,12 @@
 
 (defun ParseTerm (S &aux Term)
    (if (atom S)
-      (cond ((cadr (assq S VarStack)))
+      (cond ((cadr (assoc S VarStack)))
             (t (ReportError `(UndefVar ,S
                             ,(if QueryName? 'query 'transaction)
                             ,QueryOrTransName)) S))
     (progn
-      (setq Term (eval S))
+      (setq Term (evalfexpr S))
       (case (car Term)
          ((UnMinusOp ModOp TimesOp DivOp AddOp SubOp)
             (if (not (member (ExpressionType Term) '(Integer Real DoubleReal)))
@@ -156,9 +146,9 @@
 
 (defun Schema (L)
    (setq Schema (car L))
-   (eval (cadr L))
+   (evalfexpr (cadr L))
    (ValidateSchema)
-   (eval (caddr L))) 
+   (evalfexpr (caddr L))) 
 
 (defun RDMClass (L) (NewClass (car L)))
 
@@ -208,14 +198,14 @@
 (defun Query (L)
    (setq QueryName? t)
    (setq QueryOrTransName (car L))
-   (NewQuery (car L) (eval `(,(caadr L) ,(car L) () ,@(cdadr L)))))
+   (NewQuery (car L) (evalfexpr `(,(caadr L) ,(car L) () ,@(cdadr L)))))
 
 (defun ParamQuery (L)
    (setq QueryName? t)
    (setq QueryOrTransName (car L))
    (let ((Vars (VarDecl 'PVar (cadr L))))
       (PushVars Vars)
-      (NewQuery (car L) (eval `(,(caaddr L) ,(car L) ,Vars ,@(cdaddr L))))
+      (NewQuery (car L) (evalfexpr `(,(caaddr L) ,(car L) ,Vars ,@(cdaddr L))))
       (PopVars)))
 
 (defun AllBody (L)
@@ -225,21 +215,21 @@
 
 (defun AllBodyPred (L)
    (let ((Vars (VarDecl 'QVar (caddr L))) Pred)
-      (PushVars Vars) (setq Pred (eval (cadddr L))) (PopVars) 
+      (PushVars Vars) (setq Pred (evalfexpr (cadddr L))) (PopVars) 
       `(AllQuery ,(car L) (,@(cadr L) ,@Vars)
          (Find () (All (Proj) (Sort)) (ScanHeap ,@Vars) (AndHeap ,Pred)))))
 
 (defun AllBodyOrder (L)
    (let ((Vars (VarDecl 'QVar (caddr L))) Ord)
-      (PushVars Vars) (setq Ord (eval (cadddr L))) (PopVars) 
+      (PushVars Vars) (setq Ord (evalfexpr (cadddr L))) (PopVars) 
       `(AllQuery ,(car L) (,@(cadr L) ,@Vars)
          (Find () (All (Proj) (Sort ,@Ord)) (ScanHeap ,@Vars) (AndHeap)))))
 
 (defun AllBodyPredOrder (L)
    (let ((Vars (VarDecl 'QVar (caddr L))) Pred Ord)
       (PushVars Vars)
-      (setq Pred (eval (cadddr L)))
-      (setq Ord (eval (caddddr L)))
+      (setq Pred (evalfexpr (cadddr L)))
+      (setq Ord (evalfexpr (caddddr L)))
       (PopVars) 
       `(AllQuery ,(car L) (,@(cadr L) ,@Vars)
          (Find () (All (Proj) (Sort ,@Ord))
@@ -252,14 +242,14 @@
 
 (defun AllBodyPredProj (L)
    (let ((Vars (VarDecl 'QVar (caddr L))) Pred)
-      (PushVars Vars) (setq Pred (eval (cadddr L))) (PopVars) 
+      (PushVars Vars) (setq Pred (evalfexpr (cadddr L))) (PopVars) 
       `(AllQuery ,(car L) (,@(cadr L) ,@Vars)
          (Find () (All (Proj ,@Vars) (Sort))
             (ScanHeap ,@Vars) (AndHeap ,Pred)))))
 
 (defun AllBodyOrderProj (L)
    (let ((Vars (VarDecl 'QVar (caddr L))) Ord)
-      (PushVars Vars) (setq Ord (eval (cadddr L))) (PopVars) 
+      (PushVars Vars) (setq Ord (evalfexpr (cadddr L))) (PopVars) 
       `(AllQuery ,(car L) (,@(cadr L) ,@Vars)
          (Find () (All (Proj ,@Vars) (Sort ,@Ord))
             (ScanHeap ,@Vars) (AndHeap)))))
@@ -267,8 +257,8 @@
 (defun AllBodyPredOrderProj (L)
    (let ((Vars (VarDecl 'QVar (caddr L))) Pred Ord)
       (PushVars Vars)
-      (setq Pred (eval (cadddr L)))
-      (setq Ord (eval (caddddr L)))
+      (setq Pred (evalfexpr (cadddr L)))
+      (setq Ord (evalfexpr (caddddr L)))
       (PopVars) 
       `(AllQuery ,(car L) (,@(cadr L) ,@Vars)
          (Find () (All (Proj ,@Vars) (Sort ,@Ord))
@@ -282,11 +272,11 @@
 
 (defun OneBodyPred (L)
    `(OneQuery ,(car L) (,@(cadr L)) 
-				  (Find () (One) (ScanHeap) (AndHeap ,(eval (caddr L))))))
+				  (Find () (One) (ScanHeap) (AndHeap ,(evalfexpr (caddr L))))))
 
 (defun OneBodyVarPred (L)
    (let ((Vars (VarDecl 'QVar (caddr L))) Pred)
-      (PushVars Vars) (setq Pred (eval (cadddr L))) (PopVars) 
+      (PushVars Vars) (setq Pred (evalfexpr (cadddr L))) (PopVars) 
       `(OneQuery ,(car L) (,@(cadr L) ,@Vars)
          (Find () (One) (ScanHeap ,@Vars) (AndHeap ,Pred)))))
 
@@ -295,26 +285,26 @@
 
 (defun ExistPred (L)
    (let ((Vars (VarDecl 'EVar (car L))) Pred)
-      (PushVars Vars) (setq Pred (eval (cadr L))) (PopVars)
+      (PushVars Vars) (setq Pred (evalfexpr (cadr L))) (PopVars)
       `(Find () (One) (ScanHeap ,@Vars) (AndHeap ,Pred))))
 
 (defun Forall (L)
    (let ((Vars (VarDecl 'EVar (car L))) Pred)
-      (PushVars Vars) (setq Pred (eval (cadr L))) (PopVars)
+      (PushVars Vars) (setq Pred (evalfexpr (cadr L))) (PopVars)
       `(gNot (Find () (One) (ScanHeap ,@Vars) (AndHeap (gNot ,Pred))))))
 
 (defun Implies (L)
    `(gNot (Find () (One)
-      (ScanHeap) (AndHeap ,(eval (car L)) (gNot ,(eval (cadr L)))))))
+      (ScanHeap) (AndHeap ,(evalfexpr (car L)) (gNot ,(evalfexpr (cadr L)))))))
 
 (defun gOr (L)
    `(gNot (Find () (One)
-      (ScanHeap) (AndHeap (gNot ,(eval (car L))) (gNot ,(eval (cadr L)))))))
+      (ScanHeap) (AndHeap (gNot ,(evalfexpr (car L))) (gNot ,(evalfexpr (cadr L)))))))
 
 (defun gAnd (L)
-   `(Find () (One) (ScanHeap) (AndHeap ,(eval (car L)) ,(eval (cadr L)))))
+   `(Find () (One) (ScanHeap) (AndHeap ,(evalfexpr (car L)) ,(evalfexpr (cadr L)))))
 
-(defun gNot (L) `(gNot ,(eval (car L))))
+(defun gNot (L) `(gNot ,(evalfexpr (car L))))
 
 (defun gEQ (L) `(gEQ ,(ParseTerm (car L)) ,(ParseTerm (cadr L))))
 
@@ -347,7 +337,7 @@
 (defun HasMaxPred (L)
    (let ((Var (ParseTerm (car L)))
          (PF (PathFunc (cadr L)))
-         (Pred (eval (caddr L)))
+         (Pred (evalfexpr (caddr L)))
          NewVar)
       (setq NewVar (NewVariable 'EVar (caddr Var)))
       `(Find () (One) (ScanHeap) (AndHeap ,Pred
@@ -358,7 +348,7 @@
 (defun HasMinPred (L)
    (let ((Var (ParseTerm (car L)))
          (PF (PathFunc (cadr L)))
-         (Pred (eval (caddr L)))
+         (Pred (evalfexpr (caddr L)))
          NewVar)
       (setq NewVar (NewVariable 'EVar (caddr Var)))
       `(Find () (One) (ScanHeap) (AndHeap ,Pred
@@ -376,10 +366,10 @@
 (defun OrderDesc (L) `((,(ParseTerm (car L)) Desc)))
 
 (defun OrderAscList (L)
-   (cons `(,(ParseTerm (car L)) Asc) (eval (cadr L))))
+   (cons `(,(ParseTerm (car L)) Asc) (evalfexpr (cadr L))))
 
 (defun OrderDescList (L)
-   (cons `(,(ParseTerm (car L)) Desc) (eval (cadr L))))
+   (cons `(,(ParseTerm (car L)) Desc) (evalfexpr (cadr L))))
 
 (defun AddOp (L) `(AddOp ,(ParseTerm (car L)) ,(ParseTerm (cadr L))))
 
@@ -400,34 +390,34 @@
 (defun Trans (L)
    (setq QueryName? nil)
    (setq QueryOrTransName (car L))
-   (NewTrans (car L) (eval `(,(caadr L) ,(car L) () ,@(cdadr L)))))
+   (NewTrans (car L) (evalfexpr `(,(caadr L) ,(car L) () ,@(cdadr L)))))
 
 (defun ParamTrans (L)
    (setq QueryName? nil)
    (setq QueryOrTransName (car L))
    (let ((Vars (VarDecl 'PVar (cadr L))))
       (PushVars Vars)
-      (NewTrans (car L) (eval `(,(caaddr L) ,(car L) ,Vars ,@(cdaddr L))))
+      (NewTrans (car L) (evalfexpr `(,(caaddr L) ,(car L) ,Vars ,@(cdaddr L))))
       (PopVars)))
 
 (defun Body (L)
-   `(StmtTrans ,(car L) ,(cadr L) (Block () ,@(eval (caddr L)))))
+   `(StmtTrans ,(car L) ,(cadr L) (Block () ,@(evalfexpr (caddr L)))))
 
 (defun BodyWLocVars (L)
    (let ((Vars (VarDecl 'QVar (caddr L))) StmtList)
       (PushVars Vars)
-      (setq StmtList (eval (cadddr L)))
+      (setq StmtList (evalfexpr (cadddr L)))
       (PopVars)
       `(StmtTrans ,(car L) ,(cadr L) (Block ,Vars ,@StmtList))))
 
 (defun ReturnBody (L)
    `(ExprTrans
-      ,(car L) ,(cadr L) (Block () ,@(eval (caddr L))) ,(ParseTerm (cadddr L))))
+      ,(car L) ,(cadr L) (Block () ,@(evalfexpr (caddr L))) ,(ParseTerm (cadddr L))))
 
 (defun ReturnBodyWLocVars (L)
    (let ((Vars (VarDecl 'QVar (caddr L))) StmtList Term)
       (PushVars Vars)
-      (setq StmtList (eval (cadddr L)))
+      (setq StmtList (evalfexpr (cadddr L)))
       (setq Term (ParseTerm (caddddr L)))
       (PopVars)
       `(ExprTrans ,(car L) ,(cadr L) (Block ,Vars ,@StmtList) ,Term)))
@@ -474,7 +464,7 @@
    (let ((IName (car L)) (IClass (cadr L)))
       (if (Index? IName) (ReportError `(IndexExists ,IName)))
       (putprop IName t 'Index?)
-      (eval `(,(caaddr L) ,IName ,IClass ,(cadaddr L) ,(caddaddr L)))
+      (evalfexpr `(,(caaddr L) ,IName ,IClass ,(cadaddr L) ,(caddaddr L)))
       (if (not (UserClass? IClass)) 
          (ReportError `(UndefClass ,IClass index ,IName)))
       (AddClassIndex IClass IName)
@@ -501,14 +491,14 @@
 (defun gArray (L)
    (putprop (car L) (cadr L) 'IndexClass)
    (putprop (car L) 'Array 'IndexType)
-   (putprop (car L) (eval (cadddr L)) 'IndexSearchConds)
+   (putprop (car L) (evalfexpr (cadddr L)) 'IndexSearchConds)
    (putprop (car L) t 'StaticIndex?)
    (putprop (car L) (Valof (caddr L)) 'IndexSize))
  
 (defun BinaryTree (L)
    (putprop (car L) (cadr L) 'IndexClass)
    (putprop (car L) 'BinaryTree 'IndexType)
-   (putprop (car L) (eval (caddr L)) 'IndexSearchConds))
+   (putprop (car L) (evalfexpr (caddr L)) 'IndexSearchConds))
 
 (defun DistList (L)
    (let ((PF (PathFunc (caddr L))))
@@ -534,11 +524,11 @@
       (AddClassDistIndex (Dom PF) (car L))
       (putprop (car L) 'DistBinaryTree 'IndexType)
       (putprop (car L)
-         `((PFCond ,PF NoOrder) ,@(eval (cadddr L))) 'IndexSearchConds)
+         `((PFCond ,PF NoOrder) ,@(evalfexpr (cadddr L))) 'IndexSearchConds)
       (putprop (car L) t 'Distributed?)
       (putprop (car L) PF 'DistPF)))
 
-(defun SearchCondList (L) `(,@(eval (car L)) ,@(eval (cadr L))))
+(defun SearchCondList (L) `(,@(evalfexpr (car L)) ,@(evalfexpr (cadr L))))
 
 (defun AscSearchCond (L) `((PFCond ,(PathFunc (car L)) Asc)))
 
@@ -639,7 +629,7 @@
 
 
 (defun ValidateApply (Term)
-   (if (or (neq (car Term) 'Apply)
+   (if (or (not (eq (car Term) 'Apply))
            (CheckPF (ExpressionType (cadr Term)) (caddr Term))) 
       Term
       (ReportError `(BadPfInExpr

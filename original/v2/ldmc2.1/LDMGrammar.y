@@ -166,24 +166,24 @@ LDMImplicationPred
 LDMOrPred
 	: LDMAndPred
 	| LDMAndPred OR LDMOrPred
-		{ printf("Or 2 "); }
+		{ printf("gOr 2 "); }
 	;
 
 LDMAndPred
 	: LDMNotPred
 	| LDMNotPred AND LDMAndPred
-		{ printf("And 2 "); }
+		{ printf("gAnd 2 "); }
 	;
 
 LDMNotPred
 	: LDMPrimaryPred
 	| NOT LDMPrimaryPred
-		{ printf("Not 1 "); }
+		{ printf("gNot 1 "); }
 	;
 
 LDMPrimaryPred
 	: LDMTerm '=' LDMTerm
-		{ printf("EQ 2 "); }
+		{ printf("gEQ 2 "); }
 	| LDMTerm '<' LDMTerm
 		{ printf("LT 2 "); }
 	| LDMTerm '>' LDMTerm
@@ -253,7 +253,7 @@ LDMPrimaryTerm
 	: LDMConstant
 	| Identifier
 	| Identifier '.' LDMPathFunction
-		{ printf("Apply 2 "); }
+		{ printf("gApply 2 "); }
 	| '(' LDMTerm ')'
 	;
 
@@ -312,7 +312,7 @@ LDMStatement
 	| INSERT IdentifierList '(' LDMInitList ')'
 		{ printf("InsertWInits 2 "); }
 	| DELETE IdentifierList
-		{ printf("Delete 1 "); }
+		{ printf("gDelete 1 "); }
 	| LDMTerm ASSIGN LDMTerm
 		{ printf("Assign 2 "); }
 	;
@@ -351,9 +351,9 @@ LDMIndexDefn
 
 LDMIndexTypeSpec
 	: LIST
-		{ printf("List 0 "); }
+		{ printf("gList 0 "); }
 	| ARRAY LDMInteger LDMOrderedSearchSpec
-		{ printf("Array 2 "); }
+		{ printf("gArray 2 "); }
 	| BINARY TREE LDMOrderedSearchSpec
 		{ printf("BinaryTree 1 "); }
 	| DISTRIBUTED LIST ON LDMPathFunction

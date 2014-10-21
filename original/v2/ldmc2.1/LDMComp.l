@@ -35,13 +35,12 @@
 (defun MAIN ()
   (setq LDMPort (open "ldmc.in"))
   (setq Source (LDMIn LDMPort))
-  (setq Source (SourceTrans Source))
   (setq PDMPort (open "ldmc.out"
     :if-does-not-exist :create
     :if-exists :supersede))
   (InitGlobals)
   (PassOne)
-  ;(Diagnostic "optimizing queries.")
+  (Diagnostic "optimizing queries.")
   ;(PassTwo)
   ;(PassThree)
   ;(Diagnostic "compiling transactions.")
@@ -49,45 +48,6 @@
   ;(Diagnostic "generating code.")
   ;(PassFive)
 )
-
-;*************************************************************************
-;TODO: 
-; 1. Debug test1.ldm in TopoSort folder, progressively remove content from
-;    TopoSort
-; 2. Place these functions in suitable places
-
-(defvar TokenList '(IMPLIES OR AND NOT LE GE NE HAS MAX MIN AS ASC DESC MOD ASSIGN
-                  SIZE SELECTIVITY OVERLAP FREQUENCY UNIT TIME SPACE STORE
-                  STORING DYNAMIC STATIC OF TYPE ORDERED BY INDEX LIST ARRAY
-                  BINARY TREE DISTRIBUTED POINTER IDENTIFIER RDMCLASS ISA
-                  PROPERTIES CONSTRAINTS PROPERTY ON DETERMINED COVER QUERY
-                  GIVEN FROM SELECT WHERE ORDER PRECOMPUTED ONE EXIST FOR ALL
-                  TRANSACTION INTCLASS STRCLASS INTEGER REAL DOUBLEREAL STRING
-                  MAXLEN RANGE TO INSERT END CHANGE DELETE DECLARE RETURN
-                  SCHEMA SUBCLASS CLASSWCON CLASSWPROPS SUBCLASSWPROPS
-                  SUBCLASSWCON CLASSWPROPSCON SUBCLASSWPROPSCON PROP STRINGPROP
-                  INTPROP QUERY PARAMQUERY ALLBODY ALLBODYPRED ALLBODYORDER
-                  ALLBODYPREDORDER ALLBODYPROJ ALLBODYPREDPROJ ALLBODYORDERPROJ
-                  ALLBODYPREDORDERPROJ ONEBODYVAR ONEBODYPRED ONEBODYVARPRED
-                  EXIST EXISTPRED FORALL IMPLIES EQ LT GT LE GE NE
-                  HASMAX HASMIN HASMAXPRED HASMINPRED PRED ORDERASC ORDERDESC
-                  ORDERASCLIST ORDERDESCLIST ADDOP SUBOP MODOP TIMESOP DIVOP
-                  UNMINUSOP CONSTANT APPLY TRANS PARAMTRANS BODY BODYWLOCVARS
-                  RETURNBODY RETURNBODYWLOCVARS INSERT INSERTWINITS DELETE
-                  ASSIGN DEFSIZEEST DEFSELECTEST DEFOVERLAPEST DEFFREQEST
-                  DEFUNITTIME DEFUNITSPACE INDEX LIST ARRAY BINARYTREE DISTLIST
-                  DISTPOINTER DISTBINARYTREE SEARCHCONDLIST ASCSEARCHCOND 
-                  DESCSEARCHCOND SCSEARCHCOND STORE))
-
-(defun SourceTrans (Source)
-  (if (listp Source)
-     (if (member (car Source) TokenList)
-       (cons (car Source) 
-        (list
-          (cons 'quote (list (mapcar 'SourceTrans (cdr Source))))))
-          (cons (car Source) (mapcar 'SourceTrans (cdr Source))))
-     Source))
-          
 
 ;***********************************************************************
 
