@@ -268,7 +268,6 @@ select one G from GradStudent where G.Supervisor.Name = N
 % Example 5. "All undergraduates who received the highest
 %             grade in any course."
 
-:q
 
 
 

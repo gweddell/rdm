@@ -27,9 +27,6 @@ system classes.  The remaining four
 depend on the store type declared for a class, and on use of the
 identity assignment operation.  Property representation mainly involves
 record type generation.  Record fields are generated for user-defined
-:q
-:q
-:q
 properties and indices.
 .IP Pass\ 4:
 (transaction compilation)
@@ -60,9 +57,6 @@ l l.
 \fBGlobal Variable\fR	\fBValue\fR
 .sp .5
 Schema	<SchemaName>
-:q
-::::q
-:q
 Classes	(<ClassName>...)
 Properties	(<PropName>...)
 Queries	(<QueryName>...)
