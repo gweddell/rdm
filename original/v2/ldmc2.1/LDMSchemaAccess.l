@@ -157,7 +157,7 @@
 
 (defun SupIndices* (CName)
    (mapcan
-      #'(lambda (CName) (copy (ClassIndices CName)))
+      #'(lambda (CName) (copy-tree (ClassIndices CName)))
       (SupClasses* CName)))
 
 
@@ -179,7 +179,7 @@
 
 (defun SubSupIndices* (CName)
    (mapcan
-      #'(lambda (CName) (copy (ClassIndices CName)))
+      #'(lambda (CName) (copy-tree (ClassIndices CName)))
       (SubSupClasses* CName)))
 
 
@@ -194,17 +194,17 @@
 
 (defun SupDistIndices* (CName)
    (mapcan
-      #'(lambda (CName) (copy (ClassDistIndices CName)))
+      #'(lambda (CName) (copy-tree (ClassDistIndices CName)))
       (SupClasses* CName)))
 
 
 (defun SubSupDistIndices* (CName)
    (mapcan
-      #'(lambda (CName) (copy (ClassDistIndices CName)))
+      #'(lambda (CName) (copy-tree (ClassDistIndices CName)))
       (SubSupClasses* CName)))
 
 
-(defun SubStore* (CName &aux CList SList)
+(defun SubStore* (CName &aux SList)
    (setq SList nil)
    (do ((CList (SubClasses* CName) (cdr CList))) ((null CList))
       (if (not (member (ClassStore (car CList)) SList))

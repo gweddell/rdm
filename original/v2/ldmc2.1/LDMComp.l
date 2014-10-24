@@ -25,6 +25,9 @@
 (defvar FreeMatchVars nil)
 (defvar MatchVar nil)
 
+(defvar UnitSpace nil)
+(defvar UnitTime nil)
+
 ;***********************************************************************
 ; Initial load and semantic pass of LDM source.  Checks for legal
 ; definitions of classes and properties, and their use in transactions

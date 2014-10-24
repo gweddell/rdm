@@ -45,36 +45,36 @@
 
 (defun ClassConList (P)
    (case (car P)
-      ('Pfd `((Pfd ,(PathFunc (cadr P)) ,(PathFuncList (caddr P)))))
-      ('Cover `((Cover ,(IdList (cadr P)))))
+      (Pfd `((Pfd ,(PathFunc (cadr P)) ,(PathFuncList (caddr P)))))
+      (Cover `((Cover ,(IdList (cadr P)))))
       (t `(,@(ClassConList (cadr P)) ,@(ClassConList (caddr P))))))
 
 (defun PathFuncList (P)
    (case (car P)
-      ('PathFuncList `(,(PathFunc (cadr P)) ,@(PathFuncList (caddr P))))
+      (PathFuncList `(,(PathFunc (cadr P)) ,@(PathFuncList (caddr P))))
       (t (list (PathFunc P)))))
 
 (defun PathFunc (P)
    (case (car P)
-      ('SimpPF (cdr P))
-      ('CompPF (cons (cadr P) (PathFunc (caddr P))))))
+      (SimpPF (cdr P))
+      (CompPF (cons (cadr P) (PathFunc (caddr P))))))
 
 (defun AsOpList (V P)
    (case (car P)
-      ('AsOp `((gEQ ,(ParseTerm (cadr P))
+      (AsOp `((gEQ ,(ParseTerm (cadr P))
                 ,(ValidateApply (AppendPF V (PathFunc (caddr P)))))))
-      ('AsOpList
+      (AsOpList
          (cons `(gEQ ,(ParseTerm (cadr P))
                   ,(ValidateApply (AppendPF V (PathFunc (caddr P)))))
             (AsOpList V (cadddr P))))))
 
 (defun InitList (P)
    (case (car P)
-      ('Init
+      (Init
          (list (ValidateInit `(Assign ,(ValidateApply
                (AppendPF (ParseTerm (cadr P)) (PathFunc (caddr P))))
             ,(ParseTerm (cadddr P))))))
-      ('InitList
+      (InitList
          (cons (ValidateInit `(Assign ,(ValidateApply
                   (AppendPF (ParseTerm (cadr P)) (PathFunc (caddr P))))
                ,(ParseTerm (cadddr P))))
@@ -112,7 +112,7 @@
       Vars))
 
 (defun PopVars ()
-   (case (caar VarStack) ('**frame** (PopVar)) (t (PopVar) (PopVars))))
+   (case (caar VarStack) (**frame** (PopVar)) (t (PopVar) (PopVars))))
 
 (defun PopVar () (setq VarStack (cdr VarStack)))
 
@@ -142,7 +142,7 @@
 ; Non-terminal symbol functions.
 ;***********************************************************************
 
-(defun SpecList (I L) ())
+(defun SpecList (I L) I L ())
 
 (defun Schema (L)
    (setq Schema (car L))

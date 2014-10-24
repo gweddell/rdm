@@ -168,6 +168,8 @@
 ; ! A - produces the value A (special character escape)
 ;***********************************************************************
 
+(defun kwote (A) (list (quote quote) A))
+
 (defun Build (P)
    (cond
       ((atom P) P)
