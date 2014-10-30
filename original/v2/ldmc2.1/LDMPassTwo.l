@@ -737,7 +737,7 @@
             (car PList))
          (setq EqList (cons (car PList) EqList))
          (setq NewPList (cons (car PList) NewPList))))
-   (do ((PList (PredCostSort EqList) (cdr PList)) ((null PList))
+   (do ((PList (PredCostSort EqList) (cdr PList))) ((null PList))
       (if (not (Consequence? DGraph (cadar PList) (caddar PList)))
          (progn (setq NewPList (cons (car PList) NewPList))
          (setq DGraph (BuildDGraph DGraph (list (car PList)))))))
