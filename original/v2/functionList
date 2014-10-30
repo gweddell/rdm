@@ -9,5 +9,5 @@ replace readlist (exploden with read-from-string
 replace remq with remove
 put # before an anonymous function
 use progn to group statements together
-replace setq with defvar 
 replace explodec with coerce
+do loop needs more parentheses

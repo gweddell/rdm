@@ -691,7 +691,7 @@
 
 (defun ProjectionRequired (PredList VarList &aux JoinList SelList)
    (PushMatchVar)
-   (do PredList PredList (cdr PredList) (null PredList)
+   (do ((PredList PredList (cdr PredList))) ((null PredList))
       (if (or (Match
                   '(EQ (Apply (EVar *) *) (Apply (EVar *) *))
                   (car PredList))
@@ -730,14 +730,14 @@
 (defun RemoveRedundantPred (DGraph PredList ScanEntry &aux EqList NewPList)
    (PushMatchVar)
    (setq DGraph (BuildDGraph DGraph (InterpretScan ScanEntry)))
-   (do PList PredList (cdr PList) (null PList)
+   (do ((PList PredList (cdr PList))) ((null PList))
       (if (Match
             '(EQ > T1 where (IsTerm <q T1)
                  > T2 where (IsTerm <q T2))
             (car PList))
          (setq EqList (cons (car PList) EqList))
          (setq NewPList (cons (car PList) NewPList))))
-   (do PList (PredCostSort EqList) (cdr PList) (null PList)
+   (do ((PList (PredCostSort EqList) (cdr PList)) ((null PList))
       (if (not (Consequence? DGraph (cadar PList) (caddar PList))) then
          (setq NewPList (cons (car PList) NewPList))
          (setq DGraph (BuildDGraph DGraph (list (car PList))))))
