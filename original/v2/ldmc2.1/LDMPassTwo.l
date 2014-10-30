@@ -75,11 +75,11 @@
          (Call JoinOrderControl)
          (Call AndHeapControl))
       (cadddr (QueryBody QName)))
-   (if (Match '(? ? ? (UnOptimizedQuery)) (QueryBody QName)) then
+   (if (Match '(? ? ? (UnOptimizedQuery)) (QueryBody QName))
       (ReportWarning `(NoStrategyFound ,QName)))
-   (if (Match '(? ? ? (Find ? (All ? (Sort +)) *)) (QueryBody QName)) then
+   (if (Match '(? ? ? (Find ? (All ? (Sort +)) *)) (QueryBody QName))
       (ReportWarning `(SortUsed ,QName)))
-   (if (Match '(? ? ? (Find ? (All (Proj +) ?) *)) (QueryBody QName)) then
+   (if (Match '(? ? ? (Find ? (All (Proj +) ?) *)) (QueryBody QName))
       (ReportWarning `(ProjectionUsed ,QName))))
 
 
@@ -700,19 +700,19 @@
                   (car PredList))
               (Match
                   '(EQ (EVar *) (EVar *))
-                  (car PredList))) then
+                  (car PredList))) 
          (setq JoinList
             (cons (car PredList) JoinList))
-       elseif (Match
+       (if (Match
                   '(EQ <> ((Apply (EVar > V > C) > PF)) (*))
-                  (car PredList)) then
+                  (car PredList))
          (setq SelList
             (cons (Build '(Apply (EVar < V < C) < PF)) SelList))
-       elseif (Match
+       (if (Match
                   '(EQ <> ((EVar > V > C)) (*))
-                  (car PredList)) then
+                  (car PredList))
          (setq SelList
-            (cons (Build '(EVar < V < C)) SelList))))
+            (cons (Build '(EVar < V < C)) SelList))))))
    (PopMatchVar)
    #+TraceRules (untrace)
    (prog1
@@ -738,9 +738,9 @@
          (setq EqList (cons (car PList) EqList))
          (setq NewPList (cons (car PList) NewPList))))
    (do ((PList (PredCostSort EqList) (cdr PList)) ((null PList))
-      (if (not (Consequence? DGraph (cadar PList) (caddar PList))) then
-         (setq NewPList (cons (car PList) NewPList))
-         (setq DGraph (BuildDGraph DGraph (list (car PList))))))
+      (if (not (Consequence? DGraph (cadar PList) (caddar PList)))
+         (progn (setq NewPList (cons (car PList) NewPList))
+         (setq DGraph (BuildDGraph DGraph (list (car PList)))))))
    (PopMatchVar)
    (cons NewPList DGraph))
 
@@ -975,20 +975,18 @@
    (SetDifference (ScanVariables FEList) (CutVariables FEList)))
 
 (defun CutVariables (FEList)
-   (if (null (car FEList)) then
+   (if (null (car FEList))
       nil
-    elseif (Match '(Cut > ExprVar) (car FEList)) then
+    (if (Match '(Cut > ExprVar) (car FEList)) 
       (cons (GetBindVal 'ExprVar) (CutVariables (cdr FEList)))
-    else
-      (CutVariables (cdr FEList))))
+      (CutVariables (cdr FEList)))))
 
 (defun ScanVariables (FEList)
-   (if (null (car FEList)) then
+   (if (null (car FEList))
       nil
-    elseif (Match
+    (if (Match
 	 '(Scan > ExprVar (or (LookUp SCLookUp Iter SCIter) *))
-	 (car FEList)) then
+	 (car FEList))
       (cons (GetBindVal 'ExprVar) (ScanVariables (cdr FEList)))
-    else
-      (ScanVariables (cdr FEList))))
+      (ScanVariables (cdr FEList)))))
 
