@@ -59,6 +59,7 @@
   (load "SelCond.l")
   (load "CostProb.l")
   (load "FuncDep.l")
+  (load "LDMErrorProcs.l")
   (load "LDMSchemaAccess.l")
   (load "LDMSchemaMaint.l")
   (load "LDMCompLib.l")
