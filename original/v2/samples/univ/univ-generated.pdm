@@ -1,0 +1,443 @@
+schema univ
+
+class univStruct
+msc 1 mscsum 0
+reference direct
+fields
+   Msc;
+   CourseStore;
+   EnrollStore;
+   ProfStore;
+   PersonStore;
+   CDistListHead;
+   EDistList2Head;
+   EDistList1Head;
+   TeacherTreeHead;
+   PersonTreeHead
+
+class EnrolledIn
+properties Student, Course, Grade
+msc 1 mscsum 1
+reference direct
+fields
+   Msc;
+   EDistList2Next;
+   EDistList2Prev;
+   EDistList1Next;
+   EDistList1Prev;
+   Student;
+   Course;
+   Grade
+
+class Course
+properties TaughtBy, Name
+msc 1 mscsum 1
+reference direct
+fields
+   Msc;
+   CDistListNext;
+   CDistListPrev;
+   EDistList1First;
+   TaughtBy;
+   Name
+
+class Person
+properties Name, Age
+msc 0 mscsum 7
+reference indirect
+fields
+   Msc;
+   PersonTreeMark;
+   PersonTreeRSon;
+   PersonTreeLSon;
+   Name;
+   Age
+
+class Student isa Person
+msc 2 mscsum 3
+reference indirect
+extension of Person
+fields
+   EDistList2First
+
+class Teacher isa Person
+msc 0 mscsum 5
+reference indirect
+extension of Student
+fields
+   CDistListFirst;
+   TeacherTreeMark;
+   TeacherTreeRSon;
+   TeacherTreeLSon
+
+class Professor isa Teacher
+msc 4 mscsum 4
+reference indirect
+extension of Teacher
+
+class GradStudent isa Student, Teacher
+properties Supervisor
+msc 1 mscsum 1
+reference indirect
+extension of Teacher
+fields
+   Supervisor
+
+property CourseStore on StoreTemplate
+property EnrollStore on StoreTemplate
+property ProfStore on StoreTemplate
+property PersonStore on StoreTemplate
+property CDistListFirst on Course
+property CDistListNext on Course
+property CDistListPrev on Course
+property CDistListHead on Course
+property EDistList2First on EnrolledIn
+property EDistList2Next on EnrolledIn
+property EDistList2Prev on EnrolledIn
+property EDistList2Head on EnrolledIn
+property EDistList1First on EnrolledIn
+property EDistList1Next on EnrolledIn
+property EDistList1Prev on EnrolledIn
+property EDistList1Head on EnrolledIn
+property TeacherTreeMark on Integer range 0 to 1
+property TeacherTreeRSon on Teacher
+property TeacherTreeLSon on Teacher
+property TeacherTreeHead on Teacher
+property PersonTreeMark on Integer range 0 to 1
+property PersonTreeRSon on Person
+property PersonTreeLSon on Person
+property PersonTreeHead on Person
+property Msc on Integer range 1 to 4
+property univStruct on univStruct
+property Person on Person
+property Student on Student
+property Teacher on Teacher
+property GradStudent on GradStudent
+property Professor on Professor
+property Course on Course
+property EnrolledIn on EnrolledIn
+property Grade on Integer range 0 to 100
+property TaughtBy on Teacher
+property Supervisor on Professor
+property Age on Integer range 16 to 75
+property Name on String maxlen 20
+
+index PersonTree on Person
+of type BINTREE
+ordered by Student, GradStudent, Supervisor asc
+
+index TeacherTree on Teacher
+of type BINTREE
+ordered by Professor
+
+index EDistList1 on EnrolledIn
+of type DISTLIST
+distributed on Course
+
+index EDistList2 on EnrolledIn
+of type DISTLIST
+distributed on Student
+
+index CDistList on Course
+of type DISTLIST
+distributed on TaughtBy
+
+store PersonStore of type dynamic
+storing
+   GradStudent,
+   Student
+
+store ProfStore of type dynamic
+storing
+   Professor
+
+store EnrollStore of type dynamic
+storing
+   EnrolledIn
+
+store CourseStore of type dynamic
+storing
+   Course
+
+query AllCourses
+select C from Course
+nest
+   assign C as each of CDistList;
+   end
+
+query AllEnroll
+select E from EnrolledIn
+nest
+   assign E as each of EDistList2;
+   end
+
+query AllGrad
+select P from GradStudent
+declare T from Teacher
+nest
+   assign T as each of TeacherTree;
+	assign P as T in GradStudent;
+   end
+
+query AllPeople
+select P from Person
+nest
+   assign P as each of PersonTree;
+   end
+
+query CourseWithName
+given N from Name
+select P from Course
+nest
+   assign P as each of CDistList;
+   verify P.Name = N;
+   cut P;
+   end
+
+query FindEnrolledIn
+given S, C from Name, Name
+select E from EnrolledIn
+declare C00053 from Course
+nest
+   assign C00053 as each of CDistList;
+   verify C00053.Name = C;
+   cut C00053;
+   assign E as each of EDistList1 where
+      E.Course = C00053;
+   verify E.Student.Name = S;
+   cut E;
+   end
+
+query GradsWithSupervisorName
+given N from Name
+select one G from GradStudent
+declare T from Teacher
+nest
+   assign T as each of TeacherTree;
+	assign G as T in GradStudent;
+   verify G.Supervisor.Name = N;
+   cut T;
+   end
+
+query OldStudentsInCourse
+given C from Course
+select S from Student
+declare E00005 from EnrolledIn
+nest
+   assign E00005 as each of EDistList1 where
+      E00005.Course = C;
+   assign S as E00005.Student;
+   verify S.Age > 30;
+   end
+
+query PersonWithName
+given N from Name
+select P from Person
+nest
+   assign P as each of PersonTree;
+   verify P.Name = N;
+   cut P;
+   end
+
+query PossibleGrad
+select one S from Student
+declare G00008, G00009, E2, E1
+from GradStudent, GradStudent, EnrolledIn, EnrolledIn
+nest
+   assign S as each of PersonTree where
+      S IN Student;
+   compliment
+      nest
+         assign G00008 as S in GradStudent;
+         end;
+   assign E1 as each of EDistList2 where
+      E1.Student = S;
+   compliment
+      nest
+         assign E2 as each of EDistList1 where
+            E2.Course = E1.Course;
+         verify E2.Grade >= E1.Grade;
+         assign G00009 as E2.Student in GradStudent;
+         cut E2;
+         end;
+   cut E1;
+   cut S;
+   end
+
+query ProfWithName
+given N from Name
+select P from Professor
+nest
+   assign P as each of TeacherTree where
+      P IN Professor;
+   verify P.Name = N;
+   cut P;
+   end
+
+query SmartUndergrads
+select S from Student
+declare G00006, E00007, E
+from GradStudent, EnrolledIn, EnrolledIn
+nest
+   assign S as each of PersonTree where
+      S IN Student;
+   compliment
+      nest
+         assign G00006 as S in GradStudent;
+         end;
+   assign E as each of EDistList2 where
+      E.Student = S;
+   compliment
+      nest
+         assign E00007 as each of EDistList1 where
+            E00007.Course = E.Course;
+         verify E00007.Grade > E.Grade;
+         cut E00007;
+         end;
+   cut E;
+   end
+
+query StudentWithName
+given N from Name
+select P from Student
+nest
+   assign P as each of PersonTree where
+      P IN Student;
+   verify P.Name = N;
+   cut P;
+   end
+
+query TeacherWithName
+given N from Name
+select P from Teacher
+nest
+   assign P as each of TeacherTree;
+   verify P.Name = N;
+   cut P;
+   end
+
+transaction AssignMark
+given E, M from EnrolledIn, Grade
+actions
+   E.Grade := M
+
+transaction AssignTeacher
+given T, C from Teacher, Course
+actions
+   remove C from CDistList;
+   C.TaughtBy := T;
+   insert C in CDistList
+
+transaction BecomeGrad
+given S, P from Student, Professor
+declare G from GradStudent
+actions
+   alloc id G;
+   allocate indirect G from PersonStore;
+   G.Name := S.Name;
+   G.Age := S.Age;
+   G.Supervisor := P;
+   create G for CDistList;
+   create G for EDistList2;
+   if S IN Teacher then
+      remove (S AS Teacher) from TeacherTree
+   endif;
+   remove S from PersonTree;
+   if S IN Teacher then
+      copy (S AS Teacher) to G for CDistList
+   endif;
+   copy S to G for EDistList2;
+   if S IN Teacher then
+      destroy (S AS Teacher) for CDistList
+   endif;
+   destroy S for EDistList2;
+   free indirect S to PersonStore;
+   S id:= G;
+   free id G;
+   G := (S AS GradStudent);
+   insert G in TeacherTree;
+   insert G in PersonTree
+return P
+
+transaction ChangeStudentName
+given S, N from Student, Name
+actions
+   S.Name := N
+
+transaction ChangeSupervisor
+given G, P from GradStudent, Professor
+actions
+   remove G from PersonTree;
+   G.Supervisor := P;
+   insert G in PersonTree
+
+transaction EnrollStudent
+given S, C from Student, Course
+declare E from EnrolledIn
+actions
+   allocate E from EnrollStore;
+   E.Student := S;
+   E.Course := C;
+   insert E in EDistList2;
+   insert E in EDistList1
+
+transaction EnterProfessor
+given N, A from Name, Age
+declare S from Professor
+actions
+   alloc id S;
+   allocate indirect S from ProfStore;
+   S.Name := N;
+   S.Age := A;
+   create S for CDistList;
+   insert S in PersonTree;
+   insert S in TeacherTree
+
+transaction EnterStudent
+given N, A from Name, Age
+declare S from Student
+actions
+   alloc id S;
+   allocate indirect S from PersonStore;
+   S.Name := N;
+   S.Age := A;
+   create S for EDistList2;
+   insert S in PersonTree
+
+transaction Inituniv
+actions
+   init store PersonStore;
+   init store ProfStore;
+   init store EnrollStore;
+   init store CourseStore;
+   init index PersonTree;
+   init index TeacherTree;
+   init index EDistList1;
+   init index EDistList2;
+   init index CDistList
+
+transaction NewCourse
+given T, N from Teacher, Name
+declare C from Course
+actions
+   allocate C from CourseStore;
+   C.TaughtBy := T;
+   C.Name := N;
+   create C for EDistList1;
+   insert C in CDistList
+return C
+
+transaction RemStudent
+given S from Student
+actions
+   if S IN Teacher then
+      remove (S AS Teacher) from TeacherTree
+   endif;
+   remove S from PersonTree;
+   if S IN Teacher then
+      destroy (S AS Teacher) for CDistList
+   endif;
+   destroy S for EDistList2;
+   free indirect S to PersonStore;
+   free id S
+

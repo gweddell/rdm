@@ -1,0 +1,155 @@
+schema frv
+
+class frvStruct
+msc 1 mscsum 0
+reference direct
+fields
+   Msc;
+   ArcStore;
+   VertexStore;
+   ArcListHead;
+   VertexListHead
+
+class Arc
+properties FromVertex, ToVertex
+msc 1 mscsum 1
+reference direct
+fields
+   Msc;
+   ArcListNext;
+   ArcListPrev;
+   FromVertex;
+   ToVertex
+
+class Mark
+msc 1 mscsum 1
+reference direct
+fields
+   Msc;
+   VertexListFirst
+
+class Vertex
+properties Label, Mark
+msc 1 mscsum 1
+reference direct
+fields
+   Msc;
+   ArcListFirst;
+   VertexListNext;
+   VertexListPrev;
+   Label;
+   Mark
+
+property ArcStore on StoreTemplate
+property VertexStore on StoreTemplate
+property ArcListFirst on Arc
+property ArcListNext on Arc
+property ArcListPrev on Arc
+property ArcListHead on Arc
+property VertexListFirst on Vertex
+property VertexListNext on Vertex
+property VertexListPrev on Vertex
+property VertexListHead on Vertex
+property Msc on Integer range 1 to 1
+property frvStruct on frvStruct
+property Vertex on Vertex
+property Mark on Mark
+property Arc on Arc
+property ToVertex on Vertex
+property FromVertex on Vertex
+property Label on String maxlen 20
+
+index VertexList on Vertex
+of type DISTLIST
+distributed on Mark
+
+index ArcList on Arc
+of type DISTLIST
+distributed on FromVertex
+
+store VertexStore of type dynamic
+storing
+   Mark,
+   Vertex
+
+store ArcStore of type dynamic
+storing
+   Arc
+
+query ConnectedVertices
+given VFrom, M from Vertex, Mark
+select VTo from Vertex
+declare A00005 from Arc
+nest
+   assign A00005 as each of ArcList where
+      A00005.FromVertex = VFrom;
+   assign VTo as A00005.ToVertex;
+   verify VTo.Mark = M;
+   end
+
+query VertexWithLabel
+given L from Label
+select one V from Vertex
+nest
+   assign V as each of VertexList;
+   verify V.Label = L;
+   cut V;
+   end
+
+query VertexWithMark
+given M from Mark
+select one V from Vertex
+nest
+   assign V as first of VertexList where
+      V.Mark = M;
+   end
+
+query VerticesWithMark
+given M from Mark
+select V from Vertex
+nest
+   assign V as each of VertexList where
+      V.Mark = M;
+   end
+
+transaction ChgMark
+given V, M from Vertex, Mark
+actions
+   remove V from VertexList;
+   V.Mark := M;
+   insert V in VertexList
+
+transaction Initfrv
+actions
+   init store VertexStore;
+   init store ArcStore;
+   init index VertexList;
+   init index ArcList
+
+transaction NewArc
+given VFrom, VTo from Vertex, Vertex
+declare A from Arc
+actions
+   allocate A from ArcStore;
+   A.FromVertex := VFrom;
+   A.ToVertex := VTo;
+   insert A in ArcList
+
+transaction NewMark
+declare M from Mark
+actions
+   allocate M from VertexStore;
+   create M for VertexList
+return M
+
+transaction NewVertex
+given L, M from Label, Mark
+declare V from Vertex
+actions
+   allocate V from VertexStore;
+   V.Label := L;
+   V.Mark := M;
+   create V for ArcList;
+   insert V in VertexList
+return V
+
