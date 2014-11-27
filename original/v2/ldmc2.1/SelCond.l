@@ -93,9 +93,9 @@
 	    VarSym))
     					; case: Term Apply PF
       (let* ((Prop (car (last (caddr Term))))
-	     (SubTerm (assq (Locate DGraph (RemoveLastProp Term)) DGraph)))
+	     (SubTerm (assoc (Locate DGraph (RemoveLastProp Term)) DGraph)))
 	 (or
-	    (cdr (assq Prop (cdr SubTerm)))	;  subcase existing
+	    (cdr (assoc Prop (cdr SubTerm)))	;  subcase existing
 	    (let* ((TermSym (gensym 'T)))	;  otherwise generate new symbol
 	       (rplacd SubTerm
 		  (cons (cons Prop TermSym) (cdr SubTerm)))
@@ -107,12 +107,12 @@
    (do ((UnifyList (list (cons (Locate DGraph Term1) (Locate DGraph Term2)))
        (cdr UnifyList))) ((null UnifyList))
       (if (neq (caar UnifyList) (cdar UnifyList))
-	 (let* ((FromLoc (assq (caar UnifyList) DGraph))
-		(ToLoc (assq (cdar UnifyList) DGraph))
+	 (let* ((FromLoc (assoc (caar UnifyList) DGraph))
+		(ToLoc (assoc (cdar UnifyList) DGraph))
 		(Temp))
 	    (do ((PropList (cdr FromLoc)		; Merge out-edge lists
 		(cdr PropList))) ((null PropList))
-	       (if (setq Temp (assq (caar PropList) (cdr ToLoc)))
+	       (if (setq Temp (assoc (caar PropList) (cdr ToLoc)))
 		  (rplacd UnifyList		;   duplicate prop values
 		     (cons			;   to be recursively unified
 			(cons (cdar PropList) (cdr Temp))
@@ -122,7 +122,7 @@
 			(car PropList)
 			(cdr ToLoc)))))
 	    (rplacd DGraph			; Delete extra node
-	       (delq FromLoc (cdr DGraph)))
+	       (delete FromLoc (cdr DGraph)))
 	    (ReplaceAtom DGraph			; Redirect in-edges
 	       (caar UnifyList) (cdar UnifyList))
 	    (ReplaceAtom (cdr UnifyList)	; Replace symbol in UnifyList
@@ -158,7 +158,7 @@
 	     ((null BVList) nil)
 	    (if (and
 		  (eq (caar BVList) TargetSym)
-		  (memq (Type (cdar BVList)) TargetSubClasses))
+		  (member (Type (cdar BVList)) TargetSubClasses))
 	       (return (cdar BVList))))
 
 	 ; Case Target = T, T in TargetSubClasses, TermLength of T > 0
@@ -188,18 +188,18 @@
 	   (PathReturn nil))
 	  ((null OpenList) nil)			; no path found
 	 (do ((PropList
-	     (cdr (assq (caar OpenList) DGraph))
+	     (cdr (assoc (caar OpenList) DGraph))
 	     (cdr PropList)))
 	     ((null PropList))
 	    (cond
-	       ((assq				; if son is not new, do nothing
+	       ((assoc				; if son is not new, do nothing
 		  (cdar PropList)
 		  (car NodesQueue)))
 	       ((and				; if...
 		     (eq (cdar PropList) (car Target))	; ...target sym matched
 		     (or
 			(null SubClassFlag)	; ...no subclass constraint
-			(memq			; ...subclass constraint met
+			(member			; ...subclass constraint met
 			   (Dom (list (caar PropList)))
 			   TargetSubClasses)))
 		  (setq PathReturn		; then path found
@@ -207,7 +207,7 @@
 			(cdar OpenList)
 			(list (caar PropList))))
 		  (return))
-	       ((memq				; if combined path well defined
+	       ((member				; if combined path well defined
 		     (caar PropList)
 		     (ClassProps* (Type (cdar OpenList))))
 		  (tconc NodesQueue		; then append son to OpenList
@@ -242,8 +242,8 @@
    Form)
 
 (defun IsVar (Term)
-   (memq (car Term) '(EVar QVar PVar Constant)))
+   (member (car Term) '(EVar QVar PVar Constant)))
 
 (defun IsTerm (Structure)
-   (memq (car Structure) '(Apply EVar QVar PVar Constant)))
+   (member (car Structure) '(Apply EVar QVar PVar Constant)))
 

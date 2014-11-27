@@ -115,7 +115,7 @@
    (Not (>or (EQ LT LE GT GE NE) Comp > T1 > T2))
    (< NewComp < T1 < T2)
    (Bindq NewComp
-      (cadr (assq <q Comp '((EQ NE) (LT GE) (LE GT) (GT LE) (GE LT) (NE EQ))))))
+      (cadr (assoc <q Comp '((EQ NE) (LT GE) (LE GT) (GT LE) (GE LT) (NE EQ))))))
 
 (SinglePred
    (Find ? (One) (ScanHeap) (AndHeap > P))
@@ -472,7 +472,7 @@
       ((SCCond > C) >* SCList)
       > GlobalDGraph
       > BoundVars
-      where (memq <q C (SupClasses* (Type <q V))))
+      where (member <q C (SupClasses* (Type <q V))))
    (IndexScan
       (Scan < V (< NewIterType < I << SelCondList (QualSC < C)))
       < SCList
@@ -646,7 +646,7 @@
    (cond
       ((null Form) nil)
       ((atom Form) nil)
-      ((memq (car Form) VTypeList)
+      ((member (car Form) VTypeList)
          (list Form))
       (t (SetUnion
             (SelectVar (car Form) VTypeList)
