@@ -188,10 +188,9 @@
 ; to the corresponding atom Ai.  Returns that last Fi.
 ;***********************************************************************
 
-;(defun Bindq fexpr (BList)
-;   (do ((BList BList (cddr BList)) (Fn nil))
-;       ((null BList) Fn)
-;      (PutBindVal (car BList) (setq Fn (eval (cadr BList))))))
+(defmacro Bindq (&rest BList)
+   (do ((BList BList (cddr BList)) (S '(let ((Fn nil))))) ((null BList) (append S '(Fn)))
+      (setq S (append S `((PutBindVal (quote ,(car BList)) (setq Fn ,(cadr BList))))))))
 
 ;***********************************************************************
 ; Bind is equivalent to Bindq, except that it evaluates each Ai.
@@ -201,3 +200,4 @@
 ;   (do ((BList BList (cddr BList)) (Fn nil))
 ;       ((null BList) Fn)
 ;      (PutBindVal (eval (car BList)) (setq Fn (eval (cadr BList))))))
+
