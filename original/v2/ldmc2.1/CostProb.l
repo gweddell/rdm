@@ -2,24 +2,24 @@
 ; Copyright (C) 1989, G. E. Weddell.
 ;***********************************************************************
 
-(declare
-   (special Schema)
-   (special Classes)
-   (special BuiltInClasses)
-   (special Properties)
-   (special Queries)
-   (special Indices)
-   (special Stores)
-   (special Transactions)
-   (special QueryName?)
-   (special QueryOrTransName)
-   (special Source)
-   (special PDMPort)
-   (special DefaultRCntEst)
-   (special VarStack)
-   (special MatchVarStack)
-   (special FreeMatchVars)
-   (special MatchVar))
+;(declare
+;   (special Schema)
+;   (special Classes)
+;   (special BuiltInClasses)
+;   (special Properties)
+;   (special Queries)
+;   (special Indices)
+;   (special Stores)
+;   (special Transactions)
+;   (special QueryName?)
+;   (special QueryOrTransName)
+;   (special Source)
+;   (special PDMPort)
+;   (special DefaultRCntEst)
+;   (special VarStack)
+;   (special MatchVarStack)
+;   (special FreeMatchVars)
+;   (special MatchVar))
 
 ;************************** Cost of a Query ****************************
 
@@ -35,61 +35,61 @@
 
 (defun CostPred (P)
    (eval (Build
-      (if (Match '(or (NE EQ LT GT LE GE) > Expr1 > Expr2) P) then
+      (cond ((Match '(or (NE EQ LT GT LE GE) > Expr1 > Expr2) P)
 	 '(add
 	    (FixedCosts 'Compare)
 	    (CostExpr <q Expr1)
-	    (CostExpr <q Expr2))
+	    (CostExpr <q Expr2)))
 
-       elseif (Match '(Not > Pred) P) then
-	 '(CostPred <q Pred)
+       ((Match '(Not > Pred) P)
+	 '(CostPred <q Pred))
 
-       elseif (Match '(In > ExprVar > C) P) then
+       ((Match '(In > ExprVar > C) P)
 	 '(add
 	    (FixedCosts 'In)
-	    (CostExpr <q ExprVar))
+	    (CostExpr <q ExprVar)))
 
-       elseif (Match '(Find ? ?) P) then		;no scan entry
-	 0.0
+       ((Match '(Find ? ?) P)		;no scan entry
+	 0.0)
 
-       elseif (Match '(Find ? (All (Proj +) ?) >* FEList) P) then
+       ((Match '(Find ? (All (Proj +) ?) >* FEList) P) 
                                                         ;projection required
          '(add
             99999999.
-            (CostPred '(Find () (All) << FEList)))
+            (CostPred '(Find () (All) << FEList))))
 
-       elseif (Match '(Find ? (All ? (Sort +)) >* FEList) P) then
+       ((Match '(Find ? (All ? (Sort +)) >* FEList) P)
                                                         ;sort required
          '(add
             99999999.
-            (CostPred '(Find () (All) << FEList)))
+            (CostPred '(Find () (All) << FEList))))
 
-       elseif (Match
+       ((Match
 		  '(Find ? > FType (Scan ? (Substitute > Expr)) >* Rest)
-		  P) then
+		  P)
 	 '(add
 	    (FixedCosts 'Bind)
 	    (CostExpr <q Expr)
-	    (CostPred '(Find () < FType << Rest)))
+	    (CostPred '(Find () < FType << Rest))))
 
-       elseif (Match
+       ((Match
 		  '(Find ? > FType
 		     (Scan (? ? > C) (CondSubstitute > Expr)) >* Rest)
-		  P) then
+		  P)
 	 '(add
 	    (CostPred '(In < Expr < C))
 	    (times
 	       (ProbPred '(In < Expr < C))
 	       (add
 		  (FixedCosts 'Bind)
-		  (CostPred '(Find () < FType << Rest)))))
+		  (CostPred '(Find () < FType << Rest))))))
 
-       elseif (Match
+       ((Match
 		  '(Find ? > FType
 		     (Scan > ExprVar
 			(or (LookUp SCLookUp) > IName >* SelectCond))
 		     >* Rest)
-		  P) then
+		  P)
 	 '(add
 	    (CostInit <q IName)
 	    (CostSelect '(Scan < ExprVar (Iter < IName << SelectCond)))
@@ -99,12 +99,12 @@
 		     (SizeEst (IndexClass <q IName))
 		     (ProbSelect
 			'(Scan < ExprVar (Iter < IName << SelectCond)))))
-	       (CostPred '(Find () < FType << Rest))))
+	       (CostPred '(Find () < FType << Rest)))))
 
-       elseif (Match
+       ((Match
 		  '(Find ? (One)
 		     (Scan > ExprVar (? > IName >* SelectCond)) >* Rest)
-		  P) then
+		  P)
 
 	 '(let* ((MaxIter
 		     (times
@@ -122,15 +122,14 @@
 			      (expt (diff 1.0 ProbRest) (add1 MaxIter)))
 			   ProbRest)))
 		 (NumRest
-		     (if (zerop ProbRest) then
+		     (if (zerop ProbRest)
 			MaxIter
-		      elseif (zerop MaxIter) then
+		      (if (zerop MaxIter)
 			0.0
-		      else
 			(quotient
 			   (diff 1.0
 			      (expt (diff 1.0 ProbRest) MaxIter))
-			   ProbRest))))
+			   ProbRest)))))
 	    (add
 	       (CostInit <q IName)
 	       (times
@@ -139,12 +138,12 @@
 	       (times NumNextI
 		  (CostCont <q IName))
 	       (times NumRest
-		  (CostPred '(Find () (One) << Rest)))))
+		  (CostPred '(Find () (One) << Rest))))))
 
-       elseif (Match
+       ((Match
 		  '(Find ? (All *)
 		     (Scan > ExprVar (? > IName >* SelectCond)) >* Rest)
-		  P) then
+		  P)
 
 	 '(let* ((MaxIter
 		     (times
@@ -159,33 +158,33 @@
 	       (times MaxIter
 		  (add
 		     (CostCont <q IName)
-		     (CostPred '(Find () (All) << Rest))))))
+		     (CostPred '(Find () (All) << Rest)))))))
 
-       elseif (Match '(Find ? > FType (ScanHeap) >* Rest) P) then
-	 '(CostPred '(Find () < FType << Rest))
+       ((Match '(Find ? > FType (ScanHeap) >* Rest) P)
+	 '(CostPred '(Find () < FType << Rest)))
 
-       elseif (Match '(Find ? ? (ScanHeap +) *) P) then
-	 0.0
+       ((Match '(Find ? ? (ScanHeap +) *) P)
+	 0.0)
 
-       elseif (Match '(Find ? > FType (AndHeap) >* Rest) P) then
-	 '(CostPred '(Find () < FType << Rest))
+       ((Match '(Find ? > FType (AndHeap) >* Rest) P)
+	 '(CostPred '(Find () < FType << Rest)))
 
-       elseif (Match '(Find ? > FType (AndHeap >* PredList) >* Rest) P) then
+       ((Match '(Find ? > FType (AndHeap >* PredList) >* Rest) P)
 	 '(add
 	    (CostPredList <q PredList)
 	    (times
 	       (ProbPredList <q PredList)
-	       (CostPred '(Find () < FType << Rest))))
+	       (CostPred '(Find () < FType << Rest)))))
 
-       elseif (Match '(Find ? > FType (Cut *) >* Rest) P) then
-	 '(CostPred '(Find () < FType << Rest))
+       ((Match '(Find ? > FType (Cut *) >* Rest) P)
+	 '(CostPred '(Find () < FType << Rest)))
 
-       elseif (Match '(Find ? > FType > Pred >* Rest) P) then
+       ((Match '(Find ? > FType > Pred >* Rest) P)
 	 '(add
 	    (CostPred <q Pred)
 	    (times
 	       (ProbPred <q Pred)
-	       (CostPred '(Find () < FType << Rest))))))))
+	       (CostPred '(Find () < FType << Rest)))))))))
 
 
 (defun CostSelect (ScanEntry)
@@ -194,9 +193,8 @@
 
 (defun InterpretScan (ScanEntry &aux (ExprVar (cadr ScanEntry))
 				     (ScanSpec (caddr ScanEntry)))
-   (if (member (car ScanSpec) '(Substitute CondSubstitute)) then
+   (if (member (car ScanSpec) '(Substitute CondSubstitute))
       `((EQ ,ExprVar ,(cadr ScanSpec)))
-    else
       (do ((SCList (cddr ScanSpec) (cdr SCList))
 	   (PredList nil))
 	  ((null SCList) (reverse PredList))
@@ -247,32 +245,32 @@
 
 (defun CostExpr (E)
    (eval (Build
-      (if (Match '(or (QVar PVar LVar EVar Constant) *) E) then
-	 '(FixedCosts 'Var)
+      (cond ((Match '(or (QVar PVar LVar EVar Constant) *) E)
+	 '(FixedCosts 'Var))
 
-       elseif (Match '(UnMinusOp > Expr) E) then
+       ((Match '(UnMinusOp > Expr) E)
 	 '(add
 	    (FixedCosts 'Add)
-	    (CostExpr <q Expr))
+	    (CostExpr <q Expr)))
 
-       elseif (Match '(or (AddOp SubOp) > Expr1 > Expr2) E) then
+       ((Match '(or (AddOp SubOp) > Expr1 > Expr2) E)
 	 '(add
 	    (FixedCosts 'Add)
 	    (CostExpr <q Expr1)
-	    (CostExpr <q Expr2))
+	    (CostExpr <q Expr2)))
 
-       elseif (Match '(or (ModOp TimesOp DivOp) > Expr1 > Expr2) E) then
+       ((Match '(or (ModOp TimesOp DivOp) > Expr1 > Expr2) E)
 	 '(add
 	    (FixedCosts 'Multiply)
 	    (CostExpr <q Expr1)
-	    (CostExpr <q Expr2))
+	    (CostExpr <q Expr2)))
 
-       elseif (Match '(Apply ? > PF) E) then
+       ((Match '(Apply ? > PF) E)
 	 '(add
 	    (FixedCosts 'Var)
 	    (times
 	       (FixedCosts 'Path)
-	       (length <q PF)))))))
+	       (length <q PF))))))))
 
 
 ;******************** Costs of Operations on Indices *******************
@@ -320,64 +318,64 @@
 
 (defun ProbPred (P)
    (eval (Build
-      (if (Match '(EQ > Expr1 > Expr2) P) then
-	 '(ProbEq <q Expr1 <q Expr2)
+      (cond ((Match '(EQ > Expr1 > Expr2) P)
+	 '(ProbEq <q Expr1 <q Expr2))
 
-       elseif (Match '(GT > Expr1 > Expr2) P) then
-	 '(ProbGT <q Expr1 <q Expr2)
+       ((Match '(GT > Expr1 > Expr2) P)
+	 '(ProbGT <q Expr1 <q Expr2))
 
-       elseif (Match '(GE > Expr1 > Expr2) P) then
-	 '(ProbGE <q Expr1 <q Expr2)
+       ((Match '(GE > Expr1 > Expr2) P)
+	 '(ProbGE <q Expr1 <q Expr2))
 
-       elseif (Match '(LT > Expr1 > Expr2) P) then
-	 '(ProbGT <q Expr2 <q Expr1)
+       ((Match '(LT > Expr1 > Expr2) P)
+	 '(ProbGT <q Expr2 <q Expr1))
 
-       elseif (Match '(LE > Expr1 > Expr2) P) then
-	 '(ProbGE <q Expr2 <q Expr1)
+       ((Match '(LE > Expr1 > Expr2) P)
+	 '(ProbGE <q Expr2 <q Expr1))
 
-       elseif (Match '(NE > Expr1 > Expr2) P) then
-    '(ProbPred (Not (EQ <q Expr1 <q Expr2)))
+       ((Match '(NE > Expr1 > Expr2) P)
+    '(ProbPred (Not (EQ <q Expr1 <q Expr2))))
 
-       elseif (Match '(Not > Pred) P) then
-	 '(diff 1.0 (ProbPred <q Pred))
+       ((Match '(Not > Pred) P)
+	 '(diff 1.0 (ProbPred <q Pred)))
 
-       elseif (Match '(In > ExprVar > C) P) then
+       ((Match '(In > ExprVar > C) P)
 	 '(quotient
 	    (float (CommonSize (Type <q ExprVar) <q C))
-	    (SizeEst (Type <q ExprVar)))
+	    (SizeEst (Type <q ExprVar))))
 
-       elseif (Match '(Find ? ?) P) then		;no scan entry
-	 1.0
+       ((Match '(Find ? ?) P)		;no scan entry
+	 1.0)
 
-       elseif (Match '(Find ? ? (Scan ? (Substitute ?)) >* Rest) P) then
-	 '(ProbPred '(Find () (One) << Rest))
+       ((Match '(Find ? ? (Scan ? (Substitute ?)) >* Rest) P) 
+	 '(ProbPred '(Find () (One) << Rest)))
 
-       elseif (Match
+       ((Match
 		  '(Find ? ? (Scan (? ? > C) (CondSubstitute > Expr)) >* Rest)
-		  P) then
+		  P)
 	 '(times
 	    (ProbPred '(In < Expr < C))
-	    (ProbPred '(Find () (One) << Rest)))
+	    (ProbPred '(Find () (One) << Rest))))
 
-       elseif (Match
+       ((Match
 		  '(Find ? ?
 		     (Scan > ExprVar
 			(or (LookUp SCLookUp) > IName >* SelectCond))
 		     >* Rest)
-		  P) then
+		  P)
 	 '(times
 	    (min 1.0
 	       (times
 		  (SizeEst (IndexClass <q IName))
 		  (ProbSelect '(Scan < ExprVar (Iter < IName << SelectCond)))))
-	    (ProbPred '(Find () (One) << Rest)))
+	    (ProbPred '(Find () (One) << Rest))))
 
-       elseif (Match
+       ((Match
 		  '(Find ? ?
 		     (Scan > ExprVar
 			(or (Iter SCIter) > IName >* SelectCond))
 		     >* Rest)
-		  P) then
+		  P)
 	 '(let* ((MaxIter
 		     (times
 			(SizeEst (IndexClass <q IName))
@@ -385,37 +383,36 @@
 			   '(Scan < ExprVar (Iter < IName << SelectCond)))))
 		 (ProbRest
 		     (ProbPred '(Find () (One) << Rest))))
-	    (if (zerop ProbRest) then
+	    (if (zerop ProbRest)
 	       0.0
-	     elseif (onep ProbRest) then
+	     (if (onep ProbRest)
 	       1.0
-	     else
 	       (diff 1.0
 		  (expt
 		     (diff 1.0 ProbRest)
-		     MaxIter))))
+		     MaxIter))))))
 
-       elseif (Match '(Find ? ? (ScanHeap) >* Rest) P) then
-	 '(ProbPred '(Find () (One) << Rest))
+       ((Match '(Find ? ? (ScanHeap) >* Rest) P)
+	 '(ProbPred '(Find () (One) << Rest)))
 
-       elseif (Match '(Find ? ? (ScanHeap +) *) P) then
-	 1.0				 ;minimize cost of previous scans
+       ((Match '(Find ? ? (ScanHeap +) *) P)
+	 1.0)				 ;minimize cost of previous scans
 
-       elseif (Match '(Find ? ? (AndHeap) >* Rest) P) then
-	 '(ProbPred '(Find () (One) << Rest))
+       ((Match '(Find ? ? (AndHeap) >* Rest) P)
+	 '(ProbPred '(Find () (One) << Rest)))
 
-       elseif (Match '(Find ? ? (AndHeap >* PredList) >* Rest) P) then
+       ((Match '(Find ? ? (AndHeap >* PredList) >* Rest) P)
 	 '(times
 	    (ProbPredList <q PredList)
-	    (ProbPred '(Find () (One) << Rest)))
+	    (ProbPred '(Find () (One) << Rest))))
 
-       elseif (Match '(Find ? ? (Cut *) >* Rest) P) then
-	 '(ProbPred '(Find () (One) << Rest))
+       ((Match '(Find ? ? (Cut *) >* Rest) P)
+	 '(ProbPred '(Find () (One) << Rest)))
 
-       elseif (Match '(Find ? ? > Pred >* Rest) P) then
+       ((Match '(Find ? ? > Pred >* Rest) P)
 	 '(times
 	    (ProbPred <q Pred)
-	    (ProbPred '(Find () (One) << Rest)))))))
+	    (ProbPred '(Find () (One) << Rest))))))))
 
 
 (defun ProbSelect (ScanEntry)
@@ -432,9 +429,9 @@
    (let* ((T1 (Type Expr1)) (T2 (Type Expr2)))
 
       ;special case of "t1.p1.p* = t2.p2.p*"
-      (if (and (eq (car Expr1) 'Apply)
+      (cond ((and (eq (car Expr1) 'Apply)
 	       (eq (car Expr2) 'Apply)
-	       (eq (car (last (caddr Expr1))) (car (last (caddr Expr2))))) then
+	       (eq (car (last (caddr Expr1))) (car (last (caddr Expr2)))))
 	 (CondProb					;conditional probability
 	    (ProbEq					; on if "t1.p1 = t1.p2"
 	       (RemoveLastProp Expr1)
@@ -446,41 +443,41 @@
 	       (Integer
 		  (quotient 1.0 (IntRangeSize (FindRange Expr1))))
 	       (t
-		  (quotient 1.0 (SizeEst T1)))))
+		  (quotient 1.0 (SizeEst T1))))))
 
       ;string comparison, case "t1.p1 = t2.p2"
-       elseif (and (eq T1 'String)
+       ((and (eq T1 'String)
 		   (eq (car Expr1) 'Apply)
-		   (eq (car Expr2) 'Apply)) then
+		   (eq (car Expr2) 'Apply))
 	 (ProbEq					;the same conditional
 	    (RemoveLastProp Expr1)			; probability again:
-	    (RemoveLastProp Expr2))			; t1 has to equal t2
+	    (RemoveLastProp Expr2)))			; t1 has to equal t2
 
       ;string comparison, case "t1.p1 = c or var"
-       elseif (and (eq T1 'String)
+       ((and (eq T1 'String)
 		   (or (eq (car Expr1) 'Apply)
-		       (eq (car Expr2) 'Apply))) then
+		       (eq (car Expr2) 'Apply)))
 	 (quotient 1.0					;assuming one of the
 	    (SizeEst (Type (RemoveLastProp		; t's in the class will
 	       (if (eq (car Expr1) 'Apply)		; make the equality true
 		  Expr1
-		  Expr2)))))
+		  Expr2))))))
 
       ;string comparison, case "c1 = c2"
-       elseif (and (eq T1 'String)
+       ((and (eq T1 'String)
 		   (eq (car Expr1) 'Constant)
-		   (eq (car Expr2) 'Constant)) then
+		   (eq (car Expr2) 'Constant))
 	 (if (equal (Valof Expr1) (Valof Expr2))
 	    1.0
-	    0.0)
+	    0.0))
 
       ;string comparison, case "var = c or var"
-       elseif (eq T1 'String) then
-	 0.0
+       ((eq T1 'String)
+	 0.0)
 
       ;real and double real comparison
-       elseif (or (eq T1 'Real) (eq T1 'DoubleReal)
-		  (eq T2 'Real) (eq T2 'DoubleReal)) then
+       ((or (eq T1 'Real) (eq T1 'DoubleReal)
+		  (eq T2 'Real) (eq T2 'DoubleReal))
 	 (let* ((R1 (FindRange Expr1))			;not equal unless both
 	        (R2 (FindRange Expr2)))			; are deterministically
 	    (if (and (neq (car R1) 'Infinity)		; the same
@@ -488,52 +485,48 @@
 	             (= (car R1) (car R2))
 	             (= (car R2) (cadr R2)))
 	       1.0
-	       0.0))
+	       0.0)))
 
       ;integer comparison
-       elseif (eq T1 'Integer) then
+       ((eq T1 'Integer)
 	 (let* ((R1 (FindRange Expr1))			;calculate ranges and
 		(R2 (FindRange Expr2))			; find overlap, etc.
 		(R1Size (IntRangeSize R1))
 		(R2Size (IntRangeSize R2))
 		(OvSize (IntRangeSize (RangeOverlap R1 R2))))
-	    (if (and (eq R1Size 'Infinity) (eq R2Size 'Infinity)) then
+	    (if (and (eq R1Size 'Infinity) (eq R2Size 'Infinity))
 	       0.0
-	     elseif (or (eq R1Size 'Infinity) (eq R2Size 'Infinity)) then
+	     (if (or (eq R1Size 'Infinity) (eq R2Size 'Infinity))
 	       0.0
-	     else
-	       (quotient (float OvSize) R1Size R2Size)))
+	       (quotient (float OvSize) R1Size R2Size)))))
 
       ;non-numerical comparison
-       else
-	 (quotient					;find size of common
+	 (t (quotient					;find size of common
 	    (float (CommonSize T1 T2))			; subclasses, etc.
 	    (SizeEst T1)
-	    (SizeEst T2)))))
+	    (SizeEst T2))))))
 
 
 ;******************* Probability of an Inequality **********************
 
 (defun ProbGT (Expr1 Expr2)
    (let* ((T1 (Type Expr1)) (T2 (Type Expr2)))
-      (if (eq T1 'String) then
+      (if (eq T1 'String)
 	 0.5
-       elseif (or (eq T1 'Real) (eq T1 'DoubleReal)
-                  (eq T2 'Real) (eq T2 'DoubleReal)) then
+       (if (or (eq T1 'Real) (eq T1 'DoubleReal)
+                  (eq T2 'Real) (eq T2 'DoubleReal))
 	 (ProbRealGT Expr1 Expr2)
-       else
-	 (ProbIntGT Expr1 Expr2))))
+	 (ProbIntGT Expr1 Expr2)))))
 
 
 (defun ProbGE (Expr1 Expr2)
    (let* ((T1 (Type Expr1)) (T2 (Type Expr2)))
-      (if (eq T1 'String) then
+      (if (eq T1 'String)
 	 0.5
-       elseif (or (eq T1 'Real) (eq T1 'DoubleReal)
-                  (eq T2 'Real) (eq T2 'DoubleReal)) then
+       (if (or (eq T1 'Real) (eq T1 'DoubleReal)
+                  (eq T2 'Real) (eq T2 'DoubleReal))
 	 (ProbRealGT Expr1 Expr2)
-       else
-	 (ProbIntGT `(AddOp ,Expr1 (Constant 1 Integer)) Expr2))))
+	 (ProbIntGT `(AddOp ,Expr1 (Constant 1 Integer)) Expr2)))))
 
 
 (defun ProbIntGT (Expr1 Expr2 &aux (R1 (FindRange Expr1))
@@ -542,86 +535,85 @@
       0.5
       (let* ((A1 (minus (fix (minus (car R1))))) (A2 (fix (cadr R1)))
 	     (B1 (minus (fix (minus (car R2))))) (B2 (fix (cadr R2))))
-	 (if (> A1 B2) then			;the general 6 cases
-	    1.0
-	  elseif (and (not (< A1 B1)) (not (< A2 B2))) then
+	 (cond ((> A1 B2)			;the general 6 cases
+	    1.0)
+	  ((and (not (< A1 B1)) (not (< A2 B2)))
 	    (diff 1.0
 	       (quotient
 		  (float (Triang (- (1+ B2) A1)))
-		  (float (* (- (1+ B2) B1) (- (1+ A2) A1)))))
-	  elseif (not (< A1 B1)) then
+		  (float (* (- (1+ B2) B1) (- (1+ A2) A1))))))
+	  ((not (< A1 B1))
 	    (quotient
 	       (float (+
 		  (Triang (- A2 A1))
 		  (* (- A1 B1) (- (1+ A2) A1))))
-	       (float (* (- (1+ B2) B1) (- (1+ A2) A1))))
-	  elseif (not (> A2 B1)) then
-	    0.0
-	  elseif (not (> A2 B2)) then
+	       (float (* (- (1+ B2) B1) (- (1+ A2) A1)))))
+	  ((not (> A2 B1))
+	    0.0)
+	  ((not (> A2 B2))
 	    (quotient
 	       (float (Triang (- A2 B1)))
-	       (float (* (- (1+ B2) B1) (- (1+ A2) A1))))
-	  else
+	       (float (* (- (1+ B2) B1) (- (1+ A2) A1)))))
+	  (t
 	    (quotient
 	       (float (+
 		  (Triang (- B2 B1))
 		  (* (- A2 B2) (- (1+ B2) B1))))
-	       (float (* (- (1+ B2) B1) (- (1+ A2) A1))))))))
+	       (float (* (- (1+ B2) B1) (- (1+ A2) A1)))))))))
 
 
 (defun ProbRealGT (Expr1 Expr2 &aux (R1 (FindRange Expr1))
 				    (R2 (FindRange Expr2)))
    (let* ((A1 (car R1)) (A2 (cadr R1))
 	  (B1 (car R2)) (B2 (cadr R2)))
-      (if (member 'Infinity (append R1 R2)) then ;case variable involved
-	 0.5
-       elseif (and (= A1 A2) (= B1 B2)) then	;cases constant(s) involved
-	 (if (= A1 B1) 1.0 0.0)			; these are to avoid
-       elseif (= A1 A2) then			; division by zero
+      (cond ((member 'Infinity (append R1 R2)) ;case variable involved
+	 0.5)
+       ((and (= A1 A2) (= B1 B2))	;cases constant(s) involved
+	 (if (= A1 B1) 1.0 0.0))			; these are to avoid
+       ((= A1 A2)			; division by zero
 	 (quotient
 	    (max 0.0 (diff A1 B1))
-	    (diff B2 B1))
-       elseif (= B1 B2) then
+	    (diff B2 B1)))
+       ((= B1 B2)
 	 (quotient
 	    (max 0.0 (diff A2 B1))
-	    (diff A2 A1))
-       elseif (> A1 B2) then			;the general 6 cases
-	 1.0
-       elseif (and (> A1 B1) (> A2 B2)) then
+	    (diff A2 A1)))
+       ((> A1 B2)			;the general 6 cases
+	 1.0)
+       ((and (> A1 B1) (> A2 B2))
 	 (diff 1.0
 	    (quotient
 	       (quotient (Square (diff B2 A1)) 2.0)
-	       (times (diff B2 B1) (diff A2 A1))))
-       elseif (> A1 B1) then
+	       (times (diff B2 B1) (diff A2 A1)))))
+       ((> A1 B1)
 	 (quotient
 	    (add
 	       (quotient (Square (diff A2 A1)) 2.0)
 	       (times (diff A1 B1) (diff A2 A1)))
-	    (times (diff B2 B1) (diff A2 A1)))
-       elseif (< A2 B1) then
-	 0.0
-       elseif (< A2 B2) then
+	    (times (diff B2 B1) (diff A2 A1))))
+       ((< A2 B1)
+	 0.0)
+       ((< A2 B2)
 	 (quotient
 	    (quotient (Square (diff A2 B1)) 2.0)
-	    (times (diff B2 B1) (diff A2 A1)))
-       else
+	    (times (diff B2 B1) (diff A2 A1))))
+       (t
 	 (quotient
 	    (add
 	       (quotient (Square (diff B2 B1)) 2.0)
 	       (times (diff A2 B2) (diff B2 B1)))
-	    (times (diff B2 B1) (diff A2 A1))))))
+	    (times (diff B2 B1) (diff A2 A1)))))))
 
 
 ;*********************** Operations with Ranges ************************
 
 (defun RangeOverlap (R1 R2 &aux (MinR1 (car R1)) (MaxR1 (cadr R1))
                                 (MinR2 (car R2)) (MaxR2 (cadr R2)))
-   (if (eq MinR1 'Infinity) then
+   (if (eq MinR1 'Infinity)
       R2
-    elseif (eq MinR2 'Infinity) then
+    (if (eq MinR2 'Infinity)
       R1
-    else
-      `(,(max MinR1 MinR2) ,(min MaxR1 MaxR2))))
+      `(,(max MinR1 MinR2) ,(min MaxR1 MaxR2)))))
 
 
 (defun IntRangeSize (R &aux (MinR (car R)) (MaxR (cadr R)))
@@ -712,16 +704,16 @@
 
 (defun DivRanges (R1 R2 &aux (X1 (car R1)) (X2 (cadr R1))
                              (Y1 (car R2)) (Y2 (cadr R2)))
-   (if (and (>= Y1 -0.5) (<= Y1 0.5) (>= Y2 -0.5) (<= Y2 0.5)) then	;Y1=Y2=0
-      '(Infinity Infinity)
+   (cond ((and (>= Y1 -0.5) (<= Y1 0.5) (>= Y2 -0.5) (<= Y2 0.5))	;Y1=Y2=0
+      '(Infinity Infinity))
 
-    elseif (and (= Y1 Y2) (> Y1 0)) then				;Y1=Y2>0
-      `(,(quotient X1 Y1) ,(quotient X2 Y1))
+    ((and (= Y1 Y2) (> Y1 0))				;Y1=Y2>0
+      `(,(quotient X1 Y1) ,(quotient X2 Y1)))
 
-    elseif (= Y1 Y2) then						;Y1=Y2<0
-      `(,(quotient X2 Y1) ,(quotient X1 Y1))
+    ((= Y1 Y2)						;Y1=Y2<0
+      `(,(quotient X2 Y1) ,(quotient X1 Y1)))
 
-    elseif (or (>= Y1 0.5) (<= Y2 -0.5)) then				;0<Y1<Y2
+    ((or (>= Y1 0.5) (<= Y2 -0.5))				;0<Y1<Y2
       (let* ((ZSum							;  or
 	       (quotient						;Y1<Y2<0
 		  (times 
@@ -740,15 +732,15 @@
 			(times Y1 Y2))
 		     (times 3.0 (Square ZSum))))))
 	 `(,(quotient (diff ZSum ZDiff) 2.0)
-	   ,(quotient (add ZSum ZDiff) 2.0)))
+	   ,(quotient (add ZSum ZDiff) 2.0))))
 
-    elseif (>= Y1 -0.5) then						;Y1=0,
-      (DivRanges R1 `(0.5 ,Y2))						;Y2>0
+    ((>= Y1 -0.5)						;Y1=0,
+      (DivRanges R1 `(0.5 ,Y2)))						;Y2>0
 
-    elseif (<= Y2 0.5) then						;Y1<0,
-      (DivRanges R1 `(,Y1 -0.5))					;Y2=0
+    ((<= Y2 0.5)						;Y1<0,
+      (DivRanges R1 `(,Y1 -0.5)))					;Y2=0
 
-    else								;Y1<0,
+    (t								;Y1<0,
       (let* ((Yrange (diff Y2 Y1 1.0))					;Y2>0
 	     (ZSum
 	       (quotient
@@ -771,7 +763,7 @@
 			   Yrange))
 		     (times 3.0 (Square ZSum))))))
 	 `(,(quotient (diff ZSum ZDiff) 2.0)
-	   ,(quotient (add ZSum ZDiff) 2.0)))))
+	   ,(quotient (add ZSum ZDiff) 2.0))))))
 
 
 (defun ModRanges (R1 R2)
