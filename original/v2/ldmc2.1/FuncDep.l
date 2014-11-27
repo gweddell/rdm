@@ -4,24 +4,24 @@
 
 ;***************** PATH FUNCTIONAL DEPENDENCY REASONER *****************
 
-(declare
-   (special Schema)
-   (special Classes)
-   (special BuiltInClasses)
-   (special Properties)
-   (special Queries)
-   (special Indices)
-   (special Stores)
-   (special Transactions)
-   (special QueryName?)
-   (special QueryOrTransName)
-   (special Source)
-   (special PDMPort)
-   (special DefaultRCntEst)
-   (special VarStack)
-   (special MatchVarStack)
-   (special FreeMatchVars)
-   (special MatchVar))
+;(declare
+;   (special Schema)
+;   (special Classes)
+;   (special BuiltInClasses)
+;   (special Properties)
+;   (special Queries)
+;   (special Indices)
+;   (special Stores)
+;   (special Transactions)
+;   (special QueryName?)
+;   (special QueryOrTransName)
+;   (special Source)
+;   (special PDMPort)
+;   (special DefaultRCntEst)
+;   (special VarStack)
+;   (special MatchVarStack)
+;   (special FreeMatchVars)
+;   (special MatchVar))
 
 ;***********************************************************************
 ; "NonKeyVars" determines which of a given set of expression variables
@@ -102,10 +102,10 @@
             (mapcar '(lambda (T) `(,T ,(ClassProps* (Type T)))) NewTerms)
          Terms (append NewTerms Terms)
          NewTerms nil)
-      (do NewF1Log NewF1Log (cdr NewF1Log)
-            (null NewF1Log)
-         (do PropList (cadar NewF1Log) (cdr PropList)
-               (null PropList)
+      (do ((NewF1Log NewF1Log (cdr NewF1Log)))
+            ((null NewF1Log))
+         (do ((PropList (cadar NewF1Log) (cdr PropList)))
+               ((null PropList))
             (setq
                NewTerm (AppendPF (caar NewF1Log) (list (car PropList)))
                NewTerms (cons NewTerm NewTerms)
@@ -121,13 +121,13 @@
 
 (defun GenF2 (TermList)
    (prog (F2 CList PfdList)
-      (do TermList TermList (cdr TermList)
-            (null TermList)
+      (do ((TermList TermList (cdr TermList)))
+            ((null TermList))
          (setq CList (SupClasses* (Type (car TermList))))
-         (do CList CList (cdr CList)
-               (null CList)
-            (do PfdList (ClassPfds (car CList)) (cdr PfdList)
-                  (null PfdList)
+         (do ((CList CList (cdr CList)))
+               ((null CList))
+            (do ((PfdList (ClassPfds (car CList)) (cdr PfdList)))
+                  ((null PfdList))
                (setq F2 (cons
                   `(,(AppendPF (car TermList) (caar PfdList))
                      ,(mapcar '(lambda (PF) (AppendPF (car TermList) PF))
@@ -143,17 +143,17 @@
 
 (defun GenF3 (N JoinList)
    (prog (F3 PropList Term1 Term2)
-      (do JoinList JoinList (cdr JoinList)
-            (null JoinList)
+      (do ((JoinList JoinList (cdr JoinList)))
+            ((null JoinList))
          (setq
             Term1 (cadar JoinList)
             Term2 (caddar JoinList)
             F3 (append `((,Term1 (,Term2)) (,Term2 (,Term1))) F3)
             PropList nil)
-         (do CList
+         (do ((CList
                (SetUnion (SupClasses* (Type Term1)) (SupClasses* (Type Term2)))
-               (cdr CList)
-               (null CList)
+               (cdr CList)))
+               ((null CList))
             (setq PropList (SetUnion (ClassProps (car CList)) PropList)))
          (setq F3 (append
             (GenSubPartDep 
@@ -168,8 +168,8 @@
    (if (zerop N)
       nil
       (prog (NewSubPartDep NewTerm1 NewTerm2)
-         (do PropList PropList (cdr PropList)
-               (null PropList)
+         (do ((PropList PropList (cdr PropList)))
+               ((null PropList))
             (setq
                NewTerm1 (AppendPF Term1 (list (car PropList)))
                NewTerm2 (AppendPF Term2 (list (car PropList)))
