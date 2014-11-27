@@ -216,8 +216,8 @@
 	   (PredList PredList (cdr PredList)))
 	  ((null PredList)
 	    (append
-	       (sortcar Deterministic 'lessp)
-	       (sortcar Probabilistic 'lessp)))
+	       (sort Deterministic #'lessp :key #'car)
+	       (sort Probabilistic #'lessp :key #'car)))
 	 (let* ((Cost (CostPred (car PredList)))
 		(Prob (ProbPred (car PredList))))
 	    (if (onep Prob)

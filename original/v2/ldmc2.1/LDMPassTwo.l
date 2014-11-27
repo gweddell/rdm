@@ -756,7 +756,7 @@
                   (cons (CostQuery Pred) Pred))
                PredList)))
       (mapcar 'cdr
-         (sortcar PredCostList 'lessp))))
+         (sort PredCostList #'lessp :key #'car))))
 
 
 ;***********************************************************************
