@@ -4,24 +4,24 @@
 
 ;********************** Equational Logic Reasoner **********************
 
-(declare
-   (special Schema)
-   (special Classes)
-   (special BuiltInClasses)
-   (special Properties)
-   (special Queries)
-   (special Indices)
-   (special Stores)
-   (special Transactions)
-   (special QueryName?)
-   (special QueryOrTransName)
-   (special Source)
-   (special PDMPort)
-   (special DefaultRCntEst)
-   (special VarStack)
-   (special MatchVarStack)
-   (special FreeMatchVars)
-   (special MatchVar))
+;(declare
+;   (special Schema)
+;   (special Classes)
+;   (special BuiltInClasses)
+;   (special Properties)
+;   (special Queries)
+;   (special Indices)
+;   (special Stores)
+;   (special Transactions)
+;   (special QueryName?)
+;   (special QueryOrTransName)
+;   (special Source)
+;   (special PDMPort)
+;   (special DefaultRCntEst)
+;   (special VarStack)
+;   (special MatchVarStack)
+;   (special FreeMatchVars)
+;   (special MatchVar))
 
 ;***********************************************************************
 ; A data graph is represented along with a query during join order
@@ -73,7 +73,7 @@
 ;***********************************************************************
 
 (defun BuildDGraph (DGraph PredList)
-   (do PredList PredList (cdr PredList) (null PredList)
+   (do ((PredList PredList (cdr PredList))) ((null PredList))
       (if (Match
 	    '(EQ > T1 where (IsTerm <q T1)
 		 > T2 where (IsTerm <q T2))
@@ -82,7 +82,7 @@
    DGraph)
 
 (defun Locate (DGraph Term)
-   (if (IsVar Term) then			; case: Term variable or const
+   (if (IsVar Term)			; case: Term variable or const
       (or
 	 (cdr (assoc Term (cdar DGraph)))	;  subcase var or const existing
 	 (let* ((VarSym (gensym 'T)))		;  otherwise generate new symbol
@@ -91,7 +91,7 @@
 	    (rplacd DGraph
 	       (cons (cons VarSym nil) (cdr DGraph)))
 	    VarSym))
-    else					; case: Term Apply PF
+    					; case: Term Apply PF
       (let* ((Prop (car (last (caddr Term))))
 	     (SubTerm (assq (Locate DGraph (RemoveLastProp Term)) DGraph)))
 	 (or
@@ -104,20 +104,19 @@
 	       TermSym)))))
 
 (defun UnifyTerms (DGraph Term1 Term2)
-   (do UnifyList (list (cons (Locate DGraph Term1) (Locate DGraph Term2)))
-       (cdr UnifyList) (null UnifyList)
+   (do ((UnifyList (list (cons (Locate DGraph Term1) (Locate DGraph Term2)))
+       (cdr UnifyList))) ((null UnifyList))
       (if (neq (caar UnifyList) (cdar UnifyList))
 	 (let* ((FromLoc (assq (caar UnifyList) DGraph))
 		(ToLoc (assq (cdar UnifyList) DGraph))
 		(Temp))
-	    (do PropList (cdr FromLoc)		; Merge out-edge lists
-		(cdr PropList) (null PropList)
-	       (if (setq Temp (assq (caar PropList) (cdr ToLoc))) then
+	    (do ((PropList (cdr FromLoc)		; Merge out-edge lists
+		(cdr PropList))) ((null PropList))
+	       (if (setq Temp (assq (caar PropList) (cdr ToLoc)))
 		  (rplacd UnifyList		;   duplicate prop values
 		     (cons			;   to be recursively unified
 			(cons (cdar PropList) (cdr Temp))
 			(cdr UnifyList)))
-		else
 		  (rplacd ToLoc			;   insert unique prop value
 		     (cons			;   into prop list
 			(car PropList)
@@ -176,22 +175,22 @@
 	     (BestRest (CheapestPath DGraph
 			   (cdr SourceList) Target
 			   TargetSubClasses SubClassFlag)))
-	 (if (and (null BestRest) (null CurrentP)) then nil
-	  elseif (null BestRest) then CurrentP
-	  elseif (null CurrentP) then BestRest
-	  elseif (lessp (TermLength CurrentP)
-			(TermLength BestRest)) then CurrentP
-	  else BestRest))))
+	 (cond ((and (null BestRest) (null CurrentP)) nil)
+	  ((null BestRest) CurrentP)
+	  ((null CurrentP) BestRest)
+	  ((lessp (TermLength CurrentP)
+			(TermLength BestRest)) CurrentP)
+	  (t BestRest)))))
 
 (defun BreadthFirst (DGraph Source Target TargetSubClasses SubClassFlag)
    (let* ((NodesQueue (tconc nil Source)))
       (do ((OpenList (car NodesQueue) (cdr OpenList))
 	   (PathReturn nil))
 	  ((null OpenList) nil)			; no path found
-	 (do PropList
+	 (do ((PropList
 	     (cdr (assq (caar OpenList) DGraph))
-	     (cdr PropList)
-	     (null PropList)
+	     (cdr PropList)))
+	     ((null PropList))
 	    (cond
 	       ((assq				; if son is not new, do nothing
 		  (cdar PropList)
