@@ -789,9 +789,3 @@
 
 (defun Square (X)
    (times X X))
-
-(defun <= (X Y)
-   (not (> X Y)))
-
-(defun >= (X Y)
-   (not (< X Y)))
