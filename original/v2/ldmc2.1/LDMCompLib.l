@@ -25,6 +25,7 @@
 (defun caddddr (L) (car (cddddr L)))
 (defun cadaddr (L) (car (cdaddr L)))
 (defun caddaddr (L) (caddr (caddr L)))
+(defun cdaddddr (L) (cdadr (cdddr L)))
 
 (defun SetUnion (L1 L2)
    (if (null L1)

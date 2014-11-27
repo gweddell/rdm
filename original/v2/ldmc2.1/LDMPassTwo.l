@@ -298,9 +298,9 @@
       (ScanHeap << VList)
       (AndHeap << NewPList))
    (Bindq
-      DGraph (copy '((Q)))
+      DGraph (copy-tree '((Q)))
       BoundVars (SelectVar <q PList '(PVar Constant)))
-   (let ((PListDGraph (RemoveRedundantPred (copy '((Q))) <q PList ())))
+   (let ((PListDGraph (RemoveRedundantPred (copy-tree '((Q))) <q PList ())))
       (Bindq
          NewPList (car PListDGraph)
          GlobalDGraph (cdr PListDGraph))))
@@ -372,7 +372,7 @@
       << SubGoalList)
    (Bindq
       NPrev (sub1 < N)
-      CopyDGraph (copy <q DGraph)))
+      CopyDGraph (copy-tree <q DGraph)))
 
 (NoScanPossible
    (AltFind > GoalList > FindProg > N ? >* SubGoalList)
@@ -443,7 +443,7 @@
       (mapcar
          '(lambda (I)                   ; function not to be compiled!
             (let* ((IterType (if (eq (Type <q V) (IndexClass I)) 'Iter 'SCIter))
-                   (SearchCond (copy (IndexSearchConds I))))
+                   (SearchCond (copy-tree (IndexSearchConds I))))
                (list
                   'IndexScan
                   (list 'Scan <q V (list IterType I))
@@ -670,8 +670,8 @@
             '(Not (Find ? ? > ScanHeap (AndHeap >* PList)))
             (car PredList))
          (Bindq
-            GlobalDGraph (BuildDGraph (copy DGraph) (car (Build '(< PList))))
-            DGraph (copy DGraph)
+            GlobalDGraph (BuildDGraph (copy-tree DGraph) (car (Build '(< PList))))
+            DGraph (copy-tree DGraph)
             BoundVars BoundVList)
          (cons
             (Build

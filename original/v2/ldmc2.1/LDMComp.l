@@ -45,7 +45,7 @@
   (InitGlobals)
   (PassOne)
   (Diagnostic "optimizing queries.")
-  ;(PassTwo)
+  (PassTwo)
   ;(PassThree)
   ;(Diagnostic "compiling transactions.")
   ;(PassFour)
