@@ -38,12 +38,12 @@
 ;(sstatus feature TraceRules)     ; trace application of rewrite rules
 
 (defun PassTwo ()
-   #+TraceRules (mapc 'NormalizeQuery Queries)
-   #+TraceRules (load 'Trace)
-   #+TraceRules (mapc 'JoinOrderQuery Queries)
-   #+TraceRules (untrace)
-   #+TraceRules (mapc 'AndHeapQuery Queries)
-   #-TraceRules (mapc 'OptimizeQuery Queries)
+   (mapc 'NormalizeQuery Queries)
+   ;(load 'Trace)
+   (mapc 'JoinOrderQuery Queries)
+   ;(untrace)
+   (mapc 'AndHeapQuery Queries)
+   (mapc 'OptimizeQuery Queries)
 )
 
 (defun NormalizeQuery (QName)
@@ -441,7 +441,7 @@
       < DGraph < EVarList < Project < Type < FEList1 < FEList2)
    (Bindq IndexScanList
       (mapcar
-         '(lambda (I)                   ; function not to be compiled!
+         (lambda (I)                   ; function not to be compiled!
             (let* ((IterType (if (eq (ExpressionType <q V) (IndexClass I)) 'Iter 'SCIter))
                    (SearchCond (copy-tree (IndexSearchConds I))))
                (list
@@ -714,10 +714,10 @@
          (setq SelList
             (cons (Build '(EVar < V < C)) SelList))))))
    (PopMatchVar)
-   #+TraceRules (untrace)
+   ;#+TraceRules (untrace)
    (prog1
       (NonKeyVars (SelectVar VarList '(EVar)) JoinList SelList)
-      #+TraceRules (load 'Trace)
+      ;#+TraceRules (load 'Trace)
    ))
 
 
@@ -912,11 +912,11 @@
 
 (defun CutInsert (FEList)
    (PushMatchVar)
-   #+TraceRules (untrace)
+   ;#+TraceRules (untrace)
    (prog1
       (CutInsertPass FEList)
       (PopMatchVar)
-      #+TraceRules (load 'Trace)
+      ;#+TraceRules (load 'Trace)
    ))
 
 (defun CutInsertPass (FEList)

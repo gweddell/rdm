@@ -85,7 +85,7 @@
    (if (IsVar Term)			; case: Term variable or const
       (or
 	 (cdr (assoc Term (cdar DGraph)))	;  subcase var or const existing
-	 (let* ((VarSym (gensym 'T)))		;  otherwise generate new symbol
+	 (let* ((VarSym (gensym "T")))		;  otherwise generate new symbol
 	    (rplacd (car DGraph)
 	       (cons (cons Term VarSym) (cdar DGraph)))
 	    (rplacd DGraph
@@ -96,7 +96,7 @@
 	     (SubTerm (assoc (Locate DGraph (RemoveLastProp Term)) DGraph)))
 	 (or
 	    (cdr (assoc Prop (cdr SubTerm)))	;  subcase existing
-	    (let* ((TermSym (gensym 'T)))	;  otherwise generate new symbol
+	    (let* ((TermSym (gensym "T")))	;  otherwise generate new symbol
 	       (rplacd SubTerm
 		  (cons (cons Prop TermSym) (cdr SubTerm)))
 	       (rplacd DGraph
@@ -106,7 +106,7 @@
 (defun UnifyTerms (DGraph Term1 Term2)
    (do ((UnifyList (list (cons (Locate DGraph Term1) (Locate DGraph Term2)))
        (cdr UnifyList))) ((null UnifyList))
-      (if (neq (caar UnifyList) (cdar UnifyList))
+      (if (not (eq (caar UnifyList) (cdar UnifyList)))
 	 (let* ((FromLoc (assoc (caar UnifyList) DGraph))
 		(ToLoc (assoc (cdar UnifyList) DGraph))
 		(Temp))

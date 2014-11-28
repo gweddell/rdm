@@ -62,6 +62,15 @@
 ;    the elements (i.e. logical disjunction).
 ;***********************************************************************
 
+(setf (symbol-function 'add) #'+)
+(setf (symbol-function 'diff) #'-)
+(setf (symbol-function 'times) #'*)
+(setf (symbol-function 'quotient) #'/)
+(setf (symbol-function 'lessp) #'<)
+(setf (symbol-function 'greaterp) #'>)
+(setf (symbol-function 'add1) #'1+)
+(setf (symbol-function 'sub1) #'1-)
+
 (defun ApplyRuleControl (Control Form)
    (cond
       ((atom Control)

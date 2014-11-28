@@ -199,7 +199,7 @@
 	   (PredList nil))
 	  ((null SCList) (reverse PredList))
 	 (setq PredList (cons
-            (caseq (caar SCList)
+            (case (caar SCList)
                (QualPF
 	          `(gEQ (gApply ,ExprVar ,(cadar SCList)) ,(caddar SCList)))
                (QualSC
@@ -220,7 +220,7 @@
 	       (sort Probabilistic #'lessp :key #'car)))
 	 (let* ((Cost (CostPred (car PredList)))
 		(Prob (ProbPred (car PredList))))
-	    (if (onep Prob)
+	    (if (= 1 Prob)
 	       (setq Deterministic
 		  (cons
 		     (list Cost Cost Prob)
@@ -276,7 +276,7 @@
 ;******************** Costs of Operations on Indices *******************
 
 (defun CostInit (IndexName)
-   (caseq (IndexType IndexName)
+   (case (IndexType IndexName)
       (gList			10.0)
       (gArray
 	 (times			10.0
@@ -290,7 +290,7 @@
 
 
 (defun CostCont (IndexName)
-   (caseq (IndexType IndexName)
+   (case (IndexType IndexName)
       (gList			0.5)
       (gArray			0.5)
       (BinaryTree		1.0)
@@ -302,7 +302,7 @@
 ;*********** Costs of Basic Operations (System Dependent) **************
 
 (defun FixedCosts (Op)
-   (caseq Op
+   (case Op
       (Compare	1.0)	;cost of any comparisons
       (Var	0.5)	;cost of fetching a variable
       (Add	1.0)	;cost of adding operands
@@ -385,7 +385,7 @@
 		     (ProbPred '(Find () (One) << Rest))))
 	    (if (zerop ProbRest)
 	       0.0
-	     (if (onep ProbRest)
+	     (if (= 1 ProbRest)
 	       1.0
 	       (diff 1.0
 		  (expt
@@ -437,7 +437,7 @@
 	       (RemoveLastProp Expr1)
 	       (RemoveLastProp Expr2))
 	    1.0						;if yes, p*'s are equal
-	    (caseq T1					;if no, use selectivity
+	    (case T1					;if no, use selectivity
 	       ((String Real DoubleReal)
 		  0.0)
 	       (Integer
@@ -480,7 +480,7 @@
 		  (eq T2 'Real) (eq T2 'DoubleReal))
 	 (let* ((R1 (FindRange Expr1))			;not equal unless both
 	        (R2 (FindRange Expr2)))			; are deterministically
-	    (if (and (neq (car R1) 'Infinity)		; the same
+	    (if (and (not (eq (car R1) 'Infinity))		; the same
 		     (= (car R1) (cadr R1))
 	             (= (car R1) (car R2))
 	             (= (car R2) (cadr R2)))
@@ -625,7 +625,7 @@
 ;********** Finding the Range of an Arithmatical Expression ************
 
 (defun FindRange (E)
-   (caseq (car E)
+   (case (car E)
       (Constant
 	 `(,(float (Valof E)) ,(float (Valof E))))
       ((QVar PVar LVar EVar)
