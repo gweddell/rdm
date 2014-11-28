@@ -87,7 +87,7 @@
 
 (LoadControl
    '(NormalizeControl (Seq
-      (If (Not ?)
+      (If (gNot ?)
          (Env cadr (Call SubNormalizeControl)))
       (If (Find *)
          (Env cdaddddr (Map (Call SubNormalizeControl))))
@@ -97,7 +97,7 @@
 
 (LoadControl
    '(SubNormalizeControl (Seq
-      (If (Not ?)
+      (If (gNot ?)
          (Env cadr (Call SubNormalizeControl)))
       (If (Find *)
          (Env cdaddddr (Map (Call SubNormalizeControl))))
@@ -108,14 +108,14 @@
 (LoadRules '(
 
 (DoubleNeg
-   (Not (Not > P))
+   (gNot (gNot > P))
    (<< P))
 
 (NegComparison
-   (Not (>or (EQ LT LE GT GE NE) Comp > T1 > T2))
+   (gNot (>or (gEQ LT LE GT GE NE) Comp > T1 > T2))
    (< NewComp < T1 < T2)
    (Bindq NewComp
-      (cadr (assoc <q Comp '((EQ NE) (LT GE) (LE GT) (GT LE) (GE LT) (NE EQ))))))
+      (cadr (assoc <q Comp '((gEQ NE) (LT GE) (LE GT) (GT LE) (GE LT) (NE gEQ))))))
 
 (SinglePred
    (Find ? (One) (ScanHeap) (AndHeap > P))
@@ -137,14 +137,14 @@
       (ScanHeap >* VList1)
       (AndHeap
          >* PList1
-         (EQ <> ((Apply > V (> P >+ PF))) (> T)) where (Free <q T '(< V))
+         (gEQ <> ((gApply > V (> P >+ PF))) (> T)) where (Free <q T '(< V))
          >* PList2))
    (Find () < Type
       (ScanHeap < NewV << VList1)
       (AndHeap
          << PList1
-         (EQ (Apply < V (< P)) < NewV)
-         (EQ (Apply < NewV < PF) < T)
+         (gEQ (gApply < V (< P)) < NewV)
+         (gEQ (gApply < NewV < PF) < T)
          << PList2))
    (Bindq NewV (NewVariable 'EVar (Dom '(< P)))))
 
@@ -227,7 +227,7 @@
 (LoadControl
    '(JoinOrderControl
       (Seq
-         (If (Not ?) (Env cadr
+         (If (gNot ?) (Env cadr
             (Call JoinOrderControl)))
          (If (Find *) (Seq
             PreSQOptimize
@@ -318,7 +318,7 @@
       (PrepareSQOpt <q PList <q GlobalDGraph '(<< BoundVars << VList))))
 
 (FailSQOptimize
-   (Find ? ? ? (AndHeap * (Not (UnOptimizedQuery)) *))
+   (Find ? ? ? (AndHeap * (gNot (UnOptimizedQuery)) *))
    (UnOptimizedQuery))
 
 (FindEVarProject
@@ -667,7 +667,7 @@
    (cond
       ((null PredList) nil)
       ((Match
-            '(Not (Find ? ? > ScanHeap (AndHeap >* PList)))
+            '(gNot (Find ? ? > ScanHeap (AndHeap >* PList)))
             (car PredList))
          (Bindq
             GlobalDGraph (BuildDGraph (copy-tree DGraph) (car (Build '(< PList))))
@@ -675,7 +675,7 @@
             BoundVars BoundVList)
          (cons
             (Build
-               '(Not (Find (-1 < GlobalDGraph < DGraph < BoundVars)
+               '(gNot (Find (-1 < GlobalDGraph < DGraph < BoundVars)
                         (One) < ScanHeap (AndHeap << PList))))
             (PrepareSubQuery (cdr PredList) DGraph BoundVList)))
       (t (cons
@@ -693,23 +693,23 @@
    (PushMatchVar)
    (do ((PredList PredList (cdr PredList))) ((null PredList))
       (if (or (Match
-                  '(EQ (Apply (EVar *) *) (Apply (EVar *) *))
+                  '(gEQ (gApply (EVar *) *) (gApply (EVar *) *))
                   (car PredList))
               (Match
-                  '(EQ <> ((Apply (EVar *) *)) ((EVar *)))
+                  '(gEQ <> ((gApply (EVar *) *)) ((EVar *)))
                   (car PredList))
               (Match
-                  '(EQ (EVar *) (EVar *))
+                  '(gEQ (EVar *) (EVar *))
                   (car PredList))) 
          (setq JoinList
             (cons (car PredList) JoinList))
        (if (Match
-                  '(EQ <> ((Apply (EVar > V > C) > PF)) (*))
+                  '(gEQ <> ((gApply (EVar > V > C) > PF)) (*))
                   (car PredList))
          (setq SelList
-            (cons (Build '(Apply (EVar < V < C) < PF)) SelList))
+            (cons (Build '(gApply (EVar < V < C) < PF)) SelList))
        (if (Match
-                  '(EQ <> ((EVar > V > C)) (*))
+                  '(gEQ <> ((EVar > V > C)) (*))
                   (car PredList))
          (setq SelList
             (cons (Build '(EVar < V < C)) SelList))))))
@@ -732,7 +732,7 @@
    (setq DGraph (BuildDGraph DGraph (InterpretScan ScanEntry)))
    (do ((PList PredList (cdr PList))) ((null PList))
       (if (Match
-            '(EQ > T1 where (IsTerm <q T1)
+            '(gEQ > T1 where (IsTerm <q T1)
                  > T2 where (IsTerm <q T2))
             (car PList))
          (setq EqList (cons (car PList) EqList))
@@ -818,7 +818,7 @@
 (LoadControl
    '(AndHeapControl
       (Or
-         (If (Not ?) (Env cadr (Call AndHeapControl)))
+         (If (gNot ?) (Env cadr (Call AndHeapControl)))
          (If (Find *) (Seq
             (Env cdddr (Map
                (If (AndHeap *) (Seq
@@ -838,7 +838,7 @@
 (LoadRules '(
 
 (RemoveSort
-   (Find ? (All (Proj) (Sort ((Apply > V > PF) > Dir)))
+   (Find ? (All (Proj) (Sort ((gApply > V > PF) > Dir)))
       > AndHeap
       (Scan < V (>or (Iter SCIter) IterType > I >* SCList))
          where (Match '(PFCond < PF < Dir)
@@ -944,12 +944,12 @@
             (car FEList))
          (CutInsertPass FEList))
       ((Match
-            '(EQ <> ((Apply < V > PF)) (> T) where (Free <q T '(< V)))
+            '(gEQ <> ((gApply < V > PF)) (> T) where (Free <q T '(< V)))
             (car FEList))
          (cons
             (car FEList)
             (CutInsertCheck
-               (cons (Build '(Apply < V < PF)) QualTerms)
+               (cons (Build '(gApply < V < PF)) QualTerms)
                (cdr FEList))))
       (t (cons
             (car FEList)
@@ -958,7 +958,7 @@
 (defun QualTerms (ScanEntry)
    (mapcan
       #'(lambda (Pred)
-         (if (eq (car Pred) 'EQ) (list (cadr Pred))))
+         (if (eq (car Pred) 'gEQ) (list (cadr Pred))))
       (InterpretScan ScanEntry)))
 
 ;***********************************************************************

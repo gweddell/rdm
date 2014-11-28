@@ -35,13 +35,13 @@
 
 (defun CostPred (P)
    (eval (Build
-      (cond ((Match '(or (NE EQ LT GT LE GE) > Expr1 > Expr2) P)
+      (cond ((Match '(or (NE gEQ LT GT LE GE) > Expr1 > Expr2) P)
 	 '(add
 	    (FixedCosts 'Compare)
 	    (CostExpr <q Expr1)
 	    (CostExpr <q Expr2)))
 
-       ((Match '(Not > Pred) P)
+       ((Match '(gNot > Pred) P)
 	 '(CostPred <q Pred))
 
        ((Match '(In > ExprVar > C) P)
@@ -194,14 +194,14 @@
 (defun InterpretScan (ScanEntry &aux (ExprVar (cadr ScanEntry))
 				     (ScanSpec (caddr ScanEntry)))
    (if (member (car ScanSpec) '(Substitute CondSubstitute))
-      `((EQ ,ExprVar ,(cadr ScanSpec)))
+      `((gEQ ,ExprVar ,(cadr ScanSpec)))
       (do ((SCList (cddr ScanSpec) (cdr SCList))
 	   (PredList nil))
 	  ((null SCList) (reverse PredList))
 	 (setq PredList (cons
             (caseq (caar SCList)
                (QualPF
-	          `(EQ (Apply ,ExprVar ,(cadar SCList)) ,(caddar SCList)))
+	          `(gEQ (gApply ,ExprVar ,(cadar SCList)) ,(caddar SCList)))
                (QualSC
 	          `(In ,ExprVar ,(cadar SCList))))
 	    PredList)))))
@@ -265,7 +265,7 @@
 	    (CostExpr <q Expr1)
 	    (CostExpr <q Expr2)))
 
-       ((Match '(Apply ? > PF) E)
+       ((Match '(gApply ? > PF) E)
 	 '(add
 	    (FixedCosts 'Var)
 	    (times
@@ -277,8 +277,8 @@
 
 (defun CostInit (IndexName)
    (caseq (IndexType IndexName)
-      (List			10.0)
-      (Array
+      (gList			10.0)
+      (gArray
 	 (times			10.0
 	    (log (SizeEst (IndexClass IndexName)))))
       (BinaryTree
@@ -291,8 +291,8 @@
 
 (defun CostCont (IndexName)
    (caseq (IndexType IndexName)
-      (List			0.5)
-      (Array			0.5)
+      (gList			0.5)
+      (gArray			0.5)
       (BinaryTree		1.0)
       (DistList			0.5)
       (DistPointer		0.0)
@@ -318,7 +318,7 @@
 
 (defun ProbPred (P)
    (eval (Build
-      (cond ((Match '(EQ > Expr1 > Expr2) P)
+      (cond ((Match '(gEQ > Expr1 > Expr2) P)
 	 '(ProbEq <q Expr1 <q Expr2))
 
        ((Match '(GT > Expr1 > Expr2) P)
@@ -334,9 +334,9 @@
 	 '(ProbGE <q Expr2 <q Expr1))
 
        ((Match '(NE > Expr1 > Expr2) P)
-    '(ProbPred (Not (EQ <q Expr1 <q Expr2))))
+    '(ProbPred (gNot (gEQ <q Expr1 <q Expr2))))
 
-       ((Match '(Not > Pred) P)
+       ((Match '(gNot > Pred) P)
 	 '(diff 1.0 (ProbPred <q Pred)))
 
        ((Match '(In > ExprVar > C) P)
@@ -429,8 +429,8 @@
    (let* ((T1 (ExpressionType Expr1)) (T2 (ExpressionType Expr2)))
 
       ;special case of "t1.p1.p* = t2.p2.p*"
-      (cond ((and (eq (car Expr1) 'Apply)
-	       (eq (car Expr2) 'Apply)
+      (cond ((and (eq (car Expr1) 'gApply)
+	       (eq (car Expr2) 'gApply)
 	       (eq (car (last (caddr Expr1))) (car (last (caddr Expr2)))))
 	 (CondProb					;conditional probability
 	    (ProbEq					; on if "t1.p1 = t1.p2"
@@ -447,19 +447,19 @@
 
       ;string comparison, case "t1.p1 = t2.p2"
        ((and (eq T1 'String)
-		   (eq (car Expr1) 'Apply)
-		   (eq (car Expr2) 'Apply))
+		   (eq (car Expr1) 'gApply)
+		   (eq (car Expr2) 'gApply))
 	 (ProbEq					;the same conditional
 	    (RemoveLastProp Expr1)			; probability again:
 	    (RemoveLastProp Expr2)))			; t1 has to equal t2
 
       ;string comparison, case "t1.p1 = c or var"
        ((and (eq T1 'String)
-		   (or (eq (car Expr1) 'Apply)
-		       (eq (car Expr2) 'Apply)))
+		   (or (eq (car Expr1) 'gApply)
+		       (eq (car Expr2) 'gApply)))
 	 (quotient 1.0					;assuming one of the
 	    (SizeEst (ExpressionType (RemoveLastProp		; t's in the class will
-	       (if (eq (car Expr1) 'Apply)		; make the equality true
+	       (if (eq (car Expr1) 'gApply)		; make the equality true
 		  Expr1
 		  Expr2))))))
 
@@ -661,7 +661,7 @@
 	    (if (member 'Infinity R2)
 	       '(Infinity Infinity)
 	       (ModRanges R1 R2))))
-      (Apply
+      (gApply
 	 (let* ((Prop (car (last (caddr E))))
 		(PC (PropConstraint Prop)))
 	    (if (eq (PropType Prop) 'Integer)

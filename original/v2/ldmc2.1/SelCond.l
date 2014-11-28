@@ -75,7 +75,7 @@
 (defun BuildDGraph (DGraph PredList)
    (do ((PredList PredList (cdr PredList))) ((null PredList))
       (if (Match
-	    '(EQ > T1 where (IsTerm <q T1)
+	    '(gEQ > T1 where (IsTerm <q T1)
 		 > T2 where (IsTerm <q T2))
 	    (car PredList))
 	 (UnifyTerms DGraph (GetBindVal 'T1) (GetBindVal 'T2))))
@@ -245,5 +245,5 @@
    (member (car Term) '(EVar QVar PVar Constant)))
 
 (defun IsTerm (Structure)
-   (member (car Structure) '(Apply EVar QVar PVar Constant)))
+   (member (car Structure) '(gApply EVar QVar PVar Constant)))
 
