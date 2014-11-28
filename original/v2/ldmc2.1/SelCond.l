@@ -182,6 +182,11 @@
 			(TermLength BestRest)) CurrentP)
 	  (t BestRest)))))
 
+(defun tconc (L E)
+   (if (null L)
+      (let ((R (list (list E)))) (setf (cdr R) (car R)) R)
+      (progn (rplacd (cdr L) (cons E nil)) (setf (cdr L) (cddr L)) L)))
+
 (defun BreadthFirst (DGraph Source Target TargetSubClasses SubClassFlag)
    (let* ((NodesQueue (tconc nil Source)))
       (do ((OpenList (car NodesQueue) (cdr OpenList))
