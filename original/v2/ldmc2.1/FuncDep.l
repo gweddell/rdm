@@ -99,7 +99,7 @@
       (if (zerop N) (return `(,(append NewTerms Terms) ,F1)))
       (setq
          NewF1Log
-            (mapcar '(lambda (T) `(,T ,(ClassProps* (Type T)))) NewTerms)
+            (mapcar '(lambda (T) `(,T ,(ClassProps* (ExpressionType T)))) NewTerms)
          Terms (append NewTerms Terms)
          NewTerms nil)
       (do ((NewF1Log NewF1Log (cdr NewF1Log)))
@@ -123,7 +123,7 @@
    (prog (F2 CList PfdList)
       (do ((TermList TermList (cdr TermList)))
             ((null TermList))
-         (setq CList (SupClasses* (Type (car TermList))))
+         (setq CList (SupClasses* (ExpressionType (car TermList))))
          (do ((CList CList (cdr CList)))
                ((null CList))
             (do ((PfdList (ClassPfds (car CList)) (cdr PfdList)))
@@ -151,7 +151,7 @@
             F3 (append `((,Term1 (,Term2)) (,Term2 (,Term1))) F3)
             PropList nil)
          (do ((CList
-               (SetUnion (SupClasses* (Type Term1)) (SupClasses* (Type Term2)))
+               (SetUnion (SupClasses* (ExpressionType Term1)) (SupClasses* (ExpressionType Term2)))
                (cdr CList)))
                ((null CList))
             (setq PropList (SetUnion (ClassProps (car CList)) PropList)))

@@ -341,8 +341,8 @@
 
        ((Match '(In > ExprVar > C) P)
 	 '(quotient
-	    (float (CommonSize (Type <q ExprVar) <q C))
-	    (SizeEst (Type <q ExprVar))))
+	    (float (CommonSize (ExpressionType <q ExprVar) <q C))
+	    (SizeEst (ExpressionType <q ExprVar))))
 
        ((Match '(Find ? ?) P)		;no scan entry
 	 1.0)
@@ -426,7 +426,7 @@
 ;********************* Probability of an Equality **********************
 
 (defun ProbEq (Expr1 Expr2)
-   (let* ((T1 (Type Expr1)) (T2 (Type Expr2)))
+   (let* ((T1 (ExpressionType Expr1)) (T2 (ExpressionType Expr2)))
 
       ;special case of "t1.p1.p* = t2.p2.p*"
       (cond ((and (eq (car Expr1) 'Apply)
@@ -458,7 +458,7 @@
 		   (or (eq (car Expr1) 'Apply)
 		       (eq (car Expr2) 'Apply)))
 	 (quotient 1.0					;assuming one of the
-	    (SizeEst (Type (RemoveLastProp		; t's in the class will
+	    (SizeEst (ExpressionType (RemoveLastProp		; t's in the class will
 	       (if (eq (car Expr1) 'Apply)		; make the equality true
 		  Expr1
 		  Expr2))))))
@@ -510,7 +510,7 @@
 ;******************* Probability of an Inequality **********************
 
 (defun ProbGT (Expr1 Expr2)
-   (let* ((T1 (Type Expr1)) (T2 (Type Expr2)))
+   (let* ((T1 (ExpressionType Expr1)) (T2 (ExpressionType Expr2)))
       (if (eq T1 'String)
 	 0.5
        (if (or (eq T1 'Real) (eq T1 'DoubleReal)
@@ -520,7 +520,7 @@
 
 
 (defun ProbGE (Expr1 Expr2)
-   (let* ((T1 (Type Expr1)) (T2 (Type Expr2)))
+   (let* ((T1 (ExpressionType Expr1)) (T2 (ExpressionType Expr2)))
       (if (eq T1 'String)
 	 0.5
        (if (or (eq T1 'Real) (eq T1 'DoubleReal)

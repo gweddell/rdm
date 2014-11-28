@@ -435,14 +435,14 @@
    (Find (? > GlobalDGraph > DGraph (> V >* BoundVars) > EVarList > Project)
       > Type
       >* FEList1
-      (Scan < V (Log) where (not (null (SupIndices* (Type <q V)))))
+      (Scan < V (Log) where (not (null (SupIndices* (ExpressionType <q V)))))
       >* FEList2)
    (AltScan < IndexScanList
       < DGraph < EVarList < Project < Type < FEList1 < FEList2)
    (Bindq IndexScanList
       (mapcar
          '(lambda (I)                   ; function not to be compiled!
-            (let* ((IterType (if (eq (Type <q V) (IndexClass I)) 'Iter 'SCIter))
+            (let* ((IterType (if (eq (ExpressionType <q V) (IndexClass I)) 'Iter 'SCIter))
                    (SearchCond (copy-tree (IndexSearchConds I))))
                (list
                   'IndexScan
@@ -450,7 +450,7 @@
                   SearchCond
                   <q GlobalDGraph
                   <q BoundVars)))
-         (SupIndices* (Type <q V)))))
+         (SupIndices* (ExpressionType <q V)))))
 
 (QualPFIntro
    (IndexScan
@@ -472,13 +472,13 @@
       ((SCCond > C) >* SCList)
       > GlobalDGraph
       > BoundVars
-      where (member <q C (SupClasses* (Type <q V))))
+      where (member <q C (SupClasses* (ExpressionType <q V))))
    (IndexScan
       (Scan < V (< NewIterType < I << SelCondList (QualSC < C)))
       < SCList
       < GlobalDGraph
       < BoundVars)
-   (Bindq NewIterType (if (eq <q C (Type <q V)) 'Iter 'SCIter)))
+   (Bindq NewIterType (if (eq <q C (ExpressionType <q V)) 'Iter 'SCIter)))
 
 (FindMinCostI
    (AltScan (>+ IndexScanList) >* OtherDetails)

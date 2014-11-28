@@ -149,7 +149,7 @@
 	    nil nil))))
 
 (defun FindTermTypeEqual (DGraph VarArgs)
-   (let* ((TargetSubClasses (SubClasses* (Type (car VarArgs))))
+   (let* ((TargetSubClasses (SubClasses* (ExpressionType (car VarArgs))))
 	  (TargetSym (Locate DGraph (car VarArgs)))
 	  (BoundVList (FindBoundVList (cdar DGraph) (cdr VarArgs))))
       (or
@@ -158,7 +158,7 @@
 	     ((null BVList) nil)
 	    (if (and
 		  (eq (caar BVList) TargetSym)
-		  (member (Type (cdar BVList)) TargetSubClasses))
+		  (member (ExpressionType (cdar BVList)) TargetSubClasses))
 	       (return (cdar BVList))))
 
 	 ; Case Target = T, T in TargetSubClasses, TermLength of T > 0
@@ -209,7 +209,7 @@
 		  (return))
 	       ((member				; if combined path well defined
 		     (caar PropList)
-		     (ClassProps* (Type (cdar OpenList))))
+		     (ClassProps* (ExpressionType (cdar OpenList))))
 		  (tconc NodesQueue		; then append son to OpenList
 		     (cons
 			(cdar PropList)
