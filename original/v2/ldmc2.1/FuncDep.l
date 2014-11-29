@@ -99,7 +99,7 @@
       (if (zerop N) (return `(,(append NewTerms Terms) ,F1)))
       (setq
          NewF1Log
-            (mapcar '(lambda (T) `(,T ,(ClassProps* (ExpressionType T)))) NewTerms)
+            (mapcar (lambda (S) `(,S ,(ClassProps* (ExpressionType S)))) NewTerms)
          Terms (append NewTerms Terms)
          NewTerms nil)
       (do ((NewF1Log NewF1Log (cdr NewF1Log)))
@@ -130,7 +130,7 @@
                   ((null PfdList))
                (setq F2 (cons
                   `(,(AppendPF (car TermList) (caar PfdList))
-                     ,(mapcar '(lambda (PF) (AppendPF (car TermList) PF))
+                     ,(mapcar (lambda (PF) (AppendPF (car TermList) PF))
                         (cadar PfdList)))
                   F2)))))
       (return F2)))
