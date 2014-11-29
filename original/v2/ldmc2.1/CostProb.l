@@ -184,7 +184,9 @@
 	    (CostPred <q Pred)
 	    (times
 	       (ProbPred <q Pred)
-	       (CostPred '(Find () < FType << Rest)))))))))
+	       (CostPred '(Find () < FType << Rest)))))
+(t '0)
+))))
 
 
 (defun CostSelect (ScanEntry)
@@ -412,7 +414,9 @@
        ((Match '(Find ? ? > Pred >* Rest) P)
 	 '(times
 	    (ProbPred <q Pred)
-	    (ProbPred '(Find () (One) << Rest))))))))
+	    (ProbPred '(Find () (One) << Rest))))
+	(t '0)
+))))
 
 
 (defun ProbSelect (ScanEntry)
@@ -526,7 +530,7 @@
        (if (or (eq T1 'Real) (eq T1 'DoubleReal)
                   (eq T2 'Real) (eq T2 'DoubleReal))
 	 (ProbRealGT Expr1 Expr2)
-	 (ProbIntGT `(AddOp ,Expr1 (Constant 1 Integer)) Expr2)))))
+	 (ProbIntGT `(AddOp ,Expr1 (Constant "1" Integer)) Expr2)))))
 
 
 (defun ProbIntGT (Expr1 Expr2 &aux (R1 (FindRange Expr1))
