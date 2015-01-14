@@ -185,7 +185,6 @@
 	    (times
 	       (ProbPred <q Pred)
 	       (CostPred '(Find () < FType << Rest)))))
-(t '0)
 ))))
 
 
@@ -415,7 +414,6 @@
 	 '(times
 	    (ProbPred <q Pred)
 	    (ProbPred '(Find () (One) << Rest))))
-	(t '0)
 ))))
 
 
