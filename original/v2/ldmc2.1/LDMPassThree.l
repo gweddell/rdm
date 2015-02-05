@@ -67,7 +67,7 @@
                (eq 'Pointer (ClassReference <q C))
                (eq 'Pointer (ClassReference (Type <q T))))
             *) *)
-         L) then
+         L)
       (mapc #'(lambda (SC) (putprop SC 'IndPointer 'ClassReference))
          (append
             (eval (Build '(ReachableClasses <q C ())))
@@ -101,27 +101,27 @@
       (setq MaxMscVal 0)
       (setq TopCList Classes)
     loop
-      (if (null TopCList) then
-         (NewProp 'Msc 'Integer)
+      (if (null TopCList)
+         (progn (NewProp 'Msc 'Integer)
          (AddPropConstraint 'Msc `(Range 1 ,MaxMscVal))
-         (return t))
+         (return t)))
       (setq C (car TopCList) TopCList (cdr TopCList))
       (setq NextMscVal 1)
       (setq ReachCList (ReachableClasses C ()))
       (do ReachCList ReachCList (cdr ReachCList) (null ReachCList)
          (setq C (car ReachCList))
-         (if (ClassCovers C) then
+         (if (ClassCovers C)
             (putprop C 0 'ClassMscVal)
-          else
+          (progn
             (putprop C NextMscVal 'ClassMscVal)
             (mapc
                #'(lambda (C)
                   (putprop C (add NextMscVal (ClassMscSumVal C))
                      'ClassMscSumVal))
                (SupClasses* C))
-            (if (greaterp NextMscVal MaxMscVal) then
+            (if (greaterp NextMscVal MaxMscVal)
                (setq MaxMscVal NextMscVal))
-            (setq NextMscVal (times 2 NextMscVal)))
+            (setq NextMscVal (times 2 NextMscVal))))
          (setq TopCList (remq C TopCList)))
       (go loop)))
 
@@ -205,10 +205,11 @@
       (remprop (car PList) 'DomClasses)))
 
 (defun CheckProp (C P &aux GenNewDomClass)
-   (if (get P 'NewDomClass) then
+   (if (get P 'NewDomClass)
+    (progn
       (DelClassProp C P)
-      (AddSupClasses C (list (get P 'NewDomClass)))
-    else
+      (AddSupClasses C (list (get P 'NewDomClass))))
+    (progn
       (setq GenNewDomClass nil)
       (putprop P (cons C (get P 'DomClasses)) 'DomClasses)
       (do ((SCList (SubClasses+ C))
@@ -224,7 +225,7 @@
             (do CList (get P 'DomClasses) (cdr CList) (null CList)
                (setq C (car CList))
                (DelClassProp C P)
-               (AddSupClasses C (list NewC)))))))
+               (AddSupClasses C (list NewC))))))))
 
 
 ;***********************************************************************
@@ -251,25 +252,26 @@
    (prog (St CR1 CList C CLi CRj CTrail CCom PCList)
       (setq St '(Entity))
     loop1
-      (if (null St) then (return t))
+      (if (null St) (return t))
       (setq CR1 (car St)) (setq St (cdr St))
       (setq CList (SubClasses CR1))
     loop2
-      (if (null CList) then (go loop1))
+      (if (null CList) (go loop1))
       (setq C (car CList)) (setq CList (cdr CList))
-      (if (null (ClassExtension C)) then
+      (if (null (ClassExtension C))
+       (progn 
          (putprop C CR1 'ClassExtension)
          (setq St (cons C St))
-         (go loop2))
+         (go loop2)))
       (setq CCom CR1)
       (setq PCList nil)
       (setq CLi C)
     loop3
       (setq CLi (ClassExtension CLi))
       (setq PCList (cons CLi PCList))
-      (if (not (eq CLi 'Entity)) then (go loop3))
+      (if (not (eq CLi 'Entity)) (go loop3))
     loop4
-      (if (memq CCom PCList) then (go cont))
+      (if (memq CCom PCList) (go cont))
       (setq CCom (ClassExtension CCom))
       (go loop4)
     cont
@@ -277,7 +279,7 @@
       (setq CRj CR1)
       (setq CTrail C)
     loop5
-      (if (and (eq CLi CCom) (eq CRj CCom)) then (go loop2))
+      (if (and (eq CLi CCom) (eq CRj CCom)) (go loop2))
       (if (or (eq CLi CCom)
               (and (not (memq CRj (SupClasses* CLi)))
                    (greaterp
@@ -286,11 +288,12 @@
                          (length (ClassProps CRj)))
                       (times
                          (diff (SizeEst CRj) (SizeEst C))
-                         (length (ClassProps CLi)))))) then
+                         (length (ClassProps CLi))))))
+       (progn
          (putprop CTrail CRj 'ClassExtension)
-         (setq CRj (ClassExtension CRj))
-       else
+         (setq CRj (ClassExtension CRj)))
+       (progn
          (putprop CTrail CLi 'ClassExtension)
-         (setq CLi (ClassExtension CLi)))
+         (setq CLi (ClassExtension CLi))))
       (setq CTrail (ClassExtension CTrail))
       (go loop5)))
