@@ -81,9 +81,9 @@
 
 (defun ReachableClasses (C L)
    (setq L (cons C L))
-   (do CList (append (SupClasses C) (SubClasses C))
-         (cdr CList)
-         (null CList)
+   (do ((CList (append (SupClasses C) (SubClasses C))
+         (cdr CList)))
+         ((null CList))
       (if (not (member (car CList) L)) (setq L (ReachableClasses (car CList) L))))
    L)
 
@@ -108,7 +108,7 @@
       (setq C (car TopCList) TopCList (cdr TopCList))
       (setq NextMscVal 1)
       (setq ReachCList (ReachableClasses C ()))
-      (do ReachCList ReachCList (cdr ReachCList) (null ReachCList)
+      (do ((ReachCList ReachCList (cdr ReachCList))) ((null ReachCList))
          (setq C (car ReachCList))
          (if (ClassCovers C)
             (putprop C 0 'ClassMscVal)
@@ -197,10 +197,10 @@
 ;***********************************************************************
 
 (defun CheckProperties ()
-   (do CList Classes (cdr CList) (null CList)
-      (do PList (ClassProps (car CList)) (cdr PList) (null PList)
+   (do ((CList Classes (cdr CList))) ((null CList))
+      (do ((PList (ClassProps (car CList)) (cdr PList))) ((null PList))
          (CheckProp (car CList) (car PList))))
-   (do PList Properties (cdr PList) (null PList)
+   (do ((PList Properties (cdr PList))) ((null PList))
       (remprop (car PList) 'NewDomClass)
       (remprop (car PList) 'DomClasses)))
 
@@ -222,7 +222,7 @@
             (NewClass NewC)
             (AddClassProps NewC (list P))
             (putprop P NewC 'NewDomClass)
-            (do CList (get P 'DomClasses) (cdr CList) (null CList)
+            (do ((CList (get P 'DomClasses) (cdr CList))) ((null CList))
                (setq C (car CList))
                (DelClassProp C P)
                (AddSupClasses C (list NewC))))))))
