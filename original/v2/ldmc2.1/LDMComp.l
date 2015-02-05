@@ -35,8 +35,19 @@
 ; The function cannot be safely reapplied.
 ;***********************************************************************
 
+(load "PatMatch.l")
+(load "RuleUse.l")
+(load "SelCond.l")
+(load "CostProb.l")
+(load "FuncDep.l")
+(load "LDMErrorProcs.l")
+(load "LDMSchemaAccess.l")
+(load "LDMSchemaMaint.l")
+(load "LDMCompLib.l")
+(load "LDMPassOne.l")
+(load "LDMPassTwo.l")
+
 (defun MAIN ()
-  (LoadSource)
   (setq LDMPort (open "ldmc.in"))
   (setq Source (LDMIn LDMPort))
   (setq PDMPort (open "ldmc.out"
@@ -52,19 +63,6 @@
   ;(Diagnostic "generating code.")
   ;(PassFive)
 )
-
-(defun LoadSource ()
-  (load "PatMatch.l")
-  (load "RuleUse.l")
-  (load "SelCond.l")
-  (load "CostProb.l")
-  (load "FuncDep.l")
-  (load "LDMErrorProcs.l")
-  (load "LDMSchemaAccess.l")
-  (load "LDMSchemaMaint.l")
-  (load "LDMCompLib.l")
-  (load "LDMPassOne.l")
-  (load "LDMPassTwo.l"))
 
 ;***********************************************************************
 

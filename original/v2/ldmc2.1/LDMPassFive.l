@@ -291,7 +291,7 @@
    (PrintIndent Indent)
    (if (Match
 	 '(Scan > ExprVar
-	    (>or (Substitute CondSubstitute) ScanType > Expr))
+	    (>or (SubstituteVar CondSubstitute) ScanType > Expr))
 	 SubForm) then
       (PrintString "assign ")
       (PrintExpr (GetBindVal 'ExprVar))

@@ -38,11 +38,11 @@
 ;(sstatus feature TraceRules)     ; trace application of rewrite rules
 
 (defun PassTwo ()
-   (mapc 'NormalizeQuery Queries)
+   ;(mapc 'NormalizeQuery Queries)
    ;(load 'Trace)
-   (mapc 'JoinOrderQuery Queries)
+   ;(mapc 'JoinOrderQuery Queries)
    ;(untrace)
-   (mapc 'AndHeapQuery Queries)
+   ;(mapc 'AndHeapQuery Queries)
    (mapc 'OptimizeQuery Queries)
 )
 
@@ -408,7 +408,7 @@
    (Find (-1 < GlobalDGraph < DGraph < BoundVars < EVarList < Project)
       < Type
       << FEList
-      (Scan < V (Substitute < ReplaceBy))
+      (Scan < V (SubstituteVar < ReplaceBy))
       < ScanHeap
       < AndHeap))
 
@@ -557,7 +557,7 @@
       > Type
       >* FEList1
       (AndHeap >* PList1)
-      (Scan < V (Substitute > T))
+      (Scan < V (SubstituteVar > T))
       (AndHeap >* PList2)
       >* FEList2
       where (or
@@ -577,8 +577,8 @@
    (Bindq
       NewEVarList (remove <q V <q EVarList)
       NewProject (remove <q V <q Project)
-      NewPList2 (Substitute <q PList2 <q V <q T)
-      NewFEList2 (Substitute <q FEList2 <q V <q T)))
+      NewPList2 (SubstituteVar <q PList2 <q V <q T)
+      NewFEList2 (SubstituteVar <q FEList2 <q V <q T)))
 
 (SelectCondSpecialize
    (Find > QInfo > Type

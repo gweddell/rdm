@@ -1,13 +1,12 @@
 Replace readlist and exploden
-for if statement, no else or elseif
-replace assq with assoc
-replace patom with princ 
-replace memq with member
-replace caseq with case 
-replace Type with ExpressionType
-replace readlist (exploden with read-from-string
-replace remq with remove
-put # before an anonymous function
-use progn to group statements together
-replace explodec with coerce
-do loop needs more parentheses
+Refactor if statement to remove else and elseif, using progn when appropriate
+Replace assq with assoc
+Replace patom with princ 
+Replace memq with member
+Replace caseq with case 
+Replace Type with ExpressionType
+Replace remq with remove
+Put # before an anonymous function
+Add more parentheses to do loop 
+Replace Substitute with SubsituteVar
+Do NOT replace add, diff, minus, times, etc. with the CL counterparts, because pattern matcher uses these symbols. Set alias eg. (setf (symbol-function 'add) #'+)

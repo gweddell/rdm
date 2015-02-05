@@ -65,7 +65,7 @@
             (CostPred '(Find () (All) << FEList))))
 
        ((Match
-		  '(Find ? > FType (Scan ? (Substitute > Expr)) >* Rest)
+		  '(Find ? > FType (Scan ? (SubstituteVar > Expr)) >* Rest)
 		  P)
 	 '(add
 	    (FixedCosts 'Bind)
@@ -194,7 +194,7 @@
 
 (defun InterpretScan (ScanEntry &aux (ExprVar (cadr ScanEntry))
 				     (ScanSpec (caddr ScanEntry)))
-   (if (member (car ScanSpec) '(Substitute CondSubstitute))
+   (if (member (car ScanSpec) '(SubstituteVar CondSubstitute))
       `((gEQ ,ExprVar ,(cadr ScanSpec)))
       (do ((SCList (cddr ScanSpec) (cdr SCList))
 	   (PredList nil))
@@ -348,7 +348,7 @@
        ((Match '(Find ? ?) P)		;no scan entry
 	 1.0)
 
-       ((Match '(Find ? ? (Scan ? (Substitute ?)) >* Rest) P) 
+       ((Match '(Find ? ? (Scan ? (SubstituteVar ?)) >* Rest) P) 
 	 '(ProbPred '(Find () (One) << Rest)))
 
        ((Match
