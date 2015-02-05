@@ -84,7 +84,7 @@
    (do CList (append (SupClasses C) (SubClasses C))
          (cdr CList)
          (null CList)
-      (if (not (memq (car CList) L)) (setq L (ReachableClasses (car CList) L))))
+      (if (not (member (car CList) L)) (setq L (ReachableClasses (car CList) L))))
    L)
 
 
@@ -122,7 +122,7 @@
             (if (greaterp NextMscVal MaxMscVal)
                (setq MaxMscVal NextMscVal))
             (setq NextMscVal (times 2 NextMscVal))))
-         (setq TopCList (remq C TopCList)))
+         (setq TopCList (remove C TopCList)))
       (go loop)))
 
 
@@ -131,7 +131,7 @@
 
 (defun AddIndexProperties (I &aux C)
    (setq C (IndexClass I))
-   (caseq (IndexType I)
+   (case (IndexType I)
       (List
          (NewClassProps `(
             (,(concat Schema 'Struct) ,(concat I 'Head) ,C)
@@ -168,7 +168,7 @@
 
 
 (defun AddStoreProperties (S)
-   (caseq (StoreType S)
+   (case (StoreType S)
       (Dynamic (NewClassProps `( (,(concat Schema 'Struct) ,S StoreTemplate))))))
 
 
@@ -236,7 +236,7 @@
 (defun AddEntityClass ()
    (mapc #'(lambda (C)
       (if (and (null (SupClasses C))
-               (not (memq C BuiltInClasses)))
+               (not (member C BuiltInClasses)))
          (AddSupClasses C '(Entity))))
       Classes)
    (NewClass 'Entity)
@@ -271,7 +271,7 @@
       (setq PCList (cons CLi PCList))
       (if (not (eq CLi 'Entity)) (go loop3))
     loop4
-      (if (memq CCom PCList) (go cont))
+      (if (member CCom PCList) (go cont))
       (setq CCom (ClassExtension CCom))
       (go loop4)
     cont
@@ -281,7 +281,7 @@
     loop5
       (if (and (eq CLi CCom) (eq CRj CCom)) (go loop2))
       (if (or (eq CLi CCom)
-              (and (not (memq CRj (SupClasses* CLi)))
+              (and (not (member CRj (SupClasses* CLi)))
                    (greaterp
                       (times
                          (diff (SizeEst CLi) (SizeEst C))
