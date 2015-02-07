@@ -46,17 +46,18 @@
 
 
 (defun PrintClasses (CName PNameList CExt)
-   (if (UserClass? CName) then
+   (if (UserClass? CName)
+    (progn
       (PrintString "class ")
       (PrintString CName)
-      (if (SupUserClasses CName) then
-         (PrintString " isa ")
-         (PrintIdList (SupUserClasses CName)))
+      (if (SupUserClasses CName)
+         (progn (PrintString " isa ")
+         (PrintIdList (SupUserClasses CName))))
       (PrintLF)
-      (if (ClassUserProps CName) then
-         (PrintString "properties ")
+      (if (ClassUserProps CName)
+         (progn (PrintString "properties ")
          (PrintIdList (ClassUserProps CName))
-         (PrintLF))
+         (PrintLF)))
       (PrintString "msc ")
       (PrintString (ClassMscVal CName))
       (PrintString " mscsum ")
@@ -67,29 +68,28 @@
          (Pointer (PrintString "direct"))
          (IndPointer (PrintString "indirect")))
       (PrintLF)
-      (if (not (eq CExt '**NoExtension**)) then
-         (PrintString "extension of ")
+      (if (not (eq CExt '**NoExtension**))
+         (progn (PrintString "extension of ")
          (PrintString CExt)
-         (PrintLF))
+         (PrintLF)))
       (setq PNameList (append PNameList (ClassProps CName)))
-      (if PNameList then
-         (PrintString "fields")
+      (if PNameList 
+         (progn (PrintString "fields")
          (PrintLF)
          (PrintIndent 1)
          (PrintString (car PNameList))
-         (do FList (cdr PNameList) (cdr FList) (null FList)
+         (do ((FList (cdr PNameList) (cdr FList))) ((null FList))
             (PrintString ";")
             (PrintLF)
             (PrintIndent 1)
             (PrintString (car FList)))
-         (PrintLF))
+         (PrintLF)))
       (PrintLF)
       (setq PNameList ())
-      (setq CExt CName)
-    else
+      (setq CExt CName))
       (setq PNameList (append PNameList (ClassProps CName))))
-   (do SubCList Classes (cdr SubCList) (null SubCList)
-      (if (eq CName (ClassExtension (car SubCList))) then
+   (do ((SubCList Classes (cdr SubCList))) ((null SubCList))
+      (if (eq CName (ClassExtension (car SubCList)))
          (PrintClasses (car SubCList) PNameList CExt))))
 
 
@@ -98,7 +98,7 @@
    (PrintString PName)
    (PrintString " on ")
    (PrintString (PropType PName))
-   (if (PropConstraint PName) then
+   (if (PropConstraint PName)
       (caseq (car (PropConstraint PName))
          (Range
             (PrintString " range ")
@@ -162,14 +162,13 @@
       (caseq (caar SCList)
          (PFCond
             (PrintPF (cadar SCList))
-            (if (eq 'Asc (caddar SCList)) then
+            (if (eq 'Asc (caddar SCList))
                (PrintString " asc")
-             else
                (PrintString " desc")))
          (SCCond
             (PrintString (cadar SCList))))
       (setq SCList (cdr SCList))
-      (if (null SCList) then (return t))
+      (if (null SCList) (return t))
       (PrintString ", ")
       (go Loop)))
 
@@ -190,7 +189,7 @@
    (setq CList (StoreClasses SName))
    (PrintIndent 1)
    (PrintString (car CList))
-   (do CList (cdr CList) (cdr CList) (null CList)
+   (do ((CList (cdr CList) (cdr CList))) ((null CList))
       (PrintString ",")
       (PrintLF)
       (PrintIndent 1)
@@ -207,104 +206,101 @@
       (PrintString "query ")
       (PrintString QName)
       (PrintLF)
-      (if GivenVars then
-         (PrintString "given ")
+      (if GivenVars
+         (progn (PrintString "given ")
          (PrintList GivenVars 'cadr)
-         (if (lessp (length GivenVars) 3) then
+         (if (lessp (length GivenVars) 3)
             (PrintString " from ")
-          else
+          (progn
             (PrintLF)
-            (PrintString "from "))
-            (PrintList GivenVars 'caddr)
-            (PrintLF))
+            (PrintString "from ")))
+         (PrintList GivenVars 'caddr)
+         (PrintLF)))
       (PrintString "select ")
       (if (eq (car QBody) 'OneQuery) (PrintString "one "))
-      (if QueryVars then
-         (PrintList QueryVars 'cadr)
-         (if (lessp (length QueryVars) 3) then
+      (if QueryVars
+         (progn (PrintList QueryVars 'cadr)
+         (if (lessp (length QueryVars) 3)
             (PrintString " from ")
-          else
+          (progn
             (PrintLF)
-            (PrintString "from "))
-         (PrintList QueryVars 'caddr))
+            (PrintString "from ")))
+         (PrintList QueryVars 'caddr)))
       (PrintLF)
-      (if LocalVars then
-         (PrintString "declare ") (PrintList LocalVars 'cadr)
-         (if (lessp (length LocalVars) 3) then
+      (if LocalVars
+         (progn (PrintString "declare ") (PrintList LocalVars 'cadr)
+         (if (lessp (length LocalVars) 3)
             (PrintString " from ")
-          else
+          (progn
             (PrintLF)
-            (PrintString "from "))
+            (PrintString "from ")))
          (PrintList LocalVars 'caddr)
-         (PrintLF))
-      (if (eq (caadddr QBody) 'Find) then
+         (PrintLF)))
+      (if (eq (caadddr QBody) 'Find)
          (PrintFindForm 0 (cadddr QBody))
-       else
          (PrintString "unoptimized"))
       (PrintLF)
       (PrintLF)))
 
 
 (defun PrintFindForm (Indent FindForm)
-   (if (Match '(? ? (All ? (Sort >+ OrderList)) *) FindForm) then
-      (PrintString "sort ")
+   (if (Match '(? ? (All ? (Sort >+ OrderList)) *) FindForm)
+      (progn (PrintString "sort ")
       (PrintSortSpec (GetBindVal 'OrderList))
       (PrintLF)
       (setq Indent (add1 Indent))
-      (PrintIndent Indent))
-   (if (Match '(? ? (All (Proj >+ ProjList) ?) *) FindForm) then
-      (PrintString "project ")
+      (PrintIndent Indent)))
+   (if (Match '(? ? (All (Proj >+ ProjList) ?) *) FindForm)
+      (progn (PrintString "project ")
       (PrintList (GetBindVal 'ProjList) 'cadr)
       (PrintLF)
       (setq Indent (add1 Indent))
-      (PrintIndent Indent))
-   (if (Match '(? ? ? (Not ?)) FindForm) then
-      (PrintSubForm Indent (cadddr FindForm))
-      (PrintLF)
-    else
+      (PrintIndent Indent)))
+   (if (Match '(? ? ? (Not ?)) FindForm)
+      (progn (PrintSubForm Indent (cadddr FindForm))
+      (PrintLF))
+    (progn
       (PrintString "nest")
       (PrintLF)
-      (do SubForms (cdddr FindForm) (cdr SubForms) (null SubForms)
+      (do ((SubForms (cdddr FindForm) (cdr SubForms))) ((null SubForms))
          (PrintSubForm (add1 Indent) (car SubForms))
          (PrintString ";")
          (PrintLF))
       (PrintIndent (add1 Indent))
-      (PrintString "end")))
+      (PrintString "end"))))
 
 
 (defun PrintSortSpec (OrderList)
    (PrintExpr (caar OrderList))
-   (if (eq 'Asc (cadar OrderList)) then
+   (if (eq 'Asc (cadar OrderList))
       (PrintString " asc")
-    else
       (PrintString " desc"))
-   (do OrderList (cdr OrderList) (cdr OrderList) (null OrderList)
+   (do ((OrderList (cdr OrderList) (cdr OrderList))) ((null OrderList))
       (PrintString ", ")
       (PrintExpr (caar OrderList))
-      (if (eq 'Asc (cadar OrderList)) then
+      (if (eq 'Asc (cadar OrderList))
          (PrintString " asc")
-       else
          (PrintString " desc"))))
 
 
 (defun PrintSubForm (Indent SubForm)
    (PrintIndent Indent)
-   (if (Match
+   (cond ((Match
 	 '(Scan > ExprVar
 	    (>or (SubstituteVar CondSubstitute) ScanType > Expr))
-	 SubForm) then
+	 SubForm)
       (PrintString "assign ")
       (PrintExpr (GetBindVal 'ExprVar))
       (PrintString " as ")
       (PrintExpr (GetBindVal 'Expr))
-      (if (eq (GetBindVal 'ScanType) 'CondSubstitute) then
-	 (PrintString " in ")
-	 (PrintString (caddr (GetBindVal 'ExprVar))))
+      (if (eq (GetBindVal 'ScanType) 'CondSubstitute)
+	 (progn (PrintString " in ")
+	 (PrintString (caddr (GetBindVal 'ExprVar))))))
 
-    elseif (Match
+    ((Match
 	    '(Scan > ExprVar
 	       (>or (LookUp SCLookUp Iter SCIter) ScanType > IName >* SelCond))
-	    SubForm) then
+	    SubForm)
       (PrintString "assign ")
       (PrintExpr (GetBindVal 'ExprVar))
       (PrintString " as ")
@@ -313,30 +309,30 @@
 	 (PrintString "each"))
       (PrintString " of ")
       (PrintString (GetBindVal 'IName))
-      (if (memq (GetBindVal 'ScanType) '(SCLookUp SCIter)) then
-	 (PrintString " in ")
-	 (PrintString (caddr (GetBindVal 'ExprVar))))
-      (if (GetBindVal 'SelCond) then
-	 (PrintString " where")
+      (if (memq (GetBindVal 'ScanType) '(SCLookUp SCIter))
+	 (progn (PrintString " in ")
+	 (PrintString (caddr (GetBindVal 'ExprVar)))))
+      (if (GetBindVal 'SelCond)
+	 (progn (PrintString " where")
 	 (PrintLF)
-	 (PrintSelCond (add1 Indent) SubForm))
+	 (PrintSelCond (add1 Indent) SubForm))))
 
-    elseif (Match '(Find *) SubForm) then
-      (PrintFindForm Indent SubForm)
+    ((Match '(Find *) SubForm)
+      (PrintFindForm Indent SubForm))
 
-    elseif (Match '(Not (Find *)) SubForm) then
+    ((Match '(Not (Find *)) SubForm)
       (PrintString "compliment")
       (PrintLF)
       (PrintIndent (add1 Indent))
-      (PrintFindForm (add1 Indent) (cadr SubForm))
+      (PrintFindForm (add1 Indent) (cadr SubForm)))
 
-    elseif (Match '(Cut > ExprVar) SubForm) then
+    ((Match '(Cut > ExprVar) SubForm)
       (PrintString "cut ")
-      (PrintExpr (GetBindVal 'ExprVar))
+      (PrintExpr (GetBindVal 'ExprVar)))
 
-    else
+    (t
       (PrintString "verify ")
-      (PrintPred SubForm)))
+      (PrintPred SubForm))))
 
 
 (defun PrintPred (Pred)
@@ -363,7 +359,7 @@
    (let* ((Conditions (InterpretScan ScanEntry)))
       (PrintIndent Indent)
       (PrintPred (car Conditions))
-      (do Cond (cdr Conditions) (cdr Cond) (null Cond)
+      (do ((Cond (cdr Conditions) (cdr Cond))) ((null Cond))
 	 (PrintString ",")
 	 (PrintLF)
 	 (PrintIndent Indent)
@@ -373,9 +369,8 @@
 (defun PrintExpr (Expr)
    (caseq (car Expr)
       (Constant
-         (if (eq 'String (caddr Expr)) then
+         (if (eq 'String (caddr Expr))
             (PrintStringQuoted (cadr Expr))
-          else
             (PrintString (cadr Expr))))
       ((QVar PVar LVar EVar)
          (PrintString (cadr Expr)))
@@ -406,27 +401,27 @@
 
 (defun PrintList (VarList Func)
    (PrintString (funcall Func (car VarList)))
-   (do VList (cdr VarList) (cdr VList) (null VList)
+   (do ((VList (cdr VarList) (cdr VList))) ((null VList))
       (PrintString ", ")
       (PrintString (funcall Func (car VList)))))
 
 
 (defun PrintPF (Pf)
    (PrintString (car Pf))
-   (do PfRest (cdr Pf) (cdr PfRest) (null PfRest)
+   (do ((PfRest (cdr Pf) (cdr PfRest))) ((null PfRest))
       (PrintString ".")
       (PrintString (car PfRest))))
 
 
 (defun PrintIdList (IdList)
    (PrintString (car IdList))
-   (do Rest (cdr IdList) (cdr Rest) (null Rest)
+   (do ((Rest (cdr IdList) (cdr Rest))) ((null Rest))
       (PrintString ", ")
       (PrintString (car Rest))))
 
 
 (defun PrintIndent (Indent)
-   (do I Indent (sub1 I) (zerop I) (PrintString "   ")))
+   (do ((I Indent (sub1 I))) ((zerop I)) (PrintString "   ")))
 
 
 (defun PrintString (String)
@@ -446,27 +441,27 @@
       (PrintString "transaction ")
       (PrintString (cadr Body))
       (PrintLF)
-      (if (caddr Body) then
-	 (PrintString "given ")
+      (if (caddr Body)
+	 (progn (PrintString "given ")
 	 (PrintList (caddr Body) 'cadr)
 	 (PrintString " from ")
 	 (PrintList (caddr Body) 'caddr)
-	 (PrintLF))
-      (if (cadadddr Body) then
-	 (PrintString "declare ")
+	 (PrintLF)))
+      (if (cadadddr Body)
+	 (progn (PrintString "declare ")
 	 (PrintList (cadadddr Body) 'cadr)
 	 (PrintString " from ")
 	 (PrintList (cadadddr Body) 'caddr)
-	 (PrintLF))
+	 (PrintLF)))
       (PrintString "actions")
       (PrintLF)
       (PrintIndent 1)
       (PrintStmt (cadddr Body) 1)
       (PrintLF)
-      (if (eq (car Body) 'ExprTrans) then
-	 (PrintString "return ")
+      (if (eq (car Body) 'ExprTrans)
+	 (progn (PrintString "return ")
 	 (PrintExpr (caddddr Body))
-	 (PrintLF))
+	 (PrintLF)))
       (PrintLF)))
 
 
@@ -525,16 +520,16 @@
 	 (PrintLF)
 	 (PrintIndent (add1 Indent))
 	 (PrintStmt (caddr Stmt) (add1 Indent))
-	 (if (cadddr Stmt) then
-	    (PrintLF)
+	 (if (cadddr Stmt)
+	    (progn (PrintLF)
 	    (PrintIndent Indent)
 	    (PrintString "else ")
-	    (if (eq (caadddr Stmt) 'If) then
+	    (if (eq (caadddr Stmt) 'If)
 	       (PrintStmt (cons 'ElseIf (cdadddr Stmt)) Indent)
-	     else
+	     (progn
 	       (PrintLF)
 	       (PrintIndent (add1 Indent))
-	       (PrintStmt (cadddr Stmt) (add1 Indent))))
+	       (PrintStmt (cadddr Stmt) (add1 Indent))))))
 	 (PrintLF)
 	 (PrintIndent Indent)
 	 (PrintString "endif"))
@@ -545,19 +540,19 @@
 	 (PrintLF)
 	 (PrintIndent (add1 Indent))
 	 (PrintStmt (caddr Stmt) (add1 Indent))
-	 (if (cadddr Stmt) then
-	    (PrintLF)
+	 (if (cadddr Stmt)
+	    (progn (PrintLF)
 	    (PrintIndent Indent)
 	    (PrintString "else ")
-	    (if (eq (caadddr Stmt) 'If) then
+	    (if (eq (caadddr Stmt) 'If)
 	       (PrintStmt (cons 'ElseIf (cdadddr Stmt)) Indent)
-	     else
+	     (progn
 	       (PrintLF)
 	       (PrintIndent (add1 Indent))
-	       (PrintStmt (cadddr Stmt) (add1 Indent)))))
+	       (PrintStmt (cadddr Stmt) (add1 Indent)))))))
       (Block
 	 (PrintStmt (caddr Stmt) Indent)
-	 (do StmtList (cdddr Stmt) (cdr StmtList) (null StmtList)
+	 (do ((StmtList (cdddr Stmt) (cdr StmtList))) ((null StmtList))
 	    (PrintString ";")
 	    (PrintLF)
 	    (PrintIndent Indent)
