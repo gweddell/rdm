@@ -9,4 +9,6 @@ Replace remq with remove
 Put # before an anonymous function
 Add more parentheses to do loop 
 Replace Substitute with SubsituteVar
+Change argument of gensym to take string instead of symbol
+An interned gensym can be generated using gentemp
 Do NOT replace add, diff, minus, times, etc. with the CL counterparts, because pattern matcher uses these symbols. Set alias eg. (setf (symbol-function 'add) #'+)

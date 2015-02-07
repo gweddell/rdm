@@ -769,6 +769,7 @@
 
 
 (defun ModRanges (R1 R2)
+   R1 ;the first argument is actually not used in the calculation, so ignore it.
    `(-0.5 ,(diff (quotient (add (abs (car R2)) (abs (cadr R2))) 2.0) 0.5)))
 
 

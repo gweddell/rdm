@@ -218,7 +218,7 @@
          (if (not (null (SetIntersection SCList (SubClasses+ (car CList)))))
             (setq GenNewDomClass t)))
       (if GenNewDomClass
-         (let ((NewC (intern (gensym 'C))) C)
+         (let ((NewC (gentemp "C")) C)
             (NewClass NewC)
             (AddClassProps NewC (list P))
             (putprop P NewC 'NewDomClass)

@@ -62,17 +62,19 @@
 ;    the elements (i.e. logical disjunction).
 ;***********************************************************************
 
-(setf (symbol-function 'add) #'+)
-(setf (symbol-function 'diff) #'-)
-(setf (symbol-function 'minus) #'-)
-(setf (symbol-function 'times) #'*)
-(setf (symbol-function 'quotient) #'/)
-(setf (symbol-function 'lessp) #'<)
-(setf (symbol-function 'greaterp) #'>)
-(setf (symbol-function 'add1) #'1+)
-(setf (symbol-function 'sub1) #'1-)
+(defun add (&rest args) (apply #'+ args))
+(defun diff (&rest args) (apply #'- args))
+(defun minus (&rest args) (apply #'- args))
+(defun times (&rest args) (apply #'* args))
+(defun quotient (&rest args) (apply #'/ args))
+(defun lessp (&rest args) (apply #'< args))
+(defun greaterp (&rest args) (apply #'> args))
+(defun add1 (&rest args) (apply #'1+ args))
+(defun sub1 (&rest args) (apply #'1- args))
 
-(setf (symbol-function 'fix) #'truncate)
+(defun fix (&rest args) (apply #'truncate args))
+(defun concat (&rest args)
+   (read-from-string (apply #'concatenate (cons 'string (mapcar #'symbol-name args)))))
 
 (defun ApplyRuleControl (Control Form)
    (cond

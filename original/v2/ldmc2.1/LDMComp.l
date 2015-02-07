@@ -46,6 +46,7 @@
 (load "LDMCompLib.l")
 (load "LDMPassOne.l")
 (load "LDMPassTwo.l")
+(load "LDMPassThree.l")
 
 (defun MAIN ()
   (setq LDMPort (open "ldmc.in"))

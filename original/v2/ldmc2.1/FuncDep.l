@@ -94,7 +94,7 @@
 ;***********************************************************************
 
 (defun GenTermsAndF1 (N NewTerms)
-   (prog (NewF1Log PropList NewTerm Terms F1)
+   (prog (NewF1Log NewTerm Terms F1)
       LOOP
       (if (zerop N) (return `(,(append NewTerms Terms) ,F1)))
       (setq
@@ -120,7 +120,7 @@
 ;***********************************************************************
 
 (defun GenF2 (TermList)
-   (prog (F2 CList PfdList)
+   (prog (F2 CList)
       (do ((TermList TermList (cdr TermList)))
             ((null TermList))
          (setq CList (SupClasses* (ExpressionType (car TermList))))
