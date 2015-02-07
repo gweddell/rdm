@@ -1,3 +1,4 @@
+Replace variables named 'T' with another name
 Replace readlist and exploden
 Refactor if statement to remove else and elseif, using progn when appropriate
 Replace assq with assoc
@@ -11,4 +12,4 @@ Add more parentheses to do loop
 Replace Substitute with SubsituteVar
 Change argument of gensym to take string instead of symbol
 An interned gensym can be generated using gentemp
-Do NOT replace add, diff, minus, times, etc. with the CL counterparts, because pattern matcher uses these symbols. Set alias eg. (setf (symbol-function 'add) #'+)
+Do NOT replace add, diff, minus, times, etc. with the CL counterparts, because pattern matcher uses these symbols. Just redefine these functions.

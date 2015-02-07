@@ -170,7 +170,7 @@
    (Bindq
       AddList
          (mapcan
-            '(lambda (T) (GenAddList T (SupIndices* (ExpressionType T))))
+            #'(lambda (S) (GenAddList S (SupIndices* (ExpressionType S))))
             <q TList)))
 
 
@@ -180,7 +180,7 @@
    (Bindq
       CreList
          (mapcan
-            '(lambda (T) (GenCreList T (SupDistIndices* (ExpressionType T))))
+            #'(lambda (S) (GenCreList S (SupDistIndices* (ExpressionType S))))
             <q TList)))
 
 
@@ -190,7 +190,7 @@
    (Bindq
       SubList
          (mapcan
-            '(lambda (T) (GenSubList T (SubSupIndices* (ExpressionType T))))
+            #'(lambda (S) (GenSubList S (SubSupIndices* (ExpressionType S))))
             <q TList)))
 
 
@@ -200,7 +200,7 @@
    (Bindq
       DesList
          (mapcan
-            '(lambda (T) (GenDesList T (SubSupDistIndices* (ExpressionType T))))
+            #'(lambda (S) (GenDesList S (SubSupDistIndices* (ExpressionType S))))
             <q TList)))
 
 ))
@@ -229,81 +229,81 @@
       `((Alloc ,(ClassStore CName) ,V))))
 
 
-(defun GenFree (T &aux StoreList FreeType)
-   (setq StoreList (SubStore* (ExpressionType T)))
+(defun GenFree (S &aux StoreList FreeType)
+   (setq StoreList (SubStore* (ExpressionType S)))
    (setq FreeType
-      (if (member (ClassReference (ExpressionType T)) '(IndPointer IndOffset))
+      (if (member (ClassReference (ExpressionType S)) '(IndPointer IndOffset))
 	 'IndirectFree
 	 'Free))
    (if (null (cdr StoreList))
-      `((,FreeType ,(car StoreList) ,T))
-      (NestedFreeGen FreeType T (SubClasses* (ExpressionType T)))))
+      `((,FreeType ,(car StoreList) ,S))
+      (NestedFreeGen FreeType S (SubClasses* (ExpressionType S)))))
 
 
-(defun GenFreeId (T)
-   (if (member (ClassReference (ExpressionType T)) '(IndPointer IndOffset))
-      `((FreeId ,T))
+(defun GenFreeId (S)
+   (if (member (ClassReference (ExpressionType S)) '(IndPointer IndOffset))
+      `((FreeId ,S))
       nil))
 
 
-(defun NestedFreeGen (FreeType T CList)
+(defun NestedFreeGen (FreeType S CList)
    (if (null CList)
       nil
       (if (ClassCovers (car CList))
-         (NestedFreeGen FreeType T (cdr CList))
-         `((If (Is ,T ,(car CList))
-            (,FreeType ,(ClassStore (car CList)) ,(AsGen T (car CList)))
-            ,@(NestedFreeGen FreeType T (cdr CList)))))))
+         (NestedFreeGen FreeType S (cdr CList))
+         `((If (Is ,S ,(car CList))
+            (,FreeType ,(ClassStore (car CList)) ,(AsGen S (car CList)))
+            ,@(NestedFreeGen FreeType S (cdr CList)))))))
 
 
-(defun AsGen (T CName) 
-   (if (member CName (SupClasses* (ExpressionType T))) T `(As ,T ,CName)))
+(defun AsGen (S CName) 
+   (if (member CName (SupClasses* (ExpressionType S))) S `(As ,S ,CName)))
 
 
-(defun GenAddList (T IList)
+(defun GenAddList (S IList)
    (mapcar
       #'(lambda (IName)
-         (if (member (IndexClass IName) (SupClasses* (ExpressionType T)))
-            `(Add ,IName ,T)
-            `(If (In ,T ,(IndexClass IName))
-               (Add ,IName ,(AsGen T (IndexClass IName))))))
+         (if (member (IndexClass IName) (SupClasses* (ExpressionType S)))
+            `(Add ,IName ,S)
+            `(If (In ,S ,(IndexClass IName))
+               (Add ,IName ,(AsGen S (IndexClass IName))))))
       IList))
 
 
-(defun GenCreList (T IList)
-   (mapcar #'(lambda (IName) `(Cre ,IName ,T)) IList))
+(defun GenCreList (S IList)
+   (mapcar #'(lambda (IName) `(Cre ,IName ,S)) IList))
 
 
-(defun GenSubList (T IList)
+(defun GenSubList (S IList)
    (mapcar
       #'(lambda (IName)
-         (if (member (IndexClass IName) (SupClasses* (ExpressionType T)))
-            `(Sub ,IName ,T)
-            `(If (In ,T ,(IndexClass IName))
-               (Sub ,IName ,(AsGen T (IndexClass IName))))))
+         (if (member (IndexClass IName) (SupClasses* (ExpressionType S)))
+            `(Sub ,IName ,S)
+            `(If (In ,S ,(IndexClass IName))
+               (Sub ,IName ,(AsGen S (IndexClass IName))))))
       IList))
 
 
-(defun GenDesList (T IList)
+(defun GenDesList (S IList)
    (mapcar
       #'(lambda (IName)
-         (if (member (Dom (DistPF IName)) (SupClasses* (ExpressionType T)))
-            `(Des ,IName ,T)
-            `(If (In ,T ,(Dom (DistPF IName)))
-               (Des ,IName ,(AsGen T (Dom (DistPF IName)))))))
+         (if (member (Dom (DistPF IName)) (SupClasses* (ExpressionType S)))
+            `(Des ,IName ,S)
+            `(If (In ,S ,(Dom (DistPF IName)))
+               (Des ,IName ,(AsGen S (Dom (DistPF IName)))))))
       IList))
 
 
-(defun GenCopyList (V T IList)
+(defun GenCopyList (V S IList)
    (mapcar
       #'(lambda (IName)
          (let ((C (Dom (DistPF IName))))
             (if (member C (SupClasses* (ExpressionType V)))
-               (if (member C (SupClasses* (ExpressionType T)))
-                  `(Copy ,IName ,V ,T)
-                  `(If (In ,T ,C) (Copy ,IName ,V ,(AsGen T C))))
-               (if (member C (SupClasses* (ExpressionType T)))
-                  `(If (In ,V ,C) (Copy ,IName ,(AsGen V C) ,T))
-                  `(If (In ,V ,C) (If (In ,T ,C)
-                     (Copy ,IName ,(AsGen V C) ,(AsGen T C))))))))
+               (if (member C (SupClasses* (ExpressionType S)))
+                  `(Copy ,IName ,V ,S)
+                  `(If (In ,S ,C) (Copy ,IName ,V ,(AsGen S C))))
+               (if (member C (SupClasses* (ExpressionType S)))
+                  `(If (In ,V ,C) (Copy ,IName ,(AsGen V C) ,S))
+                  `(If (In ,V ,C) (If (In ,S ,C)
+                     (Copy ,IName ,(AsGen V C) ,(AsGen S C))))))))
       IList))
