@@ -224,7 +224,7 @@
 
 (defun GenAlloc (V &aux CName)
    (setq CName (Type V))
-   (if (memq (ClassReference CName) '(IndPointer IndOffset))
+   (if (member (ClassReference CName) '(IndPointer IndOffset))
       `((AllocId ,V) (IndirectAlloc ,(ClassStore CName) ,V))
       `((Alloc ,(ClassStore CName) ,V))))
 
@@ -232,7 +232,7 @@
 (defun GenFree (T &aux StoreList FreeType)
    (setq StoreList (SubStore* (Type T)))
    (setq FreeType
-      (if (memq (ClassReference (Type T)) '(IndPointer IndOffset))
+      (if (member (ClassReference (Type T)) '(IndPointer IndOffset))
 	 'IndirectFree
 	 'Free))
    (if (null (cdr StoreList))
@@ -241,7 +241,7 @@
 
 
 (defun GenFreeId (T)
-   (if (memq (ClassReference (Type T)) '(IndPointer IndOffset))
+   (if (member (ClassReference (Type T)) '(IndPointer IndOffset))
       `((FreeId ,T))
       nil))
 
@@ -257,13 +257,13 @@
 
 
 (defun AsGen (T CName) 
-   (if (memq CName (SupClasses* (Type T))) T `(As ,T ,CName)))
+   (if (member CName (SupClasses* (Type T))) T `(As ,T ,CName)))
 
 
 (defun GenAddList (T IList)
    (mapcar
       #'(lambda (IName)
-         (if (memq (IndexClass IName) (SupClasses* (Type T)))
+         (if (member (IndexClass IName) (SupClasses* (Type T)))
             `(Add ,IName ,T)
             `(If (In ,T ,(IndexClass IName))
                (Add ,IName ,(AsGen T (IndexClass IName))))))
@@ -277,7 +277,7 @@
 (defun GenSubList (T IList)
    (mapcar
       #'(lambda (IName)
-         (if (memq (IndexClass IName) (SupClasses* (Type T)))
+         (if (member (IndexClass IName) (SupClasses* (Type T)))
             `(Sub ,IName ,T)
             `(If (In ,T ,(IndexClass IName))
                (Sub ,IName ,(AsGen T (IndexClass IName))))))
@@ -287,7 +287,7 @@
 (defun GenDesList (T IList)
    (mapcar
       #'(lambda (IName)
-         (if (memq (Dom (DistPF IName)) (SupClasses* (Type T)))
+         (if (member (Dom (DistPF IName)) (SupClasses* (Type T)))
             `(Des ,IName ,T)
             `(If (In ,T ,(Dom (DistPF IName)))
                (Des ,IName ,(AsGen T (Dom (DistPF IName)))))))
@@ -298,11 +298,11 @@
    (mapcar
       #'(lambda (IName)
          (let ((C (Dom (DistPF IName))))
-            (if (memq C (SupClasses* (Type V)))
-               (if (memq C (SupClasses* (Type T)))
+            (if (member C (SupClasses* (Type V)))
+               (if (member C (SupClasses* (Type T)))
                   `(Copy ,IName ,V ,T)
                   `(If (In ,T ,C) (Copy ,IName ,V ,(AsGen T C))))
-               (if (memq C (SupClasses* (Type T)))
+               (if (member C (SupClasses* (Type T)))
                   `(If (In ,V ,C) (Copy ,IName ,(AsGen V C) ,T))
                   `(If (In ,V ,C) (If (In ,T ,C)
                      (Copy ,IName ,(AsGen V C) ,(AsGen T C))))))))
