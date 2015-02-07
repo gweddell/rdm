@@ -241,19 +241,16 @@
 
 
 (defun GenFreeId (T)
-   (if (memq (ClassReference (Type T)) '(IndPointer IndOffset)) then
+   (if (memq (ClassReference (Type T)) '(IndPointer IndOffset))
       `((FreeId ,T))
-    else
       nil))
 
 
 (defun NestedFreeGen (FreeType T CList)
-   (if (null CList) then
+   (if (null CList)
       nil
-    else
-      (if (ClassCovers (car CList)) then
+      (if (ClassCovers (car CList))
          (NestedFreeGen FreeType T (cdr CList))
-       else
          `((If (Is ,T ,(car CList))
             (,FreeType ,(ClassStore (car CList)) ,(AsGen T (car CList)))
             ,@(NestedFreeGen FreeType T (cdr CList)))))))
@@ -266,9 +263,8 @@
 (defun GenAddList (T IList)
    (mapcar
       #'(lambda (IName)
-         (if (memq (IndexClass IName) (SupClasses* (Type T))) then
+         (if (memq (IndexClass IName) (SupClasses* (Type T)))
             `(Add ,IName ,T)
-          else
             `(If (In ,T ,(IndexClass IName))
                (Add ,IName ,(AsGen T (IndexClass IName))))))
       IList))
@@ -281,9 +277,8 @@
 (defun GenSubList (T IList)
    (mapcar
       #'(lambda (IName)
-         (if (memq (IndexClass IName) (SupClasses* (Type T))) then
+         (if (memq (IndexClass IName) (SupClasses* (Type T)))
             `(Sub ,IName ,T)
-          else
             `(If (In ,T ,(IndexClass IName))
                (Sub ,IName ,(AsGen T (IndexClass IName))))))
       IList))
@@ -292,9 +287,8 @@
 (defun GenDesList (T IList)
    (mapcar
       #'(lambda (IName)
-         (if (memq (Dom (DistPF IName)) (SupClasses* (Type T))) then
+         (if (memq (Dom (DistPF IName)) (SupClasses* (Type T)))
             `(Des ,IName ,T)
-          else
             `(If (In ,T ,(Dom (DistPF IName)))
                (Des ,IName ,(AsGen T (Dom (DistPF IName)))))))
       IList))
@@ -304,15 +298,12 @@
    (mapcar
       #'(lambda (IName)
          (let ((C (Dom (DistPF IName))))
-            (if (memq C (SupClasses* (Type V))) then
-               (if (memq C (SupClasses* (Type T))) then
+            (if (memq C (SupClasses* (Type V)))
+               (if (memq C (SupClasses* (Type T)))
                   `(Copy ,IName ,V ,T)
-                else
                   `(If (In ,T ,C) (Copy ,IName ,V ,(AsGen T C))))
-             else
-               (if (memq C (SupClasses* (Type T))) then
+               (if (memq C (SupClasses* (Type T)))
                   `(If (In ,V ,C) (Copy ,IName ,(AsGen V C) ,T))
-                else
                   `(If (In ,V ,C) (If (In ,T ,C)
                      (Copy ,IName ,(AsGen V C) ,(AsGen T C))))))))
       IList))
