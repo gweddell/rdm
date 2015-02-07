@@ -79,10 +79,10 @@
       CopyList
          (GenCopyList <q V <q T
                (SetIntersection
-                   (SubSupDistIndices* (Type <q V))
-                   (SubSupDistIndices* (Type <q T))))
+                   (SubSupDistIndices* (ExpressionType <q V))
+                   (SubSupDistIndices* (ExpressionType <q T))))
       FreeList (GenFree <q T)
-      AsExpr (AsGen <q T (Type <q V))))
+      AsExpr (AsGen <q T (ExpressionType <q V))))
 
 
 (AssignChk
@@ -94,8 +94,8 @@
       << AddList
       << SList2)
    (Bindq
-      SubList (GenSubList <q V (SubSupIndicesOnP* (Type <q V) <q P))
-      AddList (GenAddList <q V (SubSupIndicesOnP* (Type <q V) <q P))))
+      SubList (GenSubList <q V (SubSupIndicesOnP* (ExpressionType <q V) <q P))
+      AddList (GenAddList <q V (SubSupIndicesOnP* (ExpressionType <q V) <q P))))
 
 
 (IndAssignChk
@@ -170,7 +170,7 @@
    (Bindq
       AddList
          (mapcan
-            '(lambda (T) (GenAddList T (SupIndices* (Type T))))
+            '(lambda (T) (GenAddList T (SupIndices* (ExpressionType T))))
             <q TList)))
 
 
@@ -180,7 +180,7 @@
    (Bindq
       CreList
          (mapcan
-            '(lambda (T) (GenCreList T (SupDistIndices* (Type T))))
+            '(lambda (T) (GenCreList T (SupDistIndices* (ExpressionType T))))
             <q TList)))
 
 
@@ -190,7 +190,7 @@
    (Bindq
       SubList
          (mapcan
-            '(lambda (T) (GenSubList T (SubSupIndices* (Type T))))
+            '(lambda (T) (GenSubList T (SubSupIndices* (ExpressionType T))))
             <q TList)))
 
 
@@ -200,7 +200,7 @@
    (Bindq
       DesList
          (mapcan
-            '(lambda (T) (GenDesList T (SubSupDistIndices* (Type T))))
+            '(lambda (T) (GenDesList T (SubSupDistIndices* (ExpressionType T))))
             <q TList)))
 
 ))
@@ -223,25 +223,25 @@
 ;**********************************************************************
 
 (defun GenAlloc (V &aux CName)
-   (setq CName (Type V))
+   (setq CName (ExpressionType V))
    (if (member (ClassReference CName) '(IndPointer IndOffset))
       `((AllocId ,V) (IndirectAlloc ,(ClassStore CName) ,V))
       `((Alloc ,(ClassStore CName) ,V))))
 
 
 (defun GenFree (T &aux StoreList FreeType)
-   (setq StoreList (SubStore* (Type T)))
+   (setq StoreList (SubStore* (ExpressionType T)))
    (setq FreeType
-      (if (member (ClassReference (Type T)) '(IndPointer IndOffset))
+      (if (member (ClassReference (ExpressionType T)) '(IndPointer IndOffset))
 	 'IndirectFree
 	 'Free))
    (if (null (cdr StoreList))
       `((,FreeType ,(car StoreList) ,T))
-      (NestedFreeGen FreeType T (SubClasses* (Type T)))))
+      (NestedFreeGen FreeType T (SubClasses* (ExpressionType T)))))
 
 
 (defun GenFreeId (T)
-   (if (member (ClassReference (Type T)) '(IndPointer IndOffset))
+   (if (member (ClassReference (ExpressionType T)) '(IndPointer IndOffset))
       `((FreeId ,T))
       nil))
 
@@ -257,13 +257,13 @@
 
 
 (defun AsGen (T CName) 
-   (if (member CName (SupClasses* (Type T))) T `(As ,T ,CName)))
+   (if (member CName (SupClasses* (ExpressionType T))) T `(As ,T ,CName)))
 
 
 (defun GenAddList (T IList)
    (mapcar
       #'(lambda (IName)
-         (if (member (IndexClass IName) (SupClasses* (Type T)))
+         (if (member (IndexClass IName) (SupClasses* (ExpressionType T)))
             `(Add ,IName ,T)
             `(If (In ,T ,(IndexClass IName))
                (Add ,IName ,(AsGen T (IndexClass IName))))))
@@ -277,7 +277,7 @@
 (defun GenSubList (T IList)
    (mapcar
       #'(lambda (IName)
-         (if (member (IndexClass IName) (SupClasses* (Type T)))
+         (if (member (IndexClass IName) (SupClasses* (ExpressionType T)))
             `(Sub ,IName ,T)
             `(If (In ,T ,(IndexClass IName))
                (Sub ,IName ,(AsGen T (IndexClass IName))))))
@@ -287,7 +287,7 @@
 (defun GenDesList (T IList)
    (mapcar
       #'(lambda (IName)
-         (if (member (Dom (DistPF IName)) (SupClasses* (Type T)))
+         (if (member (Dom (DistPF IName)) (SupClasses* (ExpressionType T)))
             `(Des ,IName ,T)
             `(If (In ,T ,(Dom (DistPF IName)))
                (Des ,IName ,(AsGen T (Dom (DistPF IName)))))))
@@ -298,11 +298,11 @@
    (mapcar
       #'(lambda (IName)
          (let ((C (Dom (DistPF IName))))
-            (if (member C (SupClasses* (Type V)))
-               (if (member C (SupClasses* (Type T)))
+            (if (member C (SupClasses* (ExpressionType V)))
+               (if (member C (SupClasses* (ExpressionType T)))
                   `(Copy ,IName ,V ,T)
                   `(If (In ,T ,C) (Copy ,IName ,V ,(AsGen T C))))
-               (if (member C (SupClasses* (Type T)))
+               (if (member C (SupClasses* (ExpressionType T)))
                   `(If (In ,V ,C) (Copy ,IName ,(AsGen V C) ,T))
                   `(If (In ,V ,C) (If (In ,T ,C)
                      (Copy ,IName ,(AsGen V C) ,(AsGen T C))))))))

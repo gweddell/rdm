@@ -65,13 +65,13 @@
          '(? ? ? (Block ? * (Assign (Apply (? ? > C) (* Id)) > T)
             where (or
                (eq 'Pointer (ClassReference <q C))
-               (eq 'Pointer (ClassReference (Type <q T))))
+               (eq 'Pointer (ClassReference (ExpressionType <q T))))
             *) *)
          L)
       (mapc #'(lambda (SC) (putprop SC 'IndPointer 'ClassReference))
          (append
             (eval (Build '(ReachableClasses <q C ())))
-            (eval (Build '(ReachableClasses (Type <q T) ())))))))
+            (eval (Build '(ReachableClasses (ExpressionType <q T) ())))))))
 
 
 ;***********************************************************************
