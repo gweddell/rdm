@@ -39,9 +39,9 @@
    (PrintLF)
    (mapc 'PrintIndex Indices)
    (mapc 'PrintStore Stores)
-   (setq Queries (sort Queries 'alphalessp))
+   (setq Queries (sort Queries 'string<))
    (mapc 'PrintQuery Queries)
-   (setq Transactions (sort Transactions 'alphalessp))
+   (setq Transactions (sort Transactions 'string<))
    (mapc 'PrintTransaction Transactions))
 
 
@@ -64,7 +64,7 @@
       (PrintString (ClassMscSumVal CName))
       (PrintLF)
       (PrintString "reference ")
-      (caseq (ClassReference CName)
+      (case (ClassReference CName)
          (Pointer (PrintString "direct"))
          (IndPointer (PrintString "indirect")))
       (PrintLF)
@@ -99,7 +99,7 @@
    (PrintString " on ")
    (PrintString (PropType PName))
    (if (PropConstraint PName)
-      (caseq (car (PropConstraint PName))
+      (case (car (PropConstraint PName))
          (Range
             (PrintString " range ")
             (PrintString (cadr (PropConstraint PName)))
@@ -118,7 +118,7 @@
    (PrintString (IndexClass IName))
    (PrintLF)
    (PrintString "of type ")
-   (caseq (IndexType IName)
+   (case (IndexType IName)
       (List
          (PrintString "LIST"))
       (Array
@@ -159,7 +159,7 @@
 (defun PrintSearchConds (SCList)
    (prog ()
     Loop
-      (caseq (caar SCList)
+      (case (caar SCList)
          (PFCond
             (PrintPF (cadar SCList))
             (if (eq 'Asc (caddar SCList))
@@ -177,7 +177,7 @@
    (PrintString "store ")
    (PrintString SName)
    (PrintString " of type ")
-   (caseq (StoreType SName)
+   (case (StoreType SName)
       (Dynamic
          (PrintString "dynamic"))
       (Static
@@ -256,7 +256,7 @@
       (PrintLF)
       (setq Indent (add1 Indent))
       (PrintIndent Indent)))
-   (if (Match '(? ? ? (Not ?)) FindForm)
+   (if (Match '(? ? ? (gNot ?)) FindForm)
       (progn (PrintSubForm Indent (cadddr FindForm))
       (PrintLF))
     (progn
@@ -304,12 +304,12 @@
       (PrintString "assign ")
       (PrintExpr (GetBindVal 'ExprVar))
       (PrintString " as ")
-      (if (memq (GetBindVal 'ScanType) '(LookUp SCLookUp))
+      (if (member (GetBindVal 'ScanType) '(LookUp SCLookUp))
 	 (PrintString "first")
 	 (PrintString "each"))
       (PrintString " of ")
       (PrintString (GetBindVal 'IName))
-      (if (memq (GetBindVal 'ScanType) '(SCLookUp SCIter))
+      (if (member (GetBindVal 'ScanType) '(SCLookUp SCIter))
 	 (progn (PrintString " in ")
 	 (PrintString (caddr (GetBindVal 'ExprVar)))))
       (if (GetBindVal 'SelCond)
@@ -320,7 +320,7 @@
     ((Match '(Find *) SubForm)
       (PrintFindForm Indent SubForm))
 
-    ((Match '(Not (Find *)) SubForm)
+    ((Match '(gNot (Find *)) SubForm)
       (PrintString "compliment")
       (PrintLF)
       (PrintIndent (add1 Indent))
@@ -336,11 +336,11 @@
 
 
 (defun PrintPred (Pred)
-   (caseq (car Pred)
-      ((EQ LT GT LE GE NE)
+   (case (car Pred)
+      ((gEQ LT GT LE GE NE)
          (PrintExpr (cadr Pred))
-         (caseq (car Pred)
-	    (EQ (PrintString " = "))
+         (case (car Pred)
+	    (gEQ (PrintString " = "))
             (LT (PrintString " < "))
             (GT (PrintString " > "))
             (LE (PrintString " <= "))
@@ -349,7 +349,7 @@
          (PrintExpr (caddr Pred)))
       ((In Is)
          (PrintExpr (cadr Pred))
-         (caseq (car Pred)
+         (case (car Pred)
             (In (PrintString " IN "))
             (Is (PrintString " IS ")))
          (PrintString (caddr Pred)))))
@@ -367,14 +367,14 @@
 
 
 (defun PrintExpr (Expr)
-   (caseq (car Expr)
+   (case (car Expr)
       (Constant
          (if (eq 'String (caddr Expr))
             (PrintStringQuoted (cadr Expr))
             (PrintString (cadr Expr))))
       ((QVar PVar LVar EVar)
          (PrintString (cadr Expr)))
-      (Apply
+      (gApply
 	 (PrintExpr (cadr Expr))
          (PrintString ".")
          (PrintPF (caddr Expr)))
@@ -386,7 +386,7 @@
 	 (PrintString "(")
 	 (PrintExpr (cadr Expr))
 	 (PrintString
-	    (cadr (assq (car Expr)
+	    (cadr (assoc (car Expr)
 	       '((AddOp " + ")(SubOp " - ")
 		 (ModOp " % ")(TimesOp " * ")(DivOp " / ")))))
 	 (PrintExpr (caddr Expr))
@@ -425,7 +425,7 @@
 
 
 (defun PrintString (String)
-   (patom String PDMPort))
+   (princ String PDMPort))
 
 
 (defun PrintStringQuoted (String)
@@ -466,7 +466,7 @@
 
 
 (defun PrintStmt (Stmt Indent)
-   (caseq (car Stmt)
+   (case (car Stmt)
       (Assign
 	 (PrintExpr (cadr Stmt))
 	 (PrintString " := ")
@@ -476,11 +476,11 @@
 	 (PrintString " id:= ")
 	 (PrintExpr (caddr Stmt)))
       ((FreeId AllocId)
-	 (PrintString (cadr (assq (car Stmt)
+	 (PrintString (cadr (assoc (car Stmt)
 	    '((FreeId "free id ") (AllocId "alloc id ")))))
 	 (PrintExpr (cadr Stmt)))
       ((SInit IInit)
-         (PrintString (cadr (assq (car Stmt)
+         (PrintString (cadr (assoc (car Stmt)
             '((SInit "init store ") (IInit "init index ")))))
          (PrintString (cadr Stmt)))
       (Copy
@@ -492,7 +492,7 @@
          (PrintString (cadr Stmt)))
       ((Add Sub Cre Des Alloc Free IndirectAlloc IndirectFree)
 	 (PrintString
-	    (cadr (assq (car Stmt) '(
+	    (cadr (assoc (car Stmt) '(
 	       (Add "insert ")
 	       (Sub "remove ")
 	       (Cre "create ")
@@ -503,7 +503,7 @@
 	       (IndirectFree "free indirect ")))))
 	 (PrintExpr (caddr Stmt))
 	 (PrintString
-	    (cadr (assq (car Stmt) '(
+	    (cadr (assoc (car Stmt) '(
 	       (Add " in ")
 	       (Sub " from ")
 	       (Cre " for ")

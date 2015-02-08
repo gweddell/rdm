@@ -13,3 +13,4 @@ Replace Substitute with SubsituteVar
 Change argument of gensym to take string instead of symbol
 An interned gensym can be generated using gentemp
 Do NOT replace add, diff, minus, times, etc. with the CL counterparts, because pattern matcher uses these symbols. Just redefine these functions.
+Rename Class, Or, And, Not, EQ, Apply, Delete, List, Array to RDMClass, gOr, gAnd, gNot, gEQ, gApply, gDelete, gList, gArray

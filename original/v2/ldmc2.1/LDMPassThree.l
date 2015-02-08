@@ -62,7 +62,7 @@
 (defun ChgIdCheck (L)
    (if
       (Match
-         '(? ? ? (Block ? * (Assign (Apply (? ? > C) (* Id)) > T)
+         '(? ? ? (Block ? * (Assign (gApply (? ? > C) (* Id)) > T)
             where (or
                (eq 'Pointer (ClassReference <q C))
                (eq 'Pointer (ClassReference (ExpressionType <q T))))

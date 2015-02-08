@@ -47,22 +47,27 @@
 (load "LDMPassOne.l")
 (load "LDMPassTwo.l")
 (load "LDMPassThree.l")
+(load "LDMPassFour.l")
+(load "LDMPassFive.l")
 
 (defun MAIN ()
   (setq LDMPort (open "ldmc.in"))
   (setq Source (LDMIn LDMPort))
-  (setq PDMPort (open "ldmc.out"
-    :if-does-not-exist :create
-    :if-exists :supersede))
+  (close LDMPort)
   (InitGlobals)
   (PassOne)
   (Diagnostic "optimizing queries.")
   (PassTwo)
-  ;(PassThree)
-  ;(Diagnostic "compiling transactions.")
-  ;(PassFour)
-  ;(Diagnostic "generating code.")
-  ;(PassFive)
+  (PassThree)
+  (Diagnostic "compiling transactions.")
+  (PassFour)
+  (Diagnostic "generating code.")
+  (setq PDMPort (open "ldmc.out"
+    :direction :output
+    :if-does-not-exist :create
+    :if-exists :supersede))
+  (PassFive)
+  (close PDMPort)
 )
 
 ;***********************************************************************

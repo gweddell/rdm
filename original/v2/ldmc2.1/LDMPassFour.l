@@ -62,7 +62,7 @@
 (LoadRules '(
 
 (AssignIdChk
-   (Block > VList >* SList1 (Assign (Apply > V (Id)) > T) >* SList2)
+   (Block > VList >* SList1 (Assign (gApply > V (Id)) > T) >* SList2)
    (Block < VList
       << SList1
       (Sub* < V)
@@ -86,11 +86,11 @@
 
 
 (AssignChk
-   (Block > VList >* SList1 (Assign (Apply > V (> P)) > T) >* SList2)
+   (Block > VList >* SList1 (Assign (gApply > V (> P)) > T) >* SList2)
    (Block < VList
       << SList1
       << SubList
-      (AssignChecked (Apply < V (< P)) < T)
+      (AssignChecked (gApply < V (< P)) < T)
       << AddList
       << SList2)
    (Bindq
@@ -99,18 +99,18 @@
 
 
 (IndAssignChk
-   (Block > VList >* SList1 (Assign (Apply > V (>+ PF > P)) > T) >* SList2)
+   (Block > VList >* SList1 (Assign (gApply > V (>+ PF > P)) > T) >* SList2)
    (Block < VList
       << SList1
       << SubList
-      (AssignChecked (Apply < V < PF) < T)
+      (AssignChecked (gApply < V < PF) < T)
       << AddList
       << SList2)
    (Bindq
       SubList
-         (GenSubList '(Apply < V < PF) (SubSupIndicesOnP* (Dom <q PF) <q P))
+         (GenSubList '(gApply < V < PF) (SubSupIndicesOnP* (Dom <q PF) <q P))
       AddList 
-         (GenAddList '(Apply < V < PF) (SubSupIndicesOnP* (Dom <q PF) <q P))))
+         (GenAddList '(gApply < V < PF) (SubSupIndicesOnP* (Dom <q PF) <q P))))
 
 
 (InsertChk
@@ -127,7 +127,7 @@
 
 
 (DeleteChk
-   (Block > VList >* SList1 (Delete > TList) >* SList2)
+   (Block > VList >* SList1 (gDelete > TList) >* SList2)
    (Block
       < VList
       << SList1
