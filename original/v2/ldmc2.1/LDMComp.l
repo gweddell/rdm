@@ -35,21 +35,6 @@
 ; The function cannot be safely reapplied.
 ;***********************************************************************
 
-(load "PatMatch.l")
-(load "RuleUse.l")
-(load "SelCond.l")
-(load "CostProb.l")
-(load "FuncDep.l")
-(load "LDMErrorProcs.l")
-(load "LDMSchemaAccess.l")
-(load "LDMSchemaMaint.l")
-(load "LDMCompLib.l")
-(load "LDMPassOne.l")
-(load "LDMPassTwo.l")
-(load "LDMPassThree.l")
-(load "LDMPassFour.l")
-(load "LDMPassFive.l")
-
 (defun MAIN ()
   (setq LDMPort (open "ldmc.in"))
   (setq Source (LDMIn LDMPort))

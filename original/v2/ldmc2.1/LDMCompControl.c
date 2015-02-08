@@ -6,6 +6,7 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #define NameSize 50
 #define MaxPDMFile 20
@@ -67,10 +68,9 @@ char *argv[], *envp[];
 	fprintf(stderr, "---------------------------------\n");
 	fprintf(stderr, "checking syntax.\n");
 
-  	sprintf(Command, "LDMParser < %s > ldmc.in", LDMFileName);
+  	sprintf(Command, "./LDMParser < %s > ldmc.in", LDMFileName);
 	if (system(Command) != 0) system("rm ldmc.*");
-	if (system("lisp < /u2/gweddell/research/dbtool/version2.1/ldmc2.1/LDMRun > ldmc.diag")
-				 != 0)
+	if (system("./LDMRun > ldmc.diag") != 0)
 		system("rm ldmc.*");
 	sprintf(Command, "mv ldmc.out %s", OutputFileName);
 	system(Command);
