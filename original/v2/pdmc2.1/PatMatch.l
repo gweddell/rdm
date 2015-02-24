@@ -4,24 +4,23 @@
 
 ;********************* PATTERN MATCHER / BUILDER ***********************
 
-(declare
-   (special Schema)
-   (special Classes)
-   (special BuiltInClasses)
-   (special Properties)
-   (special Queries)
-   (special Indices)
-   (special Stores)
-   (special Transactions)
-   (special QueryName?)
-   (special QueryOrTransName)
-   (special Source)
-   (special PDMPort)
-   (special DefaultRCntEst)
-   (special VarStack)
-   (special MatchVarStack)
-   (special FreeMatchVars)
-   (special MatchVar))
+(defvar Schema nil)
+(defvar Classes nil)
+(defvar BuiltInClasses nil)
+(defvar Properties nil)
+(defvar Queries nil)
+(defvar Indices nil)
+(defvar Stores nil)
+(defvar Transactions nil)
+(defvar QueryName? nil)
+(defvar QueryOrTransName nil)
+(defvar Source nil)
+(defvar PDMPort nil)
+(defvar DefaultRCntEst nil)
+(defvar VarStack nil)
+(defvar MatchVarStack nil)
+(defvar FreeMatchVars nil)
+(defvar MatchVar nil)
 
 ;***********************************************************************
 ; PushMatchVar and PopMatchVar are used to maintain MatchVarStack and
@@ -31,23 +30,24 @@
 
 (defun PushMatchVar ()
    (setq MatchVarStack (cons MatchVar MatchVarStack))
-   (if (null FreeMatchVars) then
-      (setq MatchVar (gensym 'P))
-    else
+   (if (null FreeMatchVars) 
+      (setq MatchVar (gensym))
+   (progn  
       (setq MatchVar (car FreeMatchVars))
-      (setq FreeMatchVars (cdr FreeMatchVars))))
+      (setq FreeMatchVars (cdr FreeMatchVars)))))
 
 (defun PopMatchVar ()
-   (if (null MatchVarStack) then
+   (if (null MatchVarStack) 
       (Diagnostic "Error in maintaining match var stack.")
-    else
+   (progn 
       (setq FreeMatchVars (cons MatchVar FreeMatchVars))
       (setq MatchVar (car MatchVarStack))
-      (setq MatchVarStack (cdr MatchVarStack)))
-   nil)
+      (setq MatchVarStack (cdr MatchVarStack))
+      nil)))
 
 (defun GetBindVal (Var) (get Var MatchVar))
 
+(defun putprop (Var Val Ind) (setf (get Var Ind) Val))
 (defun PutBindVal (Var Val) (putprop Var Val MatchVar))
 
 ;***********************************************************************
@@ -168,6 +168,8 @@
 ; ! A - produces the value A (special character escape)
 ;***********************************************************************
 
+(defun kwote (A) (list (quote quote) A))
+
 (defun Build (P)
    (cond
       ((atom P) P)
@@ -186,16 +188,16 @@
 ; to the corresponding atom Ai.  Returns that last Fi.
 ;***********************************************************************
 
-(defun Bindq fexpr (BList)
-   (do ((BList BList (cddr BList)) (Fn nil))
-       ((null BList) Fn)
-      (PutBindVal (car BList) (setq Fn (eval (cadr BList))))))
+(defmacro Bindq (&rest BList)
+   (do ((BList BList (cddr BList)) (S '(let ((Fn nil))))) ((null BList) (append S '(Fn)))
+      (setq S (append S `((PutBindVal (quote ,(car BList)) (setq Fn ,(cadr BList))))))))
 
 ;***********************************************************************
 ; Bind is equivalent to Bindq, except that it evaluates each Ai.
 ;***********************************************************************
 
-(defun Bind fexpr (BList)
-   (do ((BList BList (cddr BList)) (Fn nil))
-       ((null BList) Fn)
-      (PutBindVal (eval (car BList)) (setq Fn (eval (cadr BList))))))
+;(defun Bind fexpr (BList)
+;   (do ((BList BList (cddr BList)) (Fn nil))
+;       ((null BList) Fn)
+;      (PutBindVal (eval (car BList)) (setq Fn (eval (cadr BList))))))
+

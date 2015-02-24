@@ -4,24 +4,23 @@
 
 ;*********************** REWRITE RULE CONTROL  *************************
 
-(declare
-   (special Schema)
-   (special Classes)
-   (special BuiltInClasses)
-   (special Properties)
-   (special Queries)
-   (special Indices)
-   (special Stores)
-   (special Transactions)
-   (special QueryName?)
-   (special QueryOrTransName)
-   (special Source)
-   (special PDMPort)
-   (special DefaultRCntEst)
-   (special VarStack)
-   (special MatchVarStack)
-   (special FreeMatchVars)
-   (special MatchVar))
+(defvar Schema nil)
+(defvar Classes nil)
+(defvar BuiltInClasses nil)
+(defvar Properties nil)
+(defvar Queries nil)
+(defvar Indices nil)
+(defvar Stores nil)
+(defvar Transactions nil)
+(defvar QueryName? nil)
+(defvar QueryOrTransName nil)
+(defvar Source nil)
+(defvar PDMPort nil)
+(defvar DefaultRCntEst nil)
+(defvar VarStack nil)
+(defvar MatchVarStack nil)
+(defvar FreeMatchVars nil)
+(defvar MatchVar nil)
 
 ;***********************************************************************
 ; ApplyRuleControl applies the rule control strategy specified as its
@@ -62,6 +61,20 @@
 ;    given form.  Returns t only if <Strategy> is applied to each of
 ;    the elements (i.e. logical disjunction).
 ;***********************************************************************
+
+(defun add (&rest args) (apply #'+ args))
+(defun diff (&rest args) (apply #'- args))
+(defun minus (&rest args) (apply #'- args))
+(defun times (&rest args) (apply #'* args))
+(defun quotient (&rest args) (apply #'/ args))
+(defun lessp (&rest args) (apply #'< args))
+(defun greaterp (&rest args) (apply #'> args))
+(defun add1 (&rest args) (apply #'1+ args))
+(defun sub1 (&rest args) (apply #'1- args))
+
+(defun fix (&rest args) (apply #'truncate args))
+(defun concat (&rest args)
+   (read-from-string (apply #'concatenate (cons 'string (mapcar #'symbol-name args)))))
 
 (defun ApplyRuleControl (Control Form)
    (cond
@@ -117,7 +130,7 @@
 ;***********************************************************************
 
 (defun LoadRules (RList)
-   (mapc '(lambda (Rule) (putprop (car Rule) (cdr Rule) 'RWRule)) RList))
+   (mapc (function (lambda (Rule) (putprop (car Rule) (cdr Rule) 'RWRule))) RList))
 
 ;***********************************************************************
 ; LoadControl loads a rule control stategy for subsequent reference.
