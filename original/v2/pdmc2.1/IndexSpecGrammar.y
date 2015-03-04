@@ -11,6 +11,11 @@
 %token PROP INLINE 
 %token INDEX SPECIFICATION FUNCTIONS GENERIC NAME NAMES SCHEMA ON CLASS DISTRIBUTED MAXIMUM SIZE
 
+%{
+extern char Result[500];
+%}
+
+
 %start IndexSpecification
 %%
 
@@ -622,6 +627,6 @@ FunctionBody
 
 Identifier
 	: IDENTIFIER
-      { printf("%s", yytext); }
+      { printf("%s", Result); }
 
 %%

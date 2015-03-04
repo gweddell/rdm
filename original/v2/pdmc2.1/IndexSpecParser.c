@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <ctype.h>
 #include "lex.yy.c"
-#include "y.tab.c"
+#include "IndexSpecGrammar.tab.c"
 
+char Result[500];
 
 comment()
 {
@@ -28,7 +29,6 @@ exit:;
 
 int check_type()
 {
-   char Result[500];
    int P1 = 0; 
    int P2 = 0; 
    int Status = 0;
@@ -41,9 +41,8 @@ Start:
       if (Result[strlen(Result)-1] != ' ') 
          if (First == 1) strcat(Result, " Id 1 ");
          else strcat(Result, " Id 1 SubstitutionList 2 ");
-      strcpy(yytext, Result);
       return(IDENTIFIER);
-   }  
+   }
    if (yytext[P1] == '$') {
       if (Status == 2) yyerror("Substitution variable missing");  
       P1++;

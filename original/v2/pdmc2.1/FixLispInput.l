@@ -1,25 +1,28 @@
-
-(setq user-top-level 'p)
-
+(defun caddddddr (L) (caddr (cddddr L)))
+(defun cadddddr (L) (cadr (cddddr L)))
+(defun caddddr (L) (car (cddddr L)))
+(defun cdddddddr (L) (cdddr (cddddr L)))
+(defun cddddddr (L) (cddr (cddddr L)))
+(defun cdddddr (L) (cdr (cddddr L)))
 
 (defun p () 
   (prog (Port Code)
-		  (setq Port (fileopen "isc.internal.in" "r")) 
+		  (setq Port (open "isc.internal.in")) 
 		  (setq Code (FixInput (read Port))) 
 		  (close Port) 
-		  (setq Port (fileopen "isc.internal.out" "w"))
-		  (pp-form Code Port)
+		  (setq Port (open "isc.internal.out" :direction :output
+                     :if-does-not-exist :create
+                     :if-exists :supersede))
+		  (pprint Code Port)
 		  (close Port)
 		  (exit)))
-
-
 
 (defun FixInput (PDMcode) 
   (prog (F S) 
 		  (setq F PDMcode S nil) 
 		  loop 
 		  (if (null F) (return (car S))) 
-		  (caseq (car F) 
+		  (case (car F) 
 					(0 (rplaca S (list (car S)))) 
 					(1 (rplaca S (list (car S) (cadr S))) (rplacd S (cddr S))) 
 					(2 (rplaca S (list (car S) (caddr S) (cadr S))) (rplacd S (cdddr S))) 
@@ -32,3 +35,4 @@
 		  (setq F (cdr F)) 
 		  (go loop))) 
 
+(p)
