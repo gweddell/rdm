@@ -1,4 +1,6 @@
-all: LDMRun LDMParser ldmc
+.PHONY: all clean
+
+all: ldmc
 
 LDMRun: PatMatch.l RuleUse.l LDMComp.l CostProb.l LDMCompLib.l FuncDep.l LDMErrorProcs.l LDMSchemaAccess.l SelCond.l LDMSchemaMaint.l LDMPassOne.l LDMPassTwo.l LDMPassThree.l LDMPassFour.l LDMPassFive.l
 	cat PatMatch.l RuleUse.l LDMComp.l CostProb.l LDMCompLib.l FuncDep.l LDMErrorProcs.l LDMSchemaAccess.l SelCond.l LDMSchemaMaint.l LDMPassOne.l LDMPassTwo.l LDMPassThree.l LDMPassFour.l LDMPassFive.l > LDMRun.l
@@ -14,7 +16,8 @@ LDMParser: LDMParser.c LDMGrammar.y LDMScanner.l
 	gcc -w LDMParser.c -o LDMParser
 	rm -f lex.yy.c LDMGrammar.tab.c LDMGrammar.tab.h 
 
-ldmc: LDMCompControl.c
+ldmc: LDMCompControl.c LDMParser LDMRun
 	gcc -o ldmc LDMCompControl.c
+
 clean:
-	rm -f LDMRun LDMParser LDMCompControl
+	rm -f ldmc LDMRun LDMParser *.fasl lex.yy.c *.tab.c *.tab.h
