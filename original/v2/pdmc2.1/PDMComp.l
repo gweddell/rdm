@@ -221,7 +221,7 @@
                                          (ExprStmt (AssignOp (FieldAcc (PrimExp (BangOp (Id P))) (Id ,Property)) (Id Val)))))))))
                    (setq Code `(File ,Code
                                      (InlineFuncDefnWDeclSpec
-                                      (Void)
+                                      (VoidType)
                                       (FuncVarWPIdList (Id ,(concat 'Assign Class Property)) (IdList (Id P) (Id Val)))
                                       (FuncBodyWDeclList ,TempCode1 ,TempCode2)))))))
         (return Code)))
@@ -242,7 +242,7 @@
               `(File ,Code (File 
                             (File
                              (Comment "Structure for Store") 
-                             (DeclSpecWVars (Int) (InitDecl (PtrVar (Ptr) (Id PDMCellStore)) (Const "0"))))
+                             (DeclSpecWVars (IntType) (InitDecl (PtrVar (Ptr) (Id PDMCellStore)) (Const "0"))))
                             (DeclSpec (StructWIdDecl (Id StoreTemplate) 
                                                      (StructDecl (StructWId (Id StoreTemplate)) (PtrVar (Ptr) (Id Next))))))))
         (do ((StoreList StoreList (cdr StoreList))) ((null StoreList))
@@ -267,9 +267,9 @@
                   S2 (RestoreList (caddadddar Query))
                   D1 (RestoreList (cadaddddar Query)) 
                   D2 (RestoreList (caddaddddar Query))
-                  Temp `(StructDeclList (StructDecl (Int) (Id First)) (StructDecl (Int) (Id Result))))
+                  Temp `(StructDeclList (StructDecl (IntType) (Id First)) (StructDecl (IntType) (Id Result))))
             (do ((CutList (FindCutVar (cadddddar Query)) (cdr CutList))) ((null CutList))
-                (setq Temp `(StructDeclList ,Temp (StructDecl (Int) (Id ,(concat (car CutList) 'Cut))))))
+                (setq Temp `(StructDeclList ,Temp (StructDecl (IntType) (Id ,(concat (car CutList) 'Cut))))))
             (do ((G1 (append G1 S1 D1) (cdr G1)) (G2 (append G2 S2 D2) (cdr G2))) ((null G1))
                 (setq Temp `(StructDeclList ,Temp ,(GenStructDeclCode (car G1) (car G2) 'StructDecl))))
             (setq Code `(File ,Code (DeclSpec (StructWIdDecl (Id ,(concat Name 'Struct)) ,Temp)))))
@@ -312,7 +312,7 @@
                   (t
                    (setq FuncHead `(FuncVarWPIdList (Id ,(cadar PDMTrans)) (IdList (Id PDMCSchema) ,(cadaddar PDMTrans))))))
             (cond ((equal (caaddddar PDMTrans) 'Procedure)
-                   (setq FuncHead `(InlineFuncDefnWDeclSpec (Void) ,FuncHead)))
+                   (setq FuncHead `(InlineFuncDefnWDeclSpec (VoidType) ,FuncHead)))
                   (t
                    (setq Temp (cadaddaddddar PDMTrans))
                    (setq List1 (append (RestoreList (cadaddar PDMTrans)) (RestoreList (cadadddar PDMTrans)))) 
@@ -548,13 +548,13 @@
         (return  `(IfElse (EqPred (Id PDMCellStore) (Const "0"))
                           (ExprStmt 
 									(AssignOp ,Var (CastExp (TypeSpecListWAbsDecl (StructWId (Id ,StructName)) (PtrPtr (Ptr))) 
-																	(FuncCallP (Id malloc) (SizeTypeOp (TypeSpecListWAbsDecl (Int) (Ptr))))))) 
+																	(FuncCallP (Id malloc) (SizeTypeOp (TypeSpecListWAbsDecl (IntType) (Ptr))))))) 
                           (CompndStmtWSList
                            (StmtList
                             (ExprStmt (AssignOp ,Var (CastExp (TypeSpecListWAbsDecl (StructWId (Id ,StructName)) (PtrPtr (Ptr)))
                                                               (Id PDMCellStore))))
                             (ExprStmt (AssignOp (Id PDMCellStore) 
-																(CastExp (TypeSpecListWAbsDecl (Int) (Ptr)) (BangOp (Id PDMCellStore)))))))))))
+																(CastExp (TypeSpecListWAbsDecl (IntType) (Ptr)) (BangOp (Id PDMCellStore)))))))))))
 
 
 (defun TransFree (Action)
@@ -606,7 +606,7 @@
 												  (CastExp 
 													(TypeSpecListWAbsDecl (StructWId (Id ,(PathFuncClass (cadr Action)))) (Ptr)) 
 													(Id PDMCellStore))))
-									(ExprStmt (AssignOp (Id PDMCellStore) (CastExp (TypeSpecListWAbsDecl (Int) (Ptr)) ,(cadr Action)))))))
+									(ExprStmt (AssignOp (Id PDMCellStore) (CastExp (TypeSpecListWAbsDecl (IntType) (Ptr)) ,(cadr Action)))))))
               (t
                (return
                 `(StmtList 
@@ -615,7 +615,7 @@
 									  (CastExp (TypeSpecListWAbsDecl (StructWId (Id ,(PathFuncClass (cadadr Action)))) (Ptr)) 
 												  (Id PDMCellStore))))
 						(ExprStmt 
-						 (AssignOp (Id PDMCellStore) (CastExp (TypeSpecListWAbsDecl (Int) (Ptr)) ,(cadadr Action))))))))))
+						 (AssignOp (Id PDMCellStore) (CastExp (TypeSpecListWAbsDecl (IntType) (Ptr)) ,(cadadr Action))))))))))
 
 
 (defun TransIf (Action List1 List2)
@@ -763,7 +763,7 @@
            (setq BodyList (list (list 3 (SetRefer 2 'Put) '(2) 
                                       `(StmtList 
                                         (ExprStmt (AssignOp (FieldAcc (Id PDMCQStruct) (Id Result)) (Const "1")))
-                                        (Return)))))
+                                        (ReturnStmt)))))
 
            (do ((NodeList NodeList (cdr NodeList))) ((null NodeList))
                (cond ((equal (caar NodeList) 'ExternalPoints)
@@ -811,7 +811,7 @@
            (setq BodyCode `(StmtList ,BodyCode 
                                     (LabeledStmt (Id ,(caddddr ExternalPoints)) 
                                                  (StmtList (ExprStmt (AssignOp (FieldAcc (Id PDMCQStruct) (Id Result)) (Const "0")))
-                                                           (Return)))))
+                                                           (ReturnStmt)))))
 
            ;;change number labels to actual labels
            (do ((Num 1 (add1 Num))) ((equal Num LevelCounter))
@@ -819,7 +819,7 @@
         
            (setq Code `(File ,Code
                              (InlineFuncDefnWDeclSpec 
-                              (Void) (FuncVarWPIdList (Id ,CurrentQuery) (IdList (Id PDMCSchema) (Id PDMCQStruct)))
+                              (VoidType) (FuncVarWPIdList (Id ,CurrentQuery) (IdList (Id PDMCSchema) (Id PDMCQStruct)))
                               (FuncBodyWDeclList 
                                (DeclList 
                                 (DeclSpecWVars (StructWId (Id ,(concat SchemaName 'Struct))) (PtrVar (Ptr) (Id PDMCSchema)))
@@ -1063,7 +1063,7 @@
                    (setq Code (CompareFuncStmt OrderBy OnClass))
                    (setq Code
                          `(InlineFuncDefnWDeclSpec 
-                           (Int)
+                           (IntType)
                            (FuncVarWPIdList (Id ,(concat IndexName 'Compare))
                                             (IdList (Id P1) (Id P2)))
                            (FuncBodyWDeclList
@@ -1239,7 +1239,7 @@
         
                (setq Code
                      `(InlineFuncDefnWDeclSpec 
-                       (Int)
+                       (IntType)
                        (FuncVarWPIdList (Id ,FuncName)
                                         (IdList (Id P) (Id PDMCQStruct)))
                        (FuncBodyWDeclList
@@ -1437,7 +1437,7 @@
                        Goto 
                        InitListHdr 
                        InitListHdrWCom 
-                       LogNot 
+                       NotOp 
                        OnesComp 
                        PostInc 
                        PreDec 

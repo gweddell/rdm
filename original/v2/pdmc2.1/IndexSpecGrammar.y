@@ -119,7 +119,7 @@ UnaryExpr
    | '~' CastExpr
       { printf("OnesComp 1 "); }
    | '!' CastExpr
-      { printf("LogNot 1 "); }
+      { printf("NotOp 1 "); }
    | SIZEOF UnaryExpr
       { printf("SizeExpOp 1 "); }
    | SIZEOF '(' TypeName ')'
@@ -293,27 +293,27 @@ StorageClassSpecifier
 
 TypeSpecifier
    : CHAR
-      { printf("Char 0 "); }
+      { printf("CharType 0 "); }
    | SHORT
-      { printf("Short 0 "); }
+      { printf("ShortType 0 "); }
    | INT
-      { printf("Int 0 "); }
+      { printf("IntType 0 "); }
    | LONG
-      { printf("Long 0 "); }
+      { printf("LongType 0 "); }
    | SIGNED
-      { printf("Signed 0 "); }
+      { printf("SignedType 0 "); }
    | UNSIGNED
-      { printf("Unsigned 0 "); }
+      { printf("UnsignedType 0 "); }
    | FLOAT
-      { printf("Float 0 "); }
+      { printf("FloatType 0 "); }
    | DOUBLE
-      { printf("Double 0 "); }
+      { printf("DoubleType 0 "); }
    | CONST
-      { printf("Const 0 "); }
+      { printf("ConstType 0 "); }
    | VOLATILE
-      { printf("Volatile 0 "); }
+      { printf("VolatileType 0 "); }
    | VOID
-      { printf("Void 0 "); }
+      { printf("VoidType 0 "); }
    | StructOrUnionSpecifier
    | EnumSpecifier
    | TYPE_NAME
@@ -550,7 +550,7 @@ ExpressionStatement
 
 SelectionStatement
    : IF '(' Expr ')' Statement
-      { printf("If 2 "); }
+      { printf("IfStmt 2 "); }
    | IF '(' Expr ')' Statement ELSE Statement
       { printf("IfElse 3 "); }
    | SWITCH '(' Expr ')' Statement
@@ -561,7 +561,7 @@ IterationStatement
    : WHILE '(' Expr ')' Statement
       { printf("While 2 "); }
    | DO Statement WHILE '(' Expr ')' ';'
-      { printf("Do 2 "); }
+      { printf("DoStmt 2 "); }
    | FOR '(' ';' ';' ')' Statement
       { printf("For 1 "); }
    | FOR '(' ';' ';' Expr ')' Statement
@@ -584,11 +584,11 @@ JumpStatement
    : GOTO Identifier ';'
       { printf("Goto 1 "); }
    | CONTINUE ';'
-      { printf("Continue 0 "); }
+      { printf("ContinueStmt 0 "); }
    | BREAK ';'
-      { printf("Break 0 "); }
+      { printf("BreakStmt 0 "); }
    | RETURN ';'
-      { printf("Return 0 "); }
+      { printf("ReturnStmt 0 "); }
    | RETURN Expr ';'
       { printf("ReturnWExp 1 "); }
    ;
