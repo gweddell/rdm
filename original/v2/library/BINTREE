@@ -1,0 +1,185 @@
+index specification for BINTREE
+
+generic names   
+
+   schema name: SchemaName
+   index name: Index
+   on class: Class
+
+generic functions
+
+
+inline void $Index$TreeInsert(new, pointer, CompFunc)
+prop $Class$ new, pointer;
+int (* CompFunc) ();
+{
+    switch ((* CompFunc) (new, pointer)) {
+       case -1 :  if (Access$Class$$Index$LSon(pointer) == NULL) {
+                     Assign$Class$$Index$Mark(new, 1);
+                     Assign$Class$$Index$RSon(new, pointer);
+                     Assign$Class$$Index$LSon(pointer, new);
+                  } else  
+                     $Index$TreeInsert(new, Access$Class$$Index$LSon(pointer), CompFunc);
+                  break;
+        case 1  : if (Access$Class$$Index$Mark(pointer) == 1) {
+                     Assign$Class$$Index$Mark(new, 1);
+                     Assign$Class$$Index$Mark(pointer, 0);
+                     Assign$Class$$Index$RSon(new, Access$Class$$Index$RSon(pointer));
+                     Assign$Class$$Index$RSon(pointer, new);
+                  } 
+                  else if (Access$Class$$Index$RSon(pointer) == NULL)
+                     Assign$Class$$Index$RSon(pointer, new);
+                  else
+                     $Index$TreeInsert(new, Access$Class$$Index$RSon(pointer), CompFunc);
+                  break;
+        case 0  : printf("error : new key already exists.\n");
+                  exit(0);
+                  break;
+    }
+ }
+                 
+
+inline prop $Class$ $Index$TreeNext(pointer)
+prop $Class$ pointer;
+{
+   if (Access$Class$$Index$Mark(pointer) == 0 && Access$Class$$Index$RSon(pointer) != NULL) {
+      pointer = Access$Class$$Index$RSon(pointer);
+      while (Access$Class$$Index$LSon(pointer) != NULL)
+         pointer = Access$Class$$Index$LSon(pointer);
+         return (pointer);
+   }
+   else
+      return(Access$Class$$Index$RSon(pointer));
+}
+
+
+inline prop $Class$ $Index$TreeSearch(pointer, CompFunc, P)
+prop $Class$ pointer;
+int (* CompFunc) ();
+void *P;
+{
+   if (pointer == NULL) return(NULL);
+
+   if ((* CompFunc) (pointer, P) == 1)
+      if (Access$Class$$Index$Mark(pointer) == 0) 
+         return($Index$TreeSearch(Access$Class$$Index$RSon(pointer), CompFunc, P));
+      else 
+         return($Index$TreeNext(pointer));
+   if (Access$Class$$Index$LSon(pointer) != NULL) 
+      return($Index$TreeSearch(Access$Class$$Index$LSon(pointer), CompFunc, P));
+   return(pointer);
+}
+                 
+
+
+
+inline prop $Class$ $Index$FindParent(pointer,child, CompFunc)
+prop $Class$ pointer, child;
+int (* CompFunc) ();
+{
+   switch ((* CompFunc)(child, pointer)) {
+      case -1 : if (Access$Class$$Index$LSon(pointer) == child) return(pointer);
+                else return($Index$FindParent(Access$Class$$Index$LSon(pointer), child, CompFunc));
+      case 1  : if (Access$Class$$Index$RSon(pointer) == child) return(pointer);
+                else return($Index$FindParent(Access$Class$$Index$RSon(pointer), child, CompFunc));
+   }
+}
+                 
+
+                  
+inline void $Index$TreeRemove(Schema, pointer, CompFunc)
+struct $SchemaName$Struct *Schema;
+prop $Class$ pointer;
+int (* CompFunc) ();
+{
+   prop $Class$ parent, temp;
+
+   if (Access$Class$$Index$LSon(pointer) != NULL) {
+      temp = Access$Class$$Index$LSon(pointer);
+      while (Access$Class$$Index$Mark(temp) != 1)
+         temp = Access$Class$$Index$RSon(temp);
+      Assign$Class$$Index$RSon(temp, $Index$TreeNext(pointer));
+   }
+
+   if (Access$Class$$Index$Mark(pointer) == 0) 
+      if (Access$Class$$Index$LSon(pointer) != NULL) {
+         Assign$Class$$Index$Mark(temp, 0);
+         Assign$Class$$Index$RSon(temp, Access$Class$$Index$RSon(pointer));
+      }
+      else 
+         Assign$Class$$Index$LSon(pointer, Access$Class$$Index$RSon(pointer));
+
+   if (Schema->$Index$Head == pointer) 
+      Schema->$Index$Head = Access$Class$$Index$LSon(pointer);
+   else {
+      parent = $Index$FindParent(Schema->$Index$Head, pointer, CompFunc);   
+      if (Access$Class$$Index$LSon(parent) == pointer)
+         Assign$Class$$Index$LSon(parent, Access$Class$$Index$LSon(pointer));
+      else {
+			if (Access$Class$$Index$LSon(pointer) == NULL && Access$Class$$Index$Mark(pointer) == 1) {
+				Assign$Class$$Index$Mark(parent, 1);
+				Assign$Class$$Index$RSon(parent, Access$Class$$Index$RSon(pointer));
+			}
+			else
+            Assign$Class$$Index$RSon(parent, Access$Class$$Index$LSon(pointer));
+		}
+   }
+} 
+
+
+/**************************************************************************************/
+
+
+inline void Add$Index$(Schema, A, CompFunc)
+struct $SchemaName$Struct *Schema;
+prop $Class$ A;
+int (* CompFunc) ();
+{
+   Assign$Class$$Index$LSon(A, NULL);
+   Assign$Class$$Index$RSon(A, NULL);
+   Assign$Class$$Index$Mark(A, 0);
+   if (Schema->$Index$Head == NULL) 
+      Schema->$Index$Head = A;
+   else
+      $Index$TreeInsert(A, Schema->$Index$Head, CompFunc);
+}
+                 
+                  
+inline void Sub$Index$(Schema, A, CompFunc)
+struct $SchemaName$Struct *Schema;
+prop $Class$ A;
+int (* CompFunc) ();
+{
+   $Index$TreeRemove(Schema, A, CompFunc); 
+}
+
+
+inline int Init$Index$(Schema, A, CompFunc, P)
+struct $SchemaName$Struct *Schema;
+prop $Class$ *A;
+int (* CompFunc) ();
+void *P;
+{
+   (*A) = $Index$TreeSearch(Schema->$Index$Head, CompFunc, P);
+
+   if ((*A) == NULL || (* CompFunc) (*A, P) != 0) 
+      return(0);
+   else 
+      return(1);
+}
+                  
+                  
+                  
+inline int Next$Index$(Schema, A, CompFunc, P)
+struct $SchemaName$Struct *Schema;
+prop $Class$ *A;
+int (* CompFunc) ();
+void *P;
+{
+   (*A) = $Index$TreeNext((*A));
+   if (((*A) == NULL) || (* CompFunc) (*A, P) != 0)
+      return(0);
+   else 
+      return(1);
+}
+

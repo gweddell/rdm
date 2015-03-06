@@ -1,0 +1,76 @@
+
+index specification for LIST
+
+generic names   
+
+   schema name: SchemaName
+   index name: Index
+   on class: Class
+
+generic functions
+
+
+inline void Create$Index$(Schema, A)
+struct $SchemaName$Struct *Schema;
+prop $Class$ A;
+{ 
+}
+
+
+inline void Destroy$Index$(Schema, A)
+struct $SchemaName$Struct *Schema;
+prop $Class$ A;
+{ 
+}
+
+
+inline void Add$Index$(Schema, A)
+struct $SchemaName$Struct *Schema;
+prop $Class$ A;
+{
+   if (Schema->$Index$Head == 0) {
+		Assign$Class$$Index$Prev(A, 0);
+		Assign$Class$$Index$Next(A, 0);
+      Schema->$Index$Head = A;
+   } else {
+		Assign$Class$$Index$Prev(A, 0);
+		Assign$Class$$Index$Next(A, Schema->$Index$Head);
+		Assign$Class$$Index$Prev(Access$Class$$Index$Next(A), A);
+      Schema->$Index$Head = A;
+   }
+}
+
+
+inline void Sub$Index$(Schema, A)
+struct $SchemaName$Struct *Schema;
+prop $Class$ A;
+{
+   if (Access$Class$$Index$Prev(A) == 0)
+      Schema->$Index$Head = Access$Class$$Index$Next(A);
+   else
+      Assign$Class$$Index$Next(Access$Class$$Index$Prev(A), Access$Class$$Index$Next(A));   
+   if (Access$Class$$Index$Next(A) != 0)
+      Assign$Class$$Index$Prev(Access$Class$$Index$Next(A), Access$Class$$Index$Prev(A));   
+}
+
+
+inline int Init$Index$(Schema, A)
+struct $SchemaName$Struct *Schema;
+prop $Class$ *A;
+{
+   if (Schema->$Index$Head == 0) 
+      return(0);
+   (*A) = Schema->$Index$Head; 
+      return(1);
+} 
+
+
+inline int Next$Index$(Schema, A)
+struct $SchemaName$Struct *Schema;
+prop $Class$ *A;
+{
+    (*A) = Access$Class$$Index$Next(*A);
+    if ((*A) == 0)
+       return(0);
+    return(1);
+}

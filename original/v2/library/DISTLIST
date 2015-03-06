@@ -1,0 +1,123 @@
+index specification for DISTLIST
+
+generic names   
+
+   schema name: SchemaName
+   index name: Index
+   on class: Class
+   distributed on: DistClass
+
+generic functions
+
+
+inline void Copy$Index$(Schema, A, B)
+struct $SchemaName$Struct *Schema;
+prop $DistClass$ A;
+prop $DistClass$ B;
+{
+   Assign$DistClass$$Index$First(B, Access$DistClass$$Index$First(A));   
+}
+
+inline void Create$Index$(Schema, A)
+struct $SchemaName$Struct *Schema;
+prop $DistClass$ A;
+{ 
+   Assign$DistClass$$Index$First(A, 0);
+}
+
+inline void Destroy$Index$(Schema, A)
+struct $SchemaName$Struct *Schema;
+prop $DistClass$ A;
+{ 
+}
+
+inline void Add$Index$(Schema, A)
+struct $SchemaName$Struct *Schema;
+prop $Class$ A;
+{
+   if (Schema->$Index$Head == 0) {
+       Assign$Class$$Index$Prev(A, 0);
+       Assign$Class$$Index$Next(A, 0);
+       Assign$DistClass$$Index$First(DistPath$Index$(A), A); 
+       Schema->$Index$Head = A;
+    } else if (Access$DistClass$$Index$First(DistPath$Index$(A)) == 0) {
+       Assign$Class$$Index$Next(A, Schema->$Index$Head);
+       Assign$Class$$Index$Prev(A, 0);
+       Assign$DistClass$$Index$First(DistPath$Index$(A), A); 
+       Assign$Class$$Index$Prev(Access$Class$$Index$Next(A), A); 
+       Schema->$Index$Head = A;
+    } else {
+		 Assign$Class$$Index$Next(A, Access$DistClass$$Index$First(DistPath$Index$(A)));
+		 Assign$Class$$Index$Prev(A, Access$Class$$Index$Prev(Access$DistClass$$Index$First(DistPath$Index$(A))));
+       Assign$Class$$Index$Prev(Access$Class$$Index$Next(A), A); 
+       Assign$DistClass$$Index$First(DistPath$Index$(A), A); 
+       if (Access$Class$$Index$Prev(A) != 0)
+			 Assign$Class$$Index$Next(Access$Class$$Index$Prev(A), A);  
+       else
+          Schema->$Index$Head = A;
+    }
+}
+
+inline void Sub$Index$(Schema, A)
+struct $SchemaName$Struct *Schema;
+prop $Class$ A;
+{
+    if (Access$DistClass$$Index$First(DistPath$Index$(A)) == A)
+       if (Access$Class$$Index$Next(A) != 0 && 
+			  DistPath$Index$(Access$Class$$Index$Next(A)) == DistPath$Index$(A))
+          Assign$DistClass$$Index$First(DistPath$Index$(A), Access$Class$$Index$Next(A));
+       else
+			 Assign$DistClass$$Index$First(DistPath$Index$(A), 0);
+    if (Access$Class$$Index$Prev(A) == 0)
+       Schema->$Index$Head = Access$Class$$Index$Next(A);
+    else
+		 Assign$Class$$Index$Next(Access$Class$$Index$Prev(A), Access$Class$$Index$Next(A));
+    if (Access$Class$$Index$Next(A) != 0)
+		 Assign$Class$$Index$Prev(Access$Class$$Index$Next(A), Access$Class$$Index$Prev(A));
+}
+
+
+inline int DistInit$Index$(Schema, A, D)
+struct $SchemaName$Struct *Schema;
+prop $Class$ *A;
+prop $DistClass$ D;
+{
+    if (Access$DistClass$$Index$First(D) == 0)
+       return(0);
+    else
+       (*A) = Access$DistClass$$Index$First(D);
+    return(1);
+}
+
+inline int DistNext$Index$(Schema, A, D)
+struct $SchemaName$Struct *Schema;
+prop $Class$ *A;
+prop $DistClass$ D;
+{
+    (*A) = Access$Class$$Index$Next(*A);
+    if ((*A) != 0 && DistPath$Index$(*A) == D)
+       return(1);
+    return(0);
+}
+
+
+inline int Init$Index$(Schema, A)
+struct $SchemaName$Struct *Schema;
+prop $Class$ *A;
+{
+    if (Schema->$Index$Head == 0) 
+       return(0);
+    (*A) = Schema->$Index$Head; 
+    return(1);
+} 
+
+
+inline int Next$Index$(Schema, A)
+struct $SchemaName$Struct *Schema;
+prop $Class$ *A;
+{
+    (*A) = Access$Class$$Index$Next(*A);
+    if ((*A) == 0)
+       return(0);
+    return(1);
+}
