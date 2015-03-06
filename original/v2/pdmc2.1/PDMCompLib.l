@@ -1,10 +1,6 @@
 ;***********************************************************************
 ;***********************************************************************
 
-(declare
-  (special ScopeList InfoList errport @Compare @SchemaVar @Dummy @Label))
-
-
 (defun RestoreList (L)
   (prog ()
         (if (null L) (return nil))
@@ -14,7 +10,7 @@
 
 
 (defun RestoreFieldList (L)
-  (prog (Result)
+  (prog ()
         (if (null L) (return nil))
         (if (atom L) (return (list (list 'Field L))))
         (return (cons (list 'Field (cadr L)) (RestoreFieldList (caddr L))))))
@@ -46,7 +42,7 @@
         (setq F PDMcode S nil) 
         loop 
         (if (null F) (return (car S))) 
-        (caseq (car F) 
+        (case (car F) 
                (0 (rplaca S (list (car S)))) 
                (1 (rplaca S (list (car S) (cadr S))) (rplacd S (cddr S))) 
                (2 (rplaca S (list (car S) (caddr S) (cadr S))) (rplacd S (cdddr S))) 
@@ -61,24 +57,24 @@
         (go loop))) 
 
 
-(defun Print (Message)
-  (patom Message errport)
+(defun PrintMsg (Message)
+  (princ Message errport)
   (terpri errport))
 
 
-(defun Error (L)
-  (prog (Temp)
-        (do Temp L (cdr Temp) (null Temp)
-            (patom (car Temp) errport)
-            (patom " " errport))
+(defun ErrorMsg (L)
+  (prog ()
+        (do ((Temp L (cdr Temp))) ((null Temp))
+            (princ (car Temp) errport)
+            (princ " " errport))
         (terpri errport)
         (exit)))
 
 
 (defun CMatch (Pat L)
   (cond ((null (Match Pat L)) 
-         (Print "*****warning: from Pattern matcher")
-         (patom Pat errport))))
+         (PrintMsg "*****warning: from Pattern matcher")
+         (princ Pat errport))))
 
 
 (defun GenerateName (Name)
@@ -103,7 +99,7 @@
         (if (atom Name1) 
             (setq Name1 (list 'Id Name1)))
         (if (not (Match `(* (Type ,Name2 >* P) *) InfoList))
-            (Error  `("***PDMC Error: prop" ,Name2 "has not been defined.")))
+            (ErrorMsg  `("***PDMC Error: prop" ,Name2 "has not been defined.")))
         (cond ((equal (car (Build '(<< P))) 'Integer)
                (setq Temp (list Name3 '(Int) Name1)))
               ((equal (car (Build '(<< P))) 'Real)
@@ -139,9 +135,9 @@
 						 (setq Result
 						  `(NEPred (FuncCallP (Id strcmp) (ArgExpList ,(cadr Code) ,(caddr Code))) (Const "0"))))
 						(t
-						 (Print "*****warning: from CheckStringPred"))))
+						 (PrintMsg "*****warning: from CheckStringPred"))))
 		  (setq Result (ProcessIndexSpecCode Result))
-		  (do Temp (car ScopeList) (cdr Temp) (null Temp)
+		  (do ((Temp (car ScopeList) (cdr Temp))) ((null Temp))
 				(setq Result (subst `(FieldAcc (Id PDMCQStruct) (Id ,(caar Temp))) `(Id ,(caar Temp)) Result)))
 		  (return Result)))
 
