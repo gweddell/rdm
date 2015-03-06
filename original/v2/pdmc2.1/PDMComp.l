@@ -70,7 +70,7 @@
 
 
 (defun ProcessPDMCode (PDMCode) 
-  (prog (Code CompareFuncCode QueryCode Temp PDMClass PDMProp PDMIndex PDMStore PDMCQuery PDMTrans FieldList) 
+  (prog (Code CompareFuncCode QueryCode PDMClass PDMProp PDMIndex PDMStore PDMCQuery PDMTrans FieldList) 
         (setq PDMCode (caddr PDMCode))
         (do ((PDMCode PDMCode (caddr PDMCode))) ((null PDMCode))
             (cond ((equal (caadr PDMCode) 'ClassSpec) 
@@ -180,7 +180,7 @@
 ;***********************************************************************************************************************************
 
 (defun SetAccessFunctions (Code)
-  (prog (Temp TempCode1 TempCode2 Class Property Reference Type)
+  (prog (TempCode1 TempCode2 Class Property Reference Type)
         (PrintMsg "   generating Access and Assign functions.")
         (do ((Temp InfoList (cdr Temp))) ((null Temp))
             (cond ((equal (caar Temp) 'Field)
@@ -237,7 +237,7 @@
 
 
 (defun SetStoreDecl (Code StoreList)
-  (prog (Temp)
+  (prog ()
         (setq Code 
               `(File ,Code (File 
                             (File
@@ -256,7 +256,7 @@
 
 
 (defun SetQueryStruct (Code Query)
-  (prog (Temp CutList Name G1 G2 S1 S2 D1 D2)
+  (prog (Temp Name G1 G2 S1 S2 D1 D2)
         (PrintMsg "   generating query structures.")
         (setq Code `(File ,Code (Comment "==== Structure for Queries ======================")))
         (do ((Query Query (cdr Query))) ((null Query))
@@ -298,7 +298,7 @@
 
 
 (defun SetTransaction (Code PDMTrans)
-  (prog (FuncHead FuncType ParaDecl LocalDecl Body List1 List2 Temp Temp1)
+  (prog (FuncHead ParaDecl LocalDecl Body List1 List2 Temp Temp1)
         (PrintMsg "   processing transactions.")
         (setq Code (list 'File Code (list 'Comment "==== Function Decl ====")))
 
@@ -693,7 +693,9 @@
 
 
 (defun TransColonEqId (Code L1 L2)
-  (prog (Temp In1 In2 Cast)
+  L1
+  L2
+  (prog (In1 In2)
 
 
         (setq In1 (car Code) In2 (ProcessIndexSpecCode (cadr Code)))
@@ -715,7 +717,7 @@
 
 
 (defun SetQuery (PDMCQuery)
-  (prog(Code CurrentQuery BodyList BodyCode DeclNames Temp NodeList Refer ExternalPoints L1 L2 LevelCounter Num1 Num2)
+  (prog(Code CurrentQuery BodyList BodyCode Temp NodeList Refer ExternalPoints LevelCounter Num1 Num2)
        (setq Code `(Comment "========== Queries ====================="))
        (PrintMsg "   processing queries.")
 
@@ -1306,7 +1308,7 @@
 
 
 (defun DistAccessCode (Path DistClass IndexName)
-  (prog (Code IndexClass Temp Pointer)
+  (prog (Code IndexClass Pointer)
 		  (setq Code '(Id P) IndexClass DistClass)
         (do ((Path Path (cdr Path))) ((null Path))
 				(CMatch `(* (Type ,DistClass > P1 *) *) InfoList)
@@ -1347,7 +1349,7 @@
 
 
 (defun ProcessIndexSpecCode (IndexSpecCode)
-  (prog (Temp)
+  (prog ()
         (cond  ((equal 1 (CheckKeyWord (car IndexSpecCode)))
                 (return (list (car IndexSpecCode) 
                               (ProcessIndexSpecCode (cadr IndexSpecCode)))))
@@ -1581,7 +1583,7 @@
 
 
 (defun CheckScopeList (N)
-  (prog (Temp1 Temp2 Result)
+  (prog (Result)
         (cond ((equal (car N) 'ArrayExp) 
                (setq N (list 'Array (cadadr N))))
               (t
@@ -1591,10 +1593,10 @@
                 (if (equal (caar Temp2) N) (setq Result (cadar Temp2)))))
         (if (not (null Result)) (return Result))
         (cond ((atom N)
-               (showstack)
+               ;(showstack)
                (ErrorMsg `("***PDMC Error: Prop variable" ,N "has not been defined")))
               (t
-               (showstack)
+               ;(showstack)
                (ErrorMsg `("***PDMC Error: Prop variable" ,(cadr N) "has not been defined"))))))
 
 

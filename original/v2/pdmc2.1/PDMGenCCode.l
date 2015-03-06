@@ -742,7 +742,7 @@
   (princ "register " OutPort))
 
 
-(defun ReturnStmt (L)
+(defun ReturnStmt ()
   (princ "return;" OutPort)) 
 
 
@@ -767,7 +767,7 @@
   (princ "signed " OutPort))
 
 
-(defun SimpArrayAbstDecl (L)
+(defun SimpArrayAbstDecl ()
   (princ "[]" OutPort))
 
 
@@ -777,7 +777,7 @@
   (princ "]" OutPort))
 
 
-(defun SimpFuncAbstDecl (L)
+(defun SimpFuncAbstDecl ()
   (princ "()" OutPort))
 
 
@@ -798,7 +798,7 @@
   (princ ") " OutPort))
 
 
-(defun Static (L)
+(defun Static ()
   (princ "static " OutPort))
 
 
@@ -880,7 +880,7 @@
   (evalfexpr (cadr L)))
 
 
-(defun TypeDef (L)
+(defun TypeDef ()
   (princ "TypeDef " OutPort))
 
 
@@ -993,7 +993,7 @@
   (terpri OutPort))
 
 
-(defun EmptyStmt (L)
+(defun EmptyStmt ()
   (princ "" OutPort))
 
 
@@ -1015,7 +1015,7 @@
 
 
 (defun Preprocessor1 (L)
-  (prog (Temp)
+  (prog ()
 		  (princ "#" OutPort)
 		  (do ((Temp (car L) (cdr Temp))) ((null Temp))
 				(princ (car Temp) OutPort)
