@@ -7,9 +7,9 @@ FixLispInput: FixLispInput.l
 	mv FixLispInput.fasl FixLispInput
 	chmod +x FixLispInput
 
-PDMRun: PatMatch.l PDMCompLib.l PDMGenCCode.l RuleUse.l
-	cat PatMatch.l PDMCompLib.l PDMGenCCode.l RuleUse.l > PDMRun.l
-	echo "(Compile)" >> PDMRun.l
+PDMRun: PatMatch.l RuleUse.l PDMComp.l PDMCompLib.l PDMGenCCode.l
+	cat PatMatch.l RuleUse.l PDMComp.l PDMCompLib.l PDMGenCCode.l > PDMRun.l
+	echo "(main)" >> PDMRun.l
 	sbcl --noinform --eval "(compile-file \"PDMRun.l\")" --eval "(quit)"
 	rm -f PDMRun.l
 	mv PDMRun.fasl PDMRun

@@ -23,7 +23,7 @@
 ;***********************************************************************************************************************************
 
 
-(defun Compile () 
+(defun MAIN ()
   (prog (InfoList PDMCode HeaderCode InlineFlag Port)
 		  (setq InfoList '((Reference StoreTemplate Direct)))
         (setq InlineFlag 1
