@@ -2,7 +2,7 @@
 /*
  * Copyright (C) 1989, G. E. Weddell.
  */
-#include "y.tab.h"
+#include "PDMGrammar.tab.h"
 int	LineNumber = 1;
 char  LineBuffer[200];	 
 %}
