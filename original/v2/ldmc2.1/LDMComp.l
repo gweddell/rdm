@@ -55,6 +55,22 @@
   (close PDMPort)
 )
 
+(defun LoadSource ()
+  (load "PatMatch.l")
+  (load "RuleUse.l")
+  (load "SelCond.l")
+  (load "CostProb.l")
+  (load "FuncDep.l")
+  (load "LDMSchemaAccess.l")
+  (load "LDMSchemaMaint.l")
+  (load "LDMErrorProcs.l")
+  (load "LDMCompLib.l")
+  (load "LDMPassOne.l")
+  (load "LDMPassTwo.l")
+  (load "LDMPassThree.l")
+  (load "LDMPassFour.l")
+  (load "LDMPassFive.l"))
+
 ;***********************************************************************
 
 ;***********************************************************************
