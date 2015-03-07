@@ -100,23 +100,23 @@
 
 
 (defun PrintMsg (Message)
-  (princ Message errport)
-  (terpri errport))
+  (princ Message *error-output*)
+  (terpri *error-output*))
 
 
 (defun ErrorMsg (L)
   (prog ()
         (do ((Temp L (cdr Temp))) ((null Temp))
-            (princ (car Temp) errport)
-            (princ " " errport))
-        (terpri errport)
+            (princ (car Temp) *error-output*)
+            (princ " " *error-output*))
+        (terpri *error-output*)
         (exit)))
 
 
 (defun CMatch (Pat L)
   (cond ((null (Match Pat L)) 
          (PrintMsg "*****warning: from Pattern matcher")
-         (princ Pat errport))))
+         (princ Pat *error-output*))))
 
 
 (defun GenerateName (Name)

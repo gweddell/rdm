@@ -1,7 +1,6 @@
 ;***********************************************************************
 ;***********************************************************************
 
-(defvar errport)
 (defvar InfoList)
 (defvar InlineFlag)
 (defvar LevelCounter)
@@ -303,7 +302,7 @@
         (setq Code (list 'File Code (list 'Comment "==== Function Decl ====")))
 
         (do ((PDMTrans PDMTrans (cdr PDMTrans))) ((null PDMTrans))
-            (princ "      transaction: " errport)
+            (princ "      transaction: " *error-output*)
             (PrintMsg (cadar PDMTrans))
 
             ;function header
@@ -722,7 +721,7 @@
        (PrintMsg "   processing queries.")
 
        (do ((PDMCQuery PDMCQuery (cdr PDMCQuery))) ((null PDMCQuery))
-           (princ "      query: " errport)
+           (princ "      query: " *error-output*)
            (PrintMsg (cadadar PDMCQuery))
 
             (setq CurrentQuery (cadadar PDMCQuery)) 
@@ -1268,7 +1267,7 @@
         (PrintMsg "   processing indices.")
         (do ((Index Index (cdr Index))) ((null Index))
 
-            (princ "      index: " errport)
+            (princ "      index: " *error-output*)
             (PrintMsg (cadar Index))
             (setq Port (open (concat (cadddar Index) ".internal")))
             (setq IndexCode (read Port))
