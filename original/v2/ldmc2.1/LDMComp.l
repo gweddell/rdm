@@ -79,25 +79,10 @@
 ;***********************************************************************
 
 (defun LDMIn (Port)
-   (prog (F S)
-      (setq F (read Port))
-      (setq S ())
-      loop
-      (if (null F) (return (car S)))
-      (case (car F)
-         (0 (rplaca S (list (car S))))
-         (1 (rplaca S (list (car S) (cadr S))) (rplacd S (cddr S)))
-         (2 (rplaca S (list (car S) (caddr S) (cadr S)))
-            (rplacd S (cdddr S)))
-         (3 (rplaca S (list (car S) (cadddr S) (caddr S) (cadr S)))
-            (rplacd S (cddddr S)))
-         (4 (rplaca S (list (car S) (car (cddddr S)) (cadddr S) (caddr S)
-               (cadr S)))
-            (rplacd S (cdr (cddddr S))))
-         (**error** (exit))
-         (t (setq S (cons (car F) S))))
-      (setq F (cdr F))
-      (go loop)))
+   (do ((F (read Port) (cdr F)) S) ((null F) (car S))
+      (if (integerp (car F))
+         (prog ((Index (1+ (car F)))) (rplaca S (cons (car S) (reverse (subseq S 1 Index)))) (rplacd S (subseq S Index)))
+         (setq S (cons (car F) S)))))
 
 ;***********************************************************************
 ; Initialize global variables. Also initializes SuperClass/SubClass
