@@ -19,7 +19,7 @@
 ; 9. static store declarations include complete family.
 ;***********************************************************************
 
-(defvar TokenList '(SCHEMA RDMCLASS SUBCLASS CLASSWCON CLASSWPROPS SUBCLASSWPROPS SUBCLASSWCON CLASSWPROPSCON SUBCLASSWPROPSCON PROP STRINGPROP INTPROP QUERY PARAMQUERY ALLBODY ALLBODYPRED ALLBODYORDER ALLBODYPREDORDER ALLBODYPROJ ALLBODYPREDPROJ ALLBODYORDERPROJ ALLBODYPREDORDERPROJ ONEBODYVAR ONEBODYPRED ONEBODYVARPRED EXIST EXISTPRED FORALL IMPLIES GOR GAND GNOT GEQ LT GT LE GE NE HASMAX HASMIN HASMAXPRED HASMINPRED PRED ORDERASC ORDERDESC ORDERASCLIST ORDERDESCLIST ADDOP SUBOP MODOP TIMESOP DIVOP UNMINUSOP CONSTANT GAPPLY TRANS PARAMTRANS BODY BODYWLOCVARS RETURNBODY RETURNBODYWLOCVARS INSERT INSERTWINITS GDELETE ASSIGN DEFSIZEEST DEFSELECTEST DEFOVERLAPEST DEFFREQEST DEFUNITTIME DEFUNITSPACE INDEX GLIST GARRAY BINARYTREE DISTLIST DISTPOINTER DISTBINARYTREE SEARCHCONDLIST ASCSEARCHCOND DESCSEARCHCOND SCSEARCHCOND STORE))
+(defvar TokenList '(Schema gClass SubClass ClassWCon ClassWProps SubClassWProps SubClassWCon ClassWPropsCon SubClassWPropsCon Prop StringProp IntProp Query ParamQuery AllBody AllBodyPred AllBodyOrder AllBodyPredOrder AllBodyProj AllBodyPredProj AllBodyOrderProj AllBodyPredOrderProj OneBodyVar OneBodyPred OneBodyVarPred Exist ExistPred Forall Implies gOr gAnd gNot gEQ LT GT LE GE NE HasMax HasMin HasMaxPred HasMinPred Pred OrderAsc OrderDesc OrderAscList OrderDescList AddOp SubOp ModOp TimesOp DivOp UnMinusOp Constant gApply Trans ParamTrans Body BodyWLocVars ReturnBody ReturnBodyWLocVars Insert InsertWInits gDelete Assign DefSizeEst DefSelectEst DefOverlapEst DefFreqEst DefUnitTime DefUnitSpace Index gList gArray BinaryTree DistList DistPointer DistBinaryTree SearchCondList AscSearchCond DescSearchCond SCSearchCond Store))
 
 (defun evalfexpr (L)
    (if (member (car L) TokenList)
@@ -150,7 +150,7 @@
    (ValidateSchema)
    (evalfexpr (caddr L))) 
 
-(defun RDMClass (L) (NewClass (car L)))
+(defun gClass (L) (NewClass (car L)))
 
 (defun SubClass (L)
    (NewClass (car L))
