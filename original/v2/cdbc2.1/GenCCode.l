@@ -2,1109 +2,976 @@
 ; Copyright (C) 1989, G. E. Weddell.
 ;***********************************************************************
 
-(declare
-  (special OutPort *Dummy)
-  (nlambda 
-
-;names defined in the CDB grammar
-      AbstDeclParens
-      AbstDeclWPtrAbsDecl
-      Access
-      AddrOp
-      AndPred
-      ArgExpList
-      ArrayExp
-      ArrayVar
-      ArrayVarWSize
-      AssignAddOp
-      AssignBitAndOp
-      AssignBitOrOp
-      AssignBitXOrOp
-      AssignDivOp
-      AssignLeftShiftOp
-      AssignModOp
-      AssignMultOp
-      AssignOp
-      AssignRightShiftOp
-      AssignSubOp
-      At
-      Auto
-      BangOp
-      BinAddOp
-      BinSubOp
-      BitAndOp
-      BitOrOp
-      BitXOrOp
-      Break
-      CaseStmt
-      CastExp
-      Char
-      CompArrayAbstDecl
-      CompArrayWSizeAbstDecl
-      CompFuncAbstDecl
-      CompFuncAbstDeclWPList
-      CompndStmt
-      CompndStmtWDList
-      CompndStmtWDListSList
-      CompndStmtWSList
-      CondExp
-      Const
-      Continue
-      DeclList
-      DeclSpec
-      DeclSpecWVars
-      DefaultStmt
-      DivOp
-      Do
-      Double
-      EnumList
-      EnumWEnumList
-      EnumWId
-      EnumWIdEnumList
-      EnumWInit
-      EqPred
-      ExprList
-      ExprStmt
-      Extern
-;     ExternSchemaAccess
-      FieldAcc
-      File
-      Float
-      For
-;     ForQuery
-      ForWF
-      ForWI
-      ForWIF
-      ForWIS
-      ForWISF 
-      ForWS
-      ForWSF
-      FuncBodyWDeclList
-      FuncCall
-      FuncCallP
-      FuncDefn
-      FuncDefnWDeclSpec
-      FuncVar
-      FuncVarWPIdList
-      FuncVarWPTList
-      GEPred
-      GTPred
-      Goto
-      Id 
-      IdList
-;*    IdListWElipsis
-      If
-      IfElse
-;     IfElseQuery
-;     IfElseQueryWIdList 
-;     IfQuery
-;     IfQueryWIdList
-      InitDecl
-      InitDeclList
-      InitList
-      InitListHdr
-      InitListHdrWCom
-      Int
-      LEPred
-      LTPred
-      LabeledStmt
-      LeftShiftOp
-      LogNot
-      Long
-      ModOp
-      MultOp
-      NEPred
-      NullStmt
-      OnesComp
-      OrPred
-      ParamDecl
-      ParamList
-;*    ParamListWElipsis
-;     ParamQueryCall
-      PostDec
-      PostInc
-      PreDec
-      PreInc
-      Preprocessor
-      PrimExp
-;     Prop
-      Ptr
-      PtrPtr
-      PtrTSList
-      PtrTSListPtr
-      PtrVar
-      Register
-      Return
-      ReturnWExp
-      RightShiftOp
-;     SchemaAccess
-      Short
-      Signed
-      SimpArrayAbstDecl
-      SimpArrayWSizeAbst
-      SimpFuncAbstDecl
-      SimpFuncAbstDeclWPList
-      SizeExpOp
-      SizeTypeOp
-      Static
-      StmtList
-      StorDeclSpec
-      StrLit 
-      StructDecl
-      StructDeclList
-      StructFiller
-      StructPacked
-      StructVarList
-      StructWDecl
-      StructWId
-      StructWIdDecl
-      Switch
-      TypeDeclSpec
-      TypeDef
-      TypeSpecList
-      TypeSpecListWAbsDecl
-      UnAddOp
-      UnSubOp
-      UnionWDecl
-      UnionWId
-      UnionWIdDecl
-      Unsigned
-      VarWParens
-      Void
-      Volatile
-      While
-;     WhileQuery
-;     WhileQueryWIdList
-
-
-;extra namres for code generation
-      Constant
-      Comment
-      DefineStore
-      EmptyStmt
-      ExternDeclSpecWVars
-      EvalFirstParm
-      FuncVarDecl
-      Preprocessor1
-      ))
-
+(defvar OutPort)
 
 ;***********************************************************************************************************************************
 ;***********************************************************************************************************************************
 
+(defvar TokenList '(AbstDeclParens AbstDeclWPtrAbsDecl Access AddrOp AndPred ArgExpList ArrayExp ArrayVar ArrayVarWSize AssignAddOp AssignBitAndOp AssignBitOrOp AssignBitXOrOp AssignDivOp AssignLeftShiftOp AssignModOp AssignMultOp AssignOp AssignRightShiftOp AssignSubOp At Auto BangOp BinAddOp BinSubOp BitAndOp BitOrOp BitXOrOp BreakStmt CaseStmt CastExp CharType CompndArrayAbstDecl CompndArrayWSizeAbstDecl CompndFuncAbstDecl CompndFuncAbstDeclWPList CompndStmt CompndStmtWDList CompndStmtWDListSList CompndStmtWSList CondExp Const ConstType ContinueStmt DeclList DeclSpec DeclSpecWVars DefaultStmt DivOp DoStmt DoubleType EnumList EnumWEnumList EnumWId EnumWIdEnumList EnumWInit EqPred ExprList ExprStmt Extern FieldAcc File FloatType For ForWF ForWI ForWIF ForWIS ForWISF ForWS ForWSF FuncBodyWDeclList FuncCall FuncCallP FuncDefn FuncDefnWDeclSpec FuncVar FuncVarWPIdList FuncVarWPTList GEPred GTPred Goto Id IdList IfStmt IfElse InitDecl InitDeclList InitList InitListHdr InitListHdrWCom InlineFuncDefn InlineFuncDefnWDeclSpec IntType LEPred LTPred LabeledStmt LeftShiftOp LongType ModOp MultOp NEPred NotOp NullStmt OnesComp OrPred ParamDecl ParamList PostDec PostInc PreDec PreInc Preprocessor PrimExp Ptr PtrPtr PtrTSList PtrTSListPtr PtrVar Register ReturnStmt ReturnWExp RightShiftOp ShortType SignedType SimpArrayAbstDecl SimpArrayWSizeAbst SimpFuncAbstDecl SimpFuncAbstDeclWPList SizeExpOp SizeTypeOp Static StmtList StorDeclSpec StrLit StructDecl StructDeclList StructFiller StructPacked StructVarList StructWDecl StructWId StructWIdDecl Switch TypeDeclSpec TypeDef TypeSpecList TypeSpecListWAbsDecl UnAddOp UnSubOp UnionWDecl UnionWId UnionWIdDecl UnsignedType VarWParens VoidType VolatileType While Constant Comment DefineStore EmptyStmt ExternDeclSpecWVars EvalFirstParm FuncVarDecl Preprocessor1))
 
-(defun AbstDeclParens fexpr (L)
-  (patom "(" OutPort)
-  (eval (car L))
-  (patom ")" OutPort))
-
-
-(defun AbstDeclWPtrAbsDecl fexpr (L)
-  (eval (car L))
-  (eval (cadr L)))
+(defun evalfexpr (L)
+   (if (member (car L) TokenList)
+      (eval (list (car L) (list 'quote (cdr L))))
+      (eval (cons (car L) (mapcar (lambda (e) (list 'quote (evalfexpr e))) (cdr L))))))
 
 
-(defun Access fexpr (L)
-  (eval (car L))
-  (patom "." OutPort)
-  (eval (cadr L)))
+(defun AbstDeclParens (L)
+  (princ "(" OutPort)
+  (evalfexpr (car L))
+  (princ ")" OutPort))
 
 
-(defun AddrOp fexpr (L)
-  (patom "&" OutPort)
-  (eval (car L)))
+(defun AbstDeclWPtrAbsDecl (L)
+  (evalfexpr (car L))
+  (evalfexpr (cadr L)))
 
 
-(defun AndPred fexpr (L)
-  (eval (car L))
-  (patom " && " OutPort)
-  (eval (cadr L)))
+(defun Access (L)
+  (evalfexpr (car L))
+  (princ "." OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun ArgExpList fexpr (L)
-  (eval (car L))
-  (patom ", " OutPort)
-  (eval (cadr L)))
+(defun AddrOp (L)
+  (princ "&" OutPort)
+  (evalfexpr (car L)))
 
 
-(defun ArrayExp fexpr (L)
-  (eval (car L))
-  (patom "[" OutPort)
-  (eval (cadr L))
-  (patom "] " OutPort))
+(defun AndPred (L)
+  (evalfexpr (car L))
+  (princ " && " OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun ArrayVar fexpr (L)
-  (eval (car L))
-  (patom "[] " OutPort))
+(defun ArgExpList (L)
+  (evalfexpr (car L))
+  (princ ", " OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun ArrayVarWSize fexpr (L)
-  (eval (car L))
-  (patom "[" OutPort)
-  (eval (cadr L))
-  (patom "] " OutPort))
+(defun ArrayExp (L)
+  (evalfexpr (car L))
+  (princ "[" OutPort)
+  (evalfexpr (cadr L))
+  (princ "] " OutPort))
 
 
-(defun AssignAddOp fexpr (L)
-  (eval (car L))
-  (patom " += " OutPort)
-  (eval (cadr L)))
+(defun ArrayVar (L)
+  (evalfexpr (car L))
+  (princ "[] " OutPort))
 
 
-(defun AssignBitAndOp fexpr (L)
-  (eval (car L))
-  (patom " &= " OutPort)
-  (eval (cadr L)))
+(defun ArrayVarWSize (L)
+  (evalfexpr (car L))
+  (princ "[" OutPort)
+  (evalfexpr (cadr L))
+  (princ "] " OutPort))
 
 
-(defun AssignBitOrOp fexpr (L)
-  (eval (car L))
-  (patom " |= " OutPort)
-  (eval (cadr L)))
+(defun AssignAddOp (L)
+  (evalfexpr (car L))
+  (princ " += " OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun AssignBitXOrOp fexpr (L)
-  (eval (car L))
-  (patom " ^= " OutPort)
-  (eval (cadr L)))
+(defun AssignBitAndOp (L)
+  (evalfexpr (car L))
+  (princ " &= " OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun AssignDivOp fexpr (L)
-  (eval (car L))
-  (patom " /= " OutPort)
-  (eval (cadr L)))
+(defun AssignBitOrOp (L)
+  (evalfexpr (car L))
+  (princ " |= " OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun AssignLeftShiftOp fexpr (L)
-  (eval (car L))
-  (patom " <<= " OutPort)
-  (eval (cadr L)))
+(defun AssignBitXOrOp (L)
+  (evalfexpr (car L))
+  (princ " ^= " OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun AssignModOp fexpr (L)
-  (eval (car L))
-  (patom " %= " OutPort)
-  (eval (cadr L)))
+(defun AssignDivOp (L)
+  (evalfexpr (car L))
+  (princ " /= " OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun AssignMultOp fexpr (L)
-  (eval (car L))
-  (patom " *= " OutPort)
-  (eval (cadr L)))
+(defun AssignLeftShiftOp (L)
+  (evalfexpr (car L))
+  (princ " <<= " OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun AssignOp fexpr (L)
-  (eval (car L))
-  (patom " = " OutPort)
-  (eval (cadr L)))
+(defun AssignModOp (L)
+  (evalfexpr (car L))
+  (princ " %= " OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun AssignRightShiftOp fexpr (L)
-  (eval (car L))
-  (patom " >>= " OutPort)
-  (eval (cadr L)))
+(defun AssignMultOp (L)
+  (evalfexpr (car L))
+  (princ " *= " OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun AssignSubOp fexpr (L)
-  (eval (car L))
-  (patom " -= " OutPort)
-  (eval (cadr L)))
+(defun AssignOp (L)
+  (evalfexpr (car L))
+  (princ " = " OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun At fexpr (L)
-  (eval (car L))
-  (patom "@" OutPort)
-  (eval (cadr L)))
+(defun AssignRightShiftOp (L)
+  (evalfexpr (car L))
+  (princ " >>= " OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun Auto fexpr (L)
-  (patom "auto " OutPort))
+(defun AssignSubOp (L)
+  (evalfexpr (car L))
+  (princ " -= " OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun BangOp fexpr (L)
-  (patom "*" OutPort)
-  (eval (car L)))
+(defun At (L)
+  (evalfexpr (car L))
+  (princ "@" OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun BinAddOp fexpr (L)
-  (eval (car L))
-  (patom " + " OutPort)
-  (eval (cadr L)))
+(defun Auto (L)
+  (assert (null L))
+  (princ "auto " OutPort))
 
 
-(defun BinSubOp fexpr (L)
-  (eval (car L))
-  (patom " - " OutPort)
-  (eval (cadr L)))
+(defun BangOp (L)
+  (princ "*" OutPort)
+  (evalfexpr (car L)))
 
 
-(defun BitAndOp fexpr (L)
-  (eval (car L))
-  (patom " & " OutPort)
-  (eval (cadr L)))
+(defun BinAddOp (L)
+  (evalfexpr (car L))
+  (princ " + " OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun BitOrOp fexpr (L)
-  (eval (car L))
-  (patom " | " OutPort)
-  (eval (cadr L)))
+(defun BinSubOp (L)
+  (evalfexpr (car L))
+  (princ " - " OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun BitXOrOp fexpr (L)
-  (eval (car L))
-  (patom " ^ " OutPort)
-  (eval (cadr L)))
+(defun BitAndOp (L)
+  (evalfexpr (car L))
+  (princ " & " OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun Break fexpr (L)
-  (patom "break;" OutPort)
+(defun BitOrOp (L)
+  (evalfexpr (car L))
+  (princ " | " OutPort)
+  (evalfexpr (cadr L)))
+
+
+(defun BitXOrOp (L)
+  (evalfexpr (car L))
+  (princ " ^ " OutPort)
+  (evalfexpr (cadr L)))
+
+
+(defun BreakStmt (L)
+  (assert (null L))
+  (princ "break;" OutPort)
   (terpri OutPort))
 
 
-(defun CaseStmt fexpr (L)
-  (patom "case " OutPort)
-  (eval (car L))
-  (patom ":" OutPort)
+(defun CaseStmt (L)
+  (princ "case " OutPort)
+  (evalfexpr (car L))
+  (princ ":" OutPort)
   (terpri OutPort)
-  (eval (cadr L)))
+  (evalfexpr (cadr L)))
 
 
-(defun CastExp fexpr (L)
-  (patom "(" OutPort)
-  (eval (car L))
-  (patom ")" OutPort)
-  (eval (cadr L)))
+(defun CastExp (L)
+  (princ "(" OutPort)
+  (evalfexpr (car L))
+  (princ ")" OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun Char fexpr (L)
-  (patom "char " OutPort))
+(defun CharType (L)
+  (assert (null L))
+  (princ "char " OutPort))
    
 
-(defun CompndArrayAbstDecl fexpr (L)
-  (eval (car L))
-  (patom "[]" OutPort))
+(defun CompndArrayAbstDecl (L)
+  (evalfexpr (car L))
+  (princ "[]" OutPort))
 
 
-(defun CompndArrayWSizeAbstDecl fexpr (L)
-  (eval (car L))
-  (patom "[" OutPort)
-  (eval (cadr L))
-  (patom "]" OutPort))
+(defun CompndArrayWSizeAbstDecl (L)
+  (evalfexpr (car L))
+  (princ "[" OutPort)
+  (evalfexpr (cadr L))
+  (princ "]" OutPort))
 
 
-(defun CompndFuncAbstDecl fexpr (L)
-  (eval (car L))
-  (patom "(" OutPort)
-  (patom ")" OutPort))
+(defun CompndFuncAbstDecl (L)
+  (evalfexpr (car L))
+  (princ "(" OutPort)
+  (princ ")" OutPort))
 
 
-(defun CompndFuncAbstDeclWPList fexpr (L)
-  (eval (car L))
-  (patom "(" OutPort)
-  (eval (cadr L))
-  (patom ")" OutPort))
+(defun CompndFuncAbstDeclWPList (L)
+  (evalfexpr (car L))
+  (princ "(" OutPort)
+  (evalfexpr (cadr L))
+  (princ ")" OutPort))
 
 
-(defun CompndStmt fexpr (L)
-  (patom "{" OutPort)
+(defun CompndStmt (L)
+  (assert (null L))
+  (princ "{" OutPort)
   (terpri OutPort)
-  (patom "}" OutPort))
+  (princ "}" OutPort))
 
 
-(defun CompndStmtWDList fexpr (L)
-  (patom "{" OutPort)
+(defun CompndStmtWDList (L)
+  (princ "{" OutPort)
   (terpri OutPort)
-  (eval (car L))
-  (patom "}" OutPort))
+  (evalfexpr (car L))
+  (princ "}" OutPort))
 
 
-(defun CompndStmtWDListSList fexpr (L)
-  (patom "{" OutPort)
+(defun CompndStmtWDListSList (L)
+  (princ "{" OutPort)
   (terpri OutPort)
-  (eval (car L))
-  (eval (cadr L))
-  (patom "}" OutPort))
+  (evalfexpr (car L))
+  (evalfexpr (cadr L))
+  (princ "}" OutPort))
 
 
-(defun CompndStmtWSList fexpr (L)
-  (patom "{" OutPort)
+(defun CompndStmtWSList (L)
+  (princ "{" OutPort)
   (terpri OutPort)
-  (eval (car L))
-  (patom "}" OutPort))
+  (evalfexpr (car L))
+  (princ "}" OutPort))
 
 
-(defun CondExp fexpr (L)
-  (eval (car L))
-  (patom " ? " OutPort)
-  (eval (cadr L))
-  (patom " : " OutPort)
-  (eval (caddr L)))
+(defun CondExp (L)
+  (evalfexpr (car L))
+  (princ " ? " OutPort)
+  (evalfexpr (cadr L))
+  (princ " : " OutPort)
+  (evalfexpr (caddr L)))
 
 
-(defun Const fexpr (L)
-  (patom (car L) OutPort))
+(defun Const (L)
+  (princ (car L) OutPort))
 
 
-(defun Continue fexpr (L)
-  (patom "continue" OutPort))
+(defun ConstType (L)
+  (assert (null L))
+  (princ "const " OutPort))
 
 
-(defun DeclList fexpr (L)
-  (eval (car L))
-  (eval (cadr L)))
+(defun ContinueStmt (L)
+  (assert (null L))
+  (princ "continue" OutPort))
 
 
-(defun DeclSpec fexpr (L)
-  (eval (car L))
-  (patom ";" OutPort)
+(defun DeclList (L)
+  (evalfexpr (car L))
+  (evalfexpr (cadr L)))
+
+
+(defun DeclSpec (L)
+  (evalfexpr (car L))
+  (princ ";" OutPort)
   (terpri OutPort))
 
 
-(defun DeclSpecWVars fexpr (L)
-  (eval (car L))
-  (eval (cadr L))
-  (patom ";" OutPort)
+(defun DeclSpecWVars (L)
+  (evalfexpr (car L))
+  (evalfexpr (cadr L))
+  (princ ";" OutPort)
   (terpri OutPort))
 
 
-(defun DefaultStmt fexpr (L)
-  (patom "default:" OutPort)
+(defun DefaultStmt (L)
+  (princ "default:" OutPort)
   (terpri OutPort)
-  (eval (car L)))
+  (evalfexpr (car L)))
 
 
-(defun DivOp fexpr (L)
-  (eval (car L))
-  (patom " / " OutPort)
-  (eval (cadr L)))
+(defun DivOp (L)
+  (evalfexpr (car L))
+  (princ " / " OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun Do fexpr (L)
-  (patom "do " OutPort)
-  (eval (car L))
-  (patom "while (" OutPort)
-  (eval (cadr L))
-  (patom ");" OutPort))
+(defun DoStmt (L)
+  (princ "do " OutPort)
+  (evalfexpr (car L))
+  (princ "while (" OutPort)
+  (evalfexpr (cadr L))
+  (princ ");" OutPort))
 
 
-(defun Double fexpr (L)
-  (patom "double " OutPort))
+(defun DoubleType (L)
+  (assert (null L))
+  (princ "double " OutPort))
    
 
-(defun EnumList fexpr (L)
-  (eval (car L))
-  (patom ", " OutPort)
-  (eval (cadr L)))
+(defun EnumList (L)
+  (evalfexpr (car L))
+  (princ ", " OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun EnumWEnumList fexpr (L)
-  (patom "enum {" OutPort)
-  (eval (car L))
-  (patom "}" OutPort))
+(defun EnumWEnumList (L)
+  (princ "enum {" OutPort)
+  (evalfexpr (car L))
+  (princ "}" OutPort))
 
 
-(defun EnumWId fexpr (L)
-  (patom "enum " OutPort)
-  (eval (car L)))
+(defun EnumWId (L)
+  (princ "enum " OutPort)
+  (evalfexpr (car L)))
 
 
-(defun EnumWIdEnumList fexpr (L)
-  (patom "enum " OutPort)
-  (eval (car L))
-  (patom "{" OutPort)
-  (eval (cadr L))
-  (patom "}" OutPort))
+(defun EnumWIdEnumList (L)
+  (princ "enum " OutPort)
+  (evalfexpr (car L))
+  (princ "{" OutPort)
+  (evalfexpr (cadr L))
+  (princ "}" OutPort))
 
 
-(defun EnumWInit fexpr (L)
-  (eval (car L))
-  (patom " = " OutPort)
-  (eval (cadr L)))
+(defun EnumWInit (L)
+  (evalfexpr (car L))
+  (princ " = " OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun EqPred fexpr (L)
-  (eval (car L))
-  (patom " == " OutPort)
-  (eval (cadr L)))
+(defun EqPred (L)
+  (evalfexpr (car L))
+  (princ " == " OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun ExprList fexpr (L)
-  (eval (car L))
-  (patom ", " OutPort)
-  (eval (cadr L)))
+(defun ExprList (L)
+  (evalfexpr (car L))
+  (princ ", " OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun ExprStmt fexpr (L)
-  (eval (car L))
-  (patom ";" OutPort)
+(defun ExprStmt (L)
+  (evalfexpr (car L))
+  (princ ";" OutPort)
   (terpri OutPort))
 
 
-(defun Extern fexpr (L)
-  (patom "extern " OutPort))
+(defun Extern (L)
+  (assert (null L))
+  (princ "extern " OutPort))
 
 
-(defun FieldAcc fexpr (L)
-  (eval (car L))
-  (patom "->" OutPort)
-  (eval (cadr L)))
+(defun FieldAcc (L)
+  (evalfexpr (car L))
+  (princ "->" OutPort)
+  (evalfexpr (cadr L)))
    
 
-(defun File fexpr (L)
-  (eval (car L))
-  (eval (cadr L)))
+(defun File (L)
+  (evalfexpr (car L))
+  (evalfexpr (cadr L)))
    
 
-(defun Float fexpr (L)
-  (patom "float " OutPort))
+(defun FloatType (L)
+  (assert (null L))
+  (princ "float " OutPort))
    
 
-(defun For fexpr (L)
-  (patom "for (;;)" OutPort)
-  (eval (car L)))
+(defun For (L)
+  (princ "for (;;)" OutPort)
+  (evalfexpr (car L)))
 
 
-(defun ForWF fexpr (L)
-  (patom "for (;;" OutPort)
-  (eval (car L))
-  (patom ")" OutPort)
-  (eval (cadr L)))
+(defun ForWF (L)
+  (princ "for (;;" OutPort)
+  (evalfexpr (car L))
+  (princ ")" OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun ForWI fexpr (L)
-  (patom "for (" OutPort)
-  (eval (car L))
-  (patom ";;)" OutPort)
-  (eval (cadr L)))
+(defun ForWI (L)
+  (princ "for (" OutPort)
+  (evalfexpr (car L))
+  (princ ";;)" OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun ForWIF fexpr (L)
-  (patom "for (" OutPort)
-  (eval (car L))
-  (patom ";;" OutPort)
-  (eval (cadr L))
-  (patom ")" OutPort)
-  (eval (caddr L)))
+(defun ForWIF (L)
+  (princ "for (" OutPort)
+  (evalfexpr (car L))
+  (princ ";;" OutPort)
+  (evalfexpr (cadr L))
+  (princ ")" OutPort)
+  (evalfexpr (caddr L)))
 
 
-(defun ForWIS fexpr (L)
-  (patom "for (" OutPort)
-  (eval (car L))
-  (patom ";" OutPort)
-  (eval (cadr L))
-  (patom ";)" OutPort)
-  (eval (caddr L)))
+(defun ForWIS (L)
+  (princ "for (" OutPort)
+  (evalfexpr (car L))
+  (princ ";" OutPort)
+  (evalfexpr (cadr L))
+  (princ ";)" OutPort)
+  (evalfexpr (caddr L)))
 
 
-(defun ForWISF fexpr (L)
-  (patom "for (" OutPort)
-  (eval (car L))
-  (patom ";" OutPort)
-  (eval (cadr L))
-  (patom ";" OutPort)
-  (eval (caddr L))
-  (patom ")" OutPort)
-  (eval (cadddr L)))
+(defun ForWISF (L)
+  (princ "for (" OutPort)
+  (evalfexpr (car L))
+  (princ ";" OutPort)
+  (evalfexpr (cadr L))
+  (princ ";" OutPort)
+  (evalfexpr (caddr L))
+  (princ ")" OutPort)
+  (evalfexpr (cadddr L)))
 
 
-(defun ForWS fexpr (L)
-  (patom "for (;" OutPort)
-  (eval (car L))
-  (patom ";)" OutPort)
-  (eval (cadr L)))
+(defun ForWS (L)
+  (princ "for (;" OutPort)
+  (evalfexpr (car L))
+  (princ ";)" OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun ForWSF fexpr (L)
-  (patom "for (;" OutPort)
-  (eval (car L))
-  (patom ";" OutPort)
-  (eval (cadr L))
-  (patom ")" OutPort)
-  (eval (caddr L)))
+(defun ForWSF (L)
+  (princ "for (;" OutPort)
+  (evalfexpr (car L))
+  (princ ";" OutPort)
+  (evalfexpr (cadr L))
+  (princ ")" OutPort)
+  (evalfexpr (caddr L)))
 
 
-(defun FuncBodyWDeclList fexpr (L)
-  (eval (car L))
-  (eval (cadr L))) 
+(defun FuncBodyWDeclList (L)
+  (evalfexpr (car L))
+  (evalfexpr (cadr L))) 
 
 
-(defun FuncCall fexpr (L)
-  (eval (car L))
-  (patom "(" OutPort)
-  (patom ")" OutPort))
+(defun FuncCall (L)
+  (evalfexpr (car L))
+  (princ "(" OutPort)
+  (princ ")" OutPort))
 
 
-(defun FuncCallP fexpr (L)
-  (eval (car L))
-  (patom "(" OutPort)
-  (eval (cadr L))
-  (patom ")" OutPort))
+(defun FuncCallP (L)
+  (evalfexpr (car L))
+  (princ "(" OutPort)
+  (evalfexpr (cadr L))
+  (princ ")" OutPort))
 
 
-(defun FuncDefn fexpr (L) 
+(defun FuncDefn (L) 
   (terpri OutPort)
   (terpri OutPort)
-  (eval (car L))
-  (eval (cadr L)))
+  (evalfexpr (car L))
+  (evalfexpr (cadr L)))
 
 
-(defun FuncDefnWDeclSpec fexpr (L)
+(defun FuncDefnWDeclSpec (L)
   (terpri OutPort)
   (terpri OutPort)
-  (eval (car L))
-  (eval (cadr L))
-  (eval (caddr L)))
+  (evalfexpr (car L))
+  (evalfexpr (cadr L))
+  (evalfexpr (caddr L)))
 
 
-(defun FuncVar fexpr (L)
-  (eval (car L))
-  (patom "()" OutPort)
+(defun FuncVar (L)
+  (evalfexpr (car L))
+  (princ "()" OutPort)
   (terpri OutPort))
    
 
-(defun FuncVarWPIdList fexpr (L)
-  (eval (car L))
-  (patom "(" OutPort)  
-  (eval (cadr L))
-  (patom ")" OutPort)
+(defun FuncVarWPIdList (L)
+  (evalfexpr (car L))
+  (princ "(" OutPort)  
+  (evalfexpr (cadr L))
+  (princ ")" OutPort)
   (terpri OutPort))
 
 
-(defun FuncVarWPTList fexpr (L)
-  (eval (car L))
-  (patom "(" OutPort)  
-  (eval (cadr L))
-  (patom ")" OutPort)
+(defun FuncVarWPTList (L)
+  (evalfexpr (car L))
+  (princ "(" OutPort)  
+  (evalfexpr (cadr L))
+  (princ ")" OutPort)
   (terpri OutPort))
 
 
-(defun GEPred fexpr (L)
-  (eval (car L))
-  (patom " >= " OutPort)
-  (eval (cadr L)))
+(defun GEPred (L)
+  (evalfexpr (car L))
+  (princ " >= " OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun GTPred fexpr (L)
-  (eval (car L))
-  (patom " > " OutPort)
-  (eval (cadr L)))
+(defun GTPred (L)
+  (evalfexpr (car L))
+  (princ " > " OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun Goto fexpr (L)
-  (patom "goto " OutPort)
-  (eval (car L))
-  (patom "; " OutPort)
+(defun Goto (L)
+  (princ "goto " OutPort)
+  (evalfexpr (car L))
+  (princ "; " OutPort)
   (terpri OutPort))
 
 
-(defun Id fexpr (L)
+(defun Id (L)
   (print (car L) OutPort))
 
 
-(defun IdList fexpr (L)
-  (eval (car L))
-  (patom ", " OutPort)
-  (eval (cadr L)))
+(defun IdList (L)
+  (evalfexpr (car L))
+  (princ ", " OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun If fexpr (L)
-  (patom "if (" OutPort)
-  (eval (car L))
-  (patom ")" OutPort)
+(defun IfStmt (L)
+  (princ "if (" OutPort)
+  (evalfexpr (car L))
+  (princ ")" OutPort)
   (terpri OutPort)
-  (eval (cadr L)))
+  (evalfexpr (cadr L)))
 
 
-(defun IfElse fexpr (L)
-  (patom "if (" OutPort)
-  (eval (car L))
-  (patom ")" OutPort)
+(defun IfElse (L)
+  (princ "if (" OutPort)
+  (evalfexpr (car L))
+  (princ ")" OutPort)
   (terpri OutPort)
-  (eval (cadr L))
-  (patom "else " OutPort)
+  (evalfexpr (cadr L))
+  (princ "else " OutPort)
   (terpri OutPort)
-  (eval (caddr L)))
+  (evalfexpr (caddr L)))
 
 
-(defun InitDecl fexpr (L)
-  (eval (car L))
-  (patom " = " OutPort)
-  (eval (cadr L)))
+(defun InitDecl (L)
+  (evalfexpr (car L))
+  (princ " = " OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun InitDeclList fexpr (L)
-  (eval (car L))
-  (patom ", " OutPort)
-  (eval (cadr L)))
+(defun InitDeclList (L)
+  (evalfexpr (car L))
+  (princ ", " OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun InitList fexpr (L)
-  (eval (car L))
-  (patom ", " OutPort)
-  (eval (cadr L)))
+(defun InitList (L)
+  (evalfexpr (car L))
+  (princ ", " OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun InitListHdr fexpr (L)
-  (patom "{" OutPort)
-  (eval (car L))
-  (patom "}" OutPort))
+(defun InitListHdr (L)
+  (princ "{" OutPort)
+  (evalfexpr (car L))
+  (princ "}" OutPort))
 
 
-(defun InitListHdrWCom fexpr (L)
-  (patom "{" OutPort)
-  (eval (car L))
-  (patom ",}" OutPort))
+(defun InitListHdrWCom (L)
+  (princ "{" OutPort)
+  (evalfexpr (car L))
+  (princ ",}" OutPort))
 
 
-(defun Int fexpr (L)
-  (patom "int " OutPort))
+(defun InlineFuncDefn (L) 
+  (terpri OutPort)
+  (terpri OutPort)
+  (cond ((equal InlineFlag 1) (princ "inline " OutPort)))
+  (evalfexpr (car L))
+  (evalfexpr (cadr L)))
 
 
-(defun LEPred fexpr (L)
-  (eval (car L))
-  (patom " <= " OutPort)
-  (eval (cadr L)))
+(defun InlineFuncDefnWDeclSpec (L)
+  (terpri OutPort)
+  (terpri OutPort)
+  (cond ((equal InlineFlag 1) (princ "inline " OutPort)))
+  (evalfexpr (car L))
+  (evalfexpr (cadr L))
+  (evalfexpr (caddr L)))
 
 
-(defun LTPred fexpr (L)
-  (eval (car L))
-  (patom " < " OutPort)
-  (eval (cadr L)))
+(defun IntType (L)
+  (assert (null L))
+  (princ "int " OutPort))
 
 
-(defun LabeledStmt fexpr (L)
-  (eval (car L))
-  (patom ": " OutPort)
-  (eval (cadr L)))
+(defun LEPred (L)
+  (evalfexpr (car L))
+  (princ " <= " OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun LeftShiftOp fexpr (L)
-  (eval (car L))
-  (patom " << " OutPort)
-  (eval (cadr L)))
+(defun LTPred (L)
+  (evalfexpr (car L))
+  (princ " < " OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun Long fexpr (L)
-  (patom "long " OutPort))
+(defun LabeledStmt (L)
+  (evalfexpr (car L))
+  (princ ": " OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun LogNot fexpr (L)
-  (patom " ! " OutPort)
-  (eval (car L)))
+(defun LeftShiftOp (L)
+  (evalfexpr (car L))
+  (princ " << " OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun ModOp fexpr (L)
-  (eval (car L))
-  (patom " % " OutPort)
-  (eval (cadr L)))
+(defun LongType (L)
+  (assert (null L))
+  (princ "long " OutPort))
 
 
-(defun MultOp fexpr (L)
-  (eval (car L))
-  (patom " * " OutPort)
-  (eval (cadr L)))
+(defun ModOp (L)
+  (evalfexpr (car L))
+  (princ " % " OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun NEPred fexpr (L)
-  (eval (car L))
-  (patom " != " OutPort)
-  (eval (cadr L)))
+(defun MultOp (L)
+  (evalfexpr (car L))
+  (princ " * " OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun NullStmt fexpr (L)
-  (patom ";" OutPort))
+(defun NEPred (L)
+  (evalfexpr (car L))
+  (princ " != " OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun OnesComp fexpr (L)
-  (patom " ~ " OutPort)
-  (eval (car L)))
+(defun NotOp (L)
+  (princ " ! " OutPort)
+  (evalfexpr (car L)))
 
 
-(defun OrPred fexpr (L)
-  (eval (car L))
-  (patom " || " OutPort)
-  (eval (cadr L)))
+(defun NullStmt (L)
+  (assert (null L))
+  (princ ";" OutPort))
 
 
-(defun ParamDecl fexpr (L)
-  (eval (car L))
-  (eval (cadr L)))
+(defun OnesComp (L)
+  (princ " ~ " OutPort)
+  (evalfexpr (car L)))
 
 
-(defun ParamList fexpr (L)
-  (eval (car L))
-  (patom " , " OutPort)
-  (eval (cadr L)))
+(defun OrPred (L)
+  (evalfexpr (car L))
+  (princ " || " OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun PostDec fexpr (L)
-  (eval (car L))
-  (patom "--" OutPort))
+(defun ParamDecl (L)
+  (evalfexpr (car L))
+  (evalfexpr (cadr L)))
 
 
-(defun PostInc fexpr (L)
-  (eval (car L))
-  (patom "++" OutPort))
+(defun ParamList (L)
+  (evalfexpr (car L))
+  (princ " , " OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun PreDec fexpr (L)
-  (patom "--" OutPort)
-  (eval (car L)))
+(defun PostDec (L)
+  (evalfexpr (car L))
+  (princ "--" OutPort))
 
 
-(defun PreInc fexpr (L)
-  (patom "++" OutPort)
-  (eval (car L)))
+(defun PostInc (L)
+  (evalfexpr (car L))
+  (princ "++" OutPort))
 
 
-(defun Preprocessor fexpr (L)
-  (patom "#" OutPort)
-  (patom (car L) OutPort)
+(defun PreDec (L)
+  (princ "--" OutPort)
+  (evalfexpr (car L)))
+
+
+(defun PreInc (L)
+  (princ "++" OutPort)
+  (evalfexpr (car L)))
+
+
+(defun Preprocessor (L)
+  (princ "#" OutPort)
+  (princ (car L) OutPort)
   (terpri OutPort))
 
 
-(defun PrimExp fexpr (L)
-  (patom "(" OutPort)
-  (eval (car L))
-  (patom ")" OutPort))
+(defun PrimExp (L)
+  (princ "(" OutPort)
+  (evalfexpr (car L))
+  (princ ")" OutPort))
 
 
-(defun Ptr fexpr (L)
-  (patom "*" OutPort))
+(defun Ptr (L)
+  (assert (null L))
+  (princ "*" OutPort))
 
 
-(defun PtrPtr fexpr (L) 
-  (patom "*" OutPort)
-  (eval (car L)))
+(defun PtrPtr (L) 
+  (princ "*" OutPort)
+  (evalfexpr (car L)))
    
 
-(defun PtrTSList fexpr (L) 
-  (patom "*" OutPort)
-  (eval (car L)))
+(defun PtrTSList (L) 
+  (princ "*" OutPort)
+  (evalfexpr (car L)))
    
 
-(defun PtrTSListPtr fexpr (L) 
-  (patom "*" OutPort)
-  (eval (car L))
-  (eval (cadr L)))
+(defun PtrTSListPtr (L) 
+  (princ "*" OutPort)
+  (evalfexpr (car L))
+  (evalfexpr (cadr L)))
    
 
-(defun PtrVar fexpr (L)
-  (eval (car L))
-  (eval (cadr L)))
+(defun PtrVar (L)
+  (evalfexpr (car L))
+  (evalfexpr (cadr L)))
 
 
-(defun Register fexpr (L)
-  (patom "register " OutPort))
+(defun Register (L)
+  (assert (null L))
+  (princ "register " OutPort))
 
 
-(defun Return fexpr (L)
-  (patom "return;" OutPort)) 
+(defun ReturnStmt (L)
+  (assert (null L))
+  (princ "return;" OutPort)) 
 
 
-(defun ReturnWExp fexpr (L)
-  (patom "return" OutPort) 
-  (eval (car L))
-  (patom ";" OutPort)
+(defun ReturnWExp (L)
+  (princ "return" OutPort) 
+  (evalfexpr (car L))
+  (princ ";" OutPort)
   (terpri OutPort))
 
 
-(defun RightShiftOp fexpr (L)
-  (eval (car L))
-  (patom " << " OutPort)
-  (eval (cadr L)))
+(defun RightShiftOp (L)
+  (evalfexpr (car L))
+  (princ " << " OutPort)
+  (evalfexpr (cadr L)))
 
 
-(defun Short fexpr (L)
-  (patom "short " OutPort))
+(defun ShortType (L)
+  (assert (null L))
+  (princ "short " OutPort))
 
 
-(defun Signed fexpr (L)
-  (patom "signed " OutPort))
+(defun SignedType (L)
+  (assert (null L))
+  (princ "signed " OutPort))
 
 
-(defun SimpArrayAbstDecl fexpr (L)
-  (patom "[]" OutPort))
+(defun SimpArrayAbstDecl (L)
+  (assert (null L))
+  (princ "[]" OutPort))
 
 
-(defun SimpArrayWSizeAbst fexpr (L)
-  (patom "[" OutPort)
-  (eval (car L))
-  (patom "]" OutPort))
+(defun SimpArrayWSizeAbst (L)
+  (princ "[" OutPort)
+  (evalfexpr (car L))
+  (princ "]" OutPort))
 
 
-(defun SimpFuncAbstDecl fexpr (L)
-  (patom "()" OutPort))
+(defun SimpFuncAbstDecl (L)
+  (assert (null L))
+  (princ "()" OutPort))
 
 
-(defun SimpFuncAbstDeclWPList fexpr (L)
-  (patom "(" OutPort)
-  (eval (car L))
-  (patom ")" OutPort))
+(defun SimpFuncAbstDeclWPList (L)
+  (princ "(" OutPort)
+  (evalfexpr (car L))
+  (princ ")" OutPort))
 
 
-(defun SizeExpOp fexpr (L)
-  (patom " sizeof " OutPort) 
-  (eval (car L)))
+(defun SizeExpOp (L)
+  (princ " sizeof " OutPort) 
+  (evalfexpr (car L)))
 
 
-(defun SizeTypeOp fexpr (L)
-  (patom " sizeof(" OutPort) 
-  (eval (car L))
-  (patom ") " OutPort))
+(defun SizeTypeOp (L)
+  (princ " sizeof(" OutPort) 
+  (evalfexpr (car L))
+  (princ ") " OutPort))
 
 
-(defun Static fexpr (L)
-  (patom "static " OutPort))
+(defun Static (L)
+  (assert (null L))
+  (princ "static " OutPort))
 
 
-(defun StmtList fexpr (L)
-   (eval (car L))
-   (eval (cadr L)))
+(defun StmtList (L)
+   (evalfexpr (car L))
+   (evalfexpr (cadr L)))
 
 
-(defun StorDeclSpec fexpr (L)
-   (eval (car L))
-   (eval (cadr L)))
+(defun StorDeclSpec (L)
+   (evalfexpr (car L))
+   (evalfexpr (cadr L)))
 
 
-(defun StrLit fexpr (L)
+(defun StrLit (L)
    (print (car L) OutPort))
 
 
-(defun StructDecl fexpr (L)
-   (eval (car L))
-   (eval (cadr L))
-   (patom ";" OutPort)
+(defun StructDecl (L)
+   (evalfexpr (car L))
+   (evalfexpr (cadr L))
+   (princ ";" OutPort)
    (terpri OutPort))
    
 
-(defun StructDeclList fexpr (L)
-   (eval (car L))
-   (eval (cadr L)))
+(defun StructDeclList (L)
+   (evalfexpr (car L))
+   (evalfexpr (cadr L)))
 
 
-(defun StructFiller fexpr (L)
-   (patom " : " OutPort)
-   (eval (car L)))
+(defun StructFiller (L)
+   (princ " : " OutPort)
+   (evalfexpr (car L)))
 
 
-(defun StructPacked fexpr (L)
-   (eval (car L))
-   (patom " : " OutPort)
-   (eval (cadr L)))
+(defun StructPacked (L)
+   (evalfexpr (car L))
+   (princ " : " OutPort)
+   (evalfexpr (cadr L)))
 
 
-(defun StructVarList fexpr (L)
-   (eval (car L))
-   (patom ", " OutPort)
-   (eval (cadr L)))
+(defun StructVarList (L)
+   (evalfexpr (car L))
+   (princ ", " OutPort)
+   (evalfexpr (cadr L)))
 
 
-(defun StructWDecl fexpr (L)
-   (patom "struct {" OutPort)
-   (eval (car L))
-   (patom "} " OutPort))
+(defun StructWDecl (L)
+   (princ "struct {" OutPort)
+   (evalfexpr (car L))
+	(princ "} " OutPort))
    
 
-(defun StructWId fexpr (L)
-   (patom "struct " OutPort)
-   (eval (car L))
-   (patom " " OutPort))
+(defun StructWId (L)
+   (princ "struct " OutPort)
+   (evalfexpr (car L))
+	(princ " " OutPort))
    
 
-(defun StructWIdDecl fexpr (L)
+(defun StructWIdDecl (L)
    (terpri OutPort)
-   (patom "struct " OutPort)
-   (eval (car L))
-   (patom " { " OutPort)
+   (princ "struct " OutPort)
+   (evalfexpr (car L))
+   (princ " { " OutPort)
    (terpri OutPort)
-   (eval (cadr L))
-   (patom "}" OutPort))
+   (evalfexpr (cadr L))
+   (princ "}" OutPort))
    
 
-(defun Switch fexpr (L)
-  (patom "switch (" OutPort)
-  (eval (car L))
-  (patom ")" OutPort)
+(defun Switch (L)
+  (princ "switch (" OutPort)
+  (evalfexpr (car L))
+  (princ ")" OutPort)
   (terpri OutPort)
-  (eval (cadr L)))
+  (evalfexpr (cadr L)))
 
 
-(defun TypeDeclSpec fexpr (L)
-  (eval (car L))
-  (eval (cadr L)))
+(defun TypeDeclSpec (L)
+  (evalfexpr (car L))
+  (evalfexpr (cadr L)))
 
 
-(defun TypeDef fexpr (L)
-  (patom "TypeDef " OutPort))
+(defun TypeDef (L)
+  (assert (null L))
+  (princ "TypeDef " OutPort))
 
 
-(defun TypeSpecList fexpr (L)
-  (eval (car L))
-  (eval (cadr L)))
+(defun TypeSpecList (L)
+  (evalfexpr (car L))
+  (evalfexpr (cadr L)))
 
 
-(defun TypeSpecListWAbsDecl fexpr (L)
-  (eval (car L))
-  (eval (cadr L)))
+(defun TypeSpecListWAbsDecl (L)
+  (evalfexpr (car L))
+  (evalfexpr (cadr L)))
 
 
-(defun UnAddOp fexpr (L)
-  (patom " + " OutPort)
-  (eval (car L)))
+(defun UnAddOp (L)
+  (princ " + " OutPort)
+  (evalfexpr (car L)))
 
 
-(defun UnSubOp fexpr (L)
-  (patom " - " OutPort)
-  (eval (car L)))
+(defun UnSubOp (L)
+  (princ " - " OutPort)
+  (evalfexpr (car L)))
 
 
-(defun UnionWDecl fexpr (L)
-  (patom "union " OutPort)
-  (patom "{" OutPort)
-  (eval (car L))
-  (patom "}" OutPort))
+(defun UnionWDecl (L)
+  (princ "union " OutPort)
+  (princ "{" OutPort)
+  (evalfexpr (car L))
+  (princ "}" OutPort))
 
 
-(defun UnionWId fexpr (L)
-  (patom "union " OutPort)
-  (eval (car L)))
+(defun UnionWId (L)
+  (princ "union " OutPort)
+  (evalfexpr (car L)))
 
 
-(defun UnionWIdDecl fexpr (L)
-  (patom "union " OutPort)
-  (eval (car L))
-  (patom "{" OutPort)
-  (eval (cadr L))
-  (patom "}" OutPort))
+(defun UnionWIdDecl (L)
+  (princ "union " OutPort)
+  (evalfexpr (car L))
+  (princ "{" OutPort)
+  (evalfexpr (cadr L))
+  (princ "}" OutPort))
 
 
-(defun Unsigned fexpr (L)
-  (patom "unsigned " OutPort))
+(defun UnsignedType (L)
+  (assert (null L))
+  (princ "unsigned " OutPort))
 
 
-(defun VarWParens fexpr (L)
-  (patom "(" OutPort)
-  (eval (car L))
-  (patom ") " OutPort))
+(defun VarWParens (L)
+  (princ "(" OutPort)
+  (evalfexpr (car L))
+  (princ ") " OutPort))
 
 
-(defun Void fexpr (L)
-  (patom "void " OutPort))
+(defun VoidType (L)
+  (assert (null L))
+  (princ "void " OutPort))
 
 
-(defun Volatile fexpr (L)
-  (patom "volatile " OutPort))
+(defun VolatileType (L)
+  (assert (null L))
+  (princ "volatile " OutPort))
    
 
-(defun While fexpr (L)
-   (patom "while (" OutPort)
-   (eval (car L))
-   (patom ")" OutPort)
+(defun While (L)
+   (princ "while (" OutPort)
+   (evalfexpr (car L))
+   (princ ")" OutPort)
    (terpri OutPort)
-   (eval (cadr L)))
+   (evalfexpr (cadr L)))
 
 
 ;***********************************************************************************************************************************
@@ -1112,81 +979,85 @@
 
 
 (defun GenCode (Source OutFile)
-  (setq OutPort (fileopen OutFile "w"))
-  (eval Source)
+  (setq OutPort (open OutFile
+    :direction :output
+    :if-does-not-exist :create
+    :if-exists :supersede))
+  (evalfexpr Source)
   (close OutPort))
 
 
-(defun Constant fexpr (L)
-  (patom (cadr L) OutPort))
+(defun Constant (L)
+  (princ (cadr L) OutPort))
 
 
-(defun Comment fexpr (L)
+(defun Comment (L)
   (terpri OutPort)
   (terpri OutPort)
-  (patom "/* " OutPort)
-  (patom (car L) OutPort)
-  (patom " */" OutPort)
+  (princ "/* " OutPort)
+  (princ (car L) OutPort)
+  (princ " */" OutPort)
   (terpri OutPort)
   (terpri OutPort))
 
 
-(defun DefineStore fexpr (L)
-  (patom "#define " OutPort)
-  (patom (car L) OutPort)
-  (patom " ( sizeof( " OutPort)
+(defun DefineStore (L)
+  (princ "#define " OutPort)
+  (princ (car L) OutPort)
+  (princ " ( sizeof( " OutPort)
   (cond 
-   ((equal (length (cadr L)) 1)
-    (patom "struct " OutPort)
-    (patom (caadr L) OutPort)
-    (patom " ) )" OutPort))
+	((equal (length (cadr L)) 1)
+	 (princ "struct " OutPort)
+	 (princ (caadr L) OutPort)
+	 (princ " ) )" OutPort))
    (t
-    (patom "union { " OutPort)
-    (SubDefineStore (cadr L))
-    (patom " } ) )" OutPort)))
+	 (princ "union { " OutPort)
+	 (SubDefineStore (cadr L))
+	 (princ " } ) )" OutPort)))
   (terpri OutPort))
 
 
-(defun EmptyStmt fexpr (L)
-  (patom "" OutPort))
+(defun EmptyStmt (L)
+  (assert (null L))
+  (princ "" OutPort))
 
 
-(defun ExternDeclSpecWVars fexpr (L)
-  (patom "extern " OutPort)
-  (eval (car L))
-  (eval (cadr L))
-  (patom ";" OutPort)
+(defun ExternDeclSpecWVars (L)
+  (princ "extern " OutPort)
+  (evalfexpr (car L))
+  (evalfexpr (cadr L))
+  (princ ";" OutPort)
   (terpri OutPort))
 
 
-(defun EvalFirstParm fexpr (L)
-  (eval (car L)))
+(defun EvalFirstParm (L)
+  (evalfexpr (car L)))
    
 
-(defun FuncVarDecl fexpr (L)
-  (eval (car L))
-  (patom "()" OutPort))
+(defun FuncVarDecl (L)
+  (evalfexpr (car L))
+  (princ "()" OutPort))
 
 
-(defun Preprocessor1 fexpr (L)
-  (prog (Temp)
-        (patom "#" OutPort)
-        (do Temp (car L) (cdr Temp) (null Temp)
-            (patom (car Temp) OutPort)
-            (patom " " OutPort))
-        (terpri OutPort)))
+(defun Preprocessor1 (L)
+  (prog ()
+		  (princ "#" OutPort)
+		  (do ((Temp (car L) (cdr Temp))) ((null Temp))
+				(princ (car Temp) OutPort)
+				(princ " " OutPort))
+		  (terpri OutPort)))
 
 
 (defun SubDefineStore (L)
   (cond
-   ((null L))
-   (t
-    (patom "struct " OutPort)
-    (patom (car L) OutPort)
-    (patom " " OutPort)
-    (patom (GenerateName 'Dummy) OutPort)
-    (patom "; " OutPort)
-    (SubDefineStore (cdr L)))))
+	((null L))
+	(t
+	 (princ "struct " OutPort)
+	 (princ (car L) OutPort)
+	 (princ " " OutPort)
+	 (princ (GenerateName 'Dummy) OutPort)
+	 (princ "; " OutPort)
+	 (SubDefineStore (cdr L)))))
 
 
 ;***********************************************************************************************************************************
