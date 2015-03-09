@@ -7,17 +7,17 @@ CDBComp.o: CDBComp.l
 CDBCompLib.o: CDBCompLib.l
 			liszt CDBCompLib.l
 CDBParser: CDBParser.c CDBGrammar.y CDBScanner.l
-			yacc -d CDBGrammar.y
-			lex CDBScanner.l
-			cc -w CDBParser.c -ll -o CDBParser
-			rm lex.yy.c y.tab.c y.tab.h 
+			bison -d CDBGrammar.y
+			flex CDBScanner.l
+			gcc -w CDBParser.c -o CDBParser
+			rm lex.yy.c CDBGrammar.tab.c CDBGrammar.tab.h
 GenCCode.o: GenCCode.l
 			liszt GenCCode.l
 PDMParser: PDMParser.c PDMGrammar.y PDMScanner.l
-			yacc -d PDMGrammar.y
-			lex PDMScanner.l
-			cc -w PDMParser.c -ll -o PDMParser
-			rm lex.yy.c y.tab.c y.tab.h 
+			bison -d PDMGrammar.y
+			flex PDMScanner.l
+			gcc -w PDMParser.c -o PDMParser
+			rm lex.yy.c PDMGrammar.tab.c PDMGrammar.tab.h
 PatMatch.o: PatMatch.l
 			liszt PatMatch.l
 PosSlash: PosSlash.l
@@ -29,7 +29,7 @@ PreSlash: PreSlash.l
 			cc -w lex.yy.c -ll -o PreSlash
 			rm lex.yy.c 
 cdbc: CDBCompControl.c
-			cc -o cdbc -g CDBCompControl.c
+			gcc -o cdbc -g CDBCompControl.c
 clean:
 			rm CDBComp.o  CDBCompLib.o CDBParser
 			rm GenCCode.o

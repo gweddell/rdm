@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include "lex.yy.c"
-#include "y.tab.c"
+#include "CDBGrammar.tab.c"
 
 preprocessor()
 {

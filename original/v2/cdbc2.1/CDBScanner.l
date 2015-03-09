@@ -2,7 +2,7 @@
 /*
  * Copyright (C) 1989, G. E. Weddell.
  */
-#include "y.tab.h"
+#include "CDBGrammar.tab.h"
 int  LineNumber = 1;
 char LineBuffer[2000];
 %}
@@ -62,10 +62,7 @@ spaces     {blanktab}+
 {L}({L}|{D})*      { strcat(LineBuffer, yytext); return(check_type()); }
 
 0[xX]{H}+{IS}?     { strcat(LineBuffer, yytext); return(CONSTANT); }
-0[xX]{H}+{IS}?     { strcat(LineBuffer, yytext); return(CONSTANT); }
 0{D}+{IS}?         { strcat(LineBuffer, yytext); return(CONSTANT); }
-0{D}+{IS}?         { strcat(LineBuffer, yytext); return(CONSTANT); }
-{D}+{IS}?          { strcat(LineBuffer, yytext); return(CONSTANT); }
 {D}+{IS}?          { strcat(LineBuffer, yytext); return(CONSTANT); }
 '(\\.|[^\\'])+'    { strcat(LineBuffer, yytext); return(CONSTANT); }
 
@@ -115,7 +112,6 @@ spaces     {blanktab}+
 "*"          { strcat(LineBuffer, yytext); return('*'); }
 "/"          { strcat(LineBuffer, yytext); return('/'); }
 "%"          { strcat(LineBuffer, yytext); return('%'); }
-"#"          { strcat(LineBuffer, yytext); return('#'); }
 "<"          { strcat(LineBuffer, yytext); return('<'); }
 ">"          { strcat(LineBuffer, yytext); return('>'); }
 "^"          { strcat(LineBuffer, yytext); return('^'); }
