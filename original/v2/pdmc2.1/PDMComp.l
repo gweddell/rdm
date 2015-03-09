@@ -23,8 +23,8 @@
 
 
 (defun MAIN ()
-  (prog (InfoList PDMCode HeaderCode InlineFlag Port)
-		  (setq InfoList '((Reference StoreTemplate Direct)))
+  (prog (HeaderCode PDMCode Port)
+	(setq InfoList '((Reference StoreTemplate Direct)))
         (setq InlineFlag 1
               @SchemaVar 0
               @Dummy 0
@@ -33,10 +33,17 @@
         (setq Port (open "pdmc.schemaname"))
         (setq SchemaName (read Port))
         (close Port)
-        (setq PDMCode (PhaseOne 'pdmc.pdm.input)) 
+        (setq CompareFuncCode nil)
+        (setq PDMCode (PhaseOne "pdmc.pdm.input"))
         (setq HeaderCode (PhaseTwo PDMCode))
-        (PhaseThree HeaderCode 'pdmc.output)
-        (exit)))
+        (PhaseThree HeaderCode "pdmc.output")))
+
+
+(defun LoadSource ()
+   (load "PatMatch.l")
+   (load "RuleUse.l")
+   (load "PDMCompLib.l")
+   (load "PDMGenCCode.l"))
 
 
 ;***********************************************************************************************************************************
@@ -69,7 +76,7 @@
 
 
 (defun ProcessPDMCode (PDMCode) 
-  (prog (Code CompareFuncCode QueryCode PDMClass PDMProp PDMIndex PDMStore PDMCQuery PDMTrans FieldList) 
+  (prog (Code QueryCode PDMClass PDMProp PDMIndex PDMStore PDMCQuery PDMTrans FieldList) 
         (setq PDMCode (caddr PDMCode))
         (do ((PDMCode PDMCode (caddr PDMCode))) ((null PDMCode))
             (cond ((equal (caadr PDMCode) 'ClassSpec) 
@@ -116,7 +123,7 @@
 
         (SetBasicCompareFuncs PDMIndex)
         (setq QueryCode (SetQuery PDMCQuery))
-        (setq Code `(File ,Code ,CompareFuncCode))
+        (if (not (null CompareFuncCode)) (setq Code `(File ,Code ,CompareFuncCode)))
 
         (setq Code (SetIndex Code PDMIndex))
         (setq Code (SetTransaction Code PDMTrans))
@@ -146,10 +153,9 @@
             (setq Temp nil)
             (do ((Fields Fields (cdr Fields))) ((null Fields))
                 (setq Temp (append1 Temp (cadar Fields)))))
-
         (do ((PDMProp PDMProp (cdr PDMProp))) ((null PDMProp))
             (setq ReturnCode (subst (GenStructDeclCode (cadar PDMProp) (cadar PDMProp) 'StructDecl) 
-                                    (list 'Field (cadar PDMProp)) ReturnCode)))
+                                    (list 'Field (cadar PDMProp)) ReturnCode :test #'equal)))
         (do ((ReturnCode ReturnCode (cdr ReturnCode))) ((null ReturnCode))
             (ApplyRuleControl '(Call BodyControl1) (cddadar ReturnCode))) 
         (ApplyRuleControl '(Call BodyControl) ReturnCode) 
@@ -716,7 +722,7 @@
 
 
 (defun SetQuery (PDMCQuery)
-  (prog(Code CurrentQuery BodyList BodyCode Temp NodeList Refer ExternalPoints LevelCounter Num1 Num2)
+  (prog (Code CurrentQuery BodyList BodyCode Temp NodeList Refer ExternalPoints LevelCounter Num1 Num2)
        (setq Code `(Comment "========== Queries ====================="))
        (PrintMsg "   processing queries.")
 
@@ -870,7 +876,7 @@
                       (cond ((equal (caadr QueryBody) 'At) (PrintMsg "*****warning: from TravelQueryBody")))
                       (setq Temp1 (ProcessIndexSpecCode `(ExprStmt (AssignOp ,(cadr QueryBody) ,(caddr QueryBody))))) 
                       (do ((Temp2 (car ScopeList) (cdr Temp2))) ((null Temp2))
-                          (setq Temp1 (subst `(FieldAcc (Id PDMCQStruct) (Id ,(caar Temp2))) `(Id ,(caar Temp2)) Temp1)))
+                          (setq Temp1 (subst `(FieldAcc (Id PDMCQStruct) (Id ,(caar Temp2)) :test #'equal) `(Id ,(caar Temp2)) Temp1)))
                       
                       (setq Temp1
                             (append1 
@@ -903,7 +909,7 @@
                                           (Goto (Id ,In3)))))))
 
                       (do ((Temp2 (car ScopeList) (cdr Temp2))) ((null Temp2))
-                          (setq Temp1 (subst `(FieldAcc (Id PDMCQStruct) (Id ,(caar Temp2))) `(Id ,(caar Temp2)) Temp1)))
+                          (setq Temp1 (subst `(FieldAcc (Id PDMCQStruct) (Id ,(caar Temp2))) `(Id ,(caar Temp2)) Temp1 :test #'equal)))
 
 
                      
@@ -955,7 +961,7 @@
         (cond ((member FuncName '(DistInit DistNext))
                (setq Temp (ProcessIndexSpecCode (caddr DistributedCond)))
                (do ((ScopeList (car ScopeList) (cdr ScopeList))) ((null ScopeList))
-                   (setq Temp (subst `(FieldAcc (Id PDMCQStruct) (Id ,(caar ScopeList))) `(Id ,(caar ScopeList)) Temp)))
+                   (setq Temp (subst `(FieldAcc (Id PDMCQStruct) (Id ,(caar ScopeList))) `(Id ,(caar ScopeList)) Temp :test #'equal)))
                (cond ((null Argument)
                       (setq Argument Temp))
                      (t
@@ -1186,8 +1192,8 @@
                                  (setq Return1 `(ReturnWExp (PrimExp (UnSubOp (Const "1")))))))
 
                           (do ((ScopeList (car ScopeList) (cdr ScopeList))) ((null ScopeList))
-                              (setq FirstArg (subst `(FieldAcc (Id PDMCQStruct) (Id ,(caar ScopeList))) `(Id ,(caar ScopeList)) FirstArg))
-                              (setq SecondArg (subst `(Id P) `(Id ,(caar ScopeList)) SecondArg)))
+                              (setq FirstArg (subst `(FieldAcc (Id PDMCQStruct) (Id ,(caar ScopeList))) `(Id ,(caar ScopeList)) FirstArg :test #'equal))
+                              (setq SecondArg (subst `(Id P) `(Id ,(caar ScopeList)) SecondArg :test #'equal)))
 
                           (CMatch `(* (Type ,(cadaddadar Cond) > P1 *) *) InfoList)
                           (cond ((equal (Build '(< P1)) '(String))
@@ -1269,7 +1275,7 @@
 
             (princ "      index: " *error-output*)
             (PrintMsg (cadar Index))
-            (setq Port (open (concat (cadddar Index) ".internal")))
+            (setq Port (open (concatenate 'string (string (cadddar Index)) ".internal")))
             (setq IndexCode (read Port))
             (close Port)
             (setq T1 (cadadr IndexCode) T2 (caddr IndexCode) T3 (cadddr IndexCode))
@@ -1417,8 +1423,7 @@
 
 
 (defun CheckKeyWord (KeyWord)
-  (prog ()
-        (and (member KeyWord
+        (cond ((member KeyWord
                      '(AbstDeclParens 
                        AddrOp 
                        ArrayVar 
@@ -1458,9 +1463,8 @@
                        UnSubOp 
                        UnionWDecl 
                        UnionWId 
-                       VarWParens))
-             (return 1))
-        (and (member KeyWord
+                       VarWParens)) 1)
+        ((member KeyWord
                      `(AbstDeclWPtrAbsDecl 
                        Access 
                        AndPred 
@@ -1490,7 +1494,7 @@
                        CompndStmtWDListSList 
                        DeclList 
                        DivOp 
-                       Do 
+                       DoStmt
                        EnumList 
                        EnumWIdEnumList 
                        EnumWInit 
@@ -1509,7 +1513,7 @@
                        GEPred 
                        GTPred 
                        IdList 
-                       If 
+                       IfStmt
                        InitDecl 
                        InitDeclList 
                        InitList 
@@ -1540,19 +1544,16 @@
                        TypeSpecList 
                        TypeSpecListWAbsDecl 
                        UnionWIdDecl 
-                       While))
-             (return 2))
-        (and (member KeyWord
+                       While)) 2)
+        ((member KeyWord
                      '(CondExp 
                        ForWIF 
                        ForWIS 
                        ForWSF 
-                       IfElse))
-             (return 3))
-        (and (member KeyWord
-                     '(ForWISF)) 
-             (return 4)) 
-        (return nil)))
+                       IfElse)) 3)
+        ((member KeyWord
+                     '(ForWISF)) 4)
+        (t nil)))
 
 
 
@@ -1609,7 +1610,7 @@
 
 
 (defun FindType (V)
-  (prog()
+  (prog ()
        (CMatch `(* (Type ,(PathFuncClass V) > P1 *) *) InfoList)
        (return (car (Build '(< P1))))))
 

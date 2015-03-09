@@ -140,7 +140,8 @@
   (evalfexpr (cadr L)))
 
 
-(defun Auto ()
+(defun Auto (L)
+  (assert (null L))
   (princ "auto " OutPort))
 
 
@@ -179,7 +180,8 @@
   (evalfexpr (cadr L)))
 
 
-(defun BreakStmt ()
+(defun BreakStmt (L)
+  (assert (null L))
   (princ "break;" OutPort)
   (terpri OutPort))
 
@@ -199,7 +201,8 @@
   (evalfexpr (cadr L)))
 
 
-(defun CharType ()
+(defun CharType (L)
+  (assert (null L))
   (princ "char " OutPort))
    
 
@@ -228,7 +231,8 @@
   (princ ")" OutPort))
 
 
-(defun CompndStmt ()
+(defun CompndStmt (L)
+  (assert (null L))
   (princ "{" OutPort)
   (terpri OutPort)
   (princ "}" OutPort))
@@ -268,11 +272,13 @@
   (princ (car L) OutPort))
 
 
-(defun ConstType ()
+(defun ConstType (L)
+  (assert (null L))
   (princ "const " OutPort))
 
 
-(defun ContinueStmt ()
+(defun ContinueStmt (L)
+  (assert (null L))
   (princ "continue" OutPort))
 
 
@@ -314,7 +320,8 @@
   (princ ");" OutPort))
 
 
-(defun DoubleType ()
+(defun DoubleType (L)
+  (assert (null L))
   (princ "double " OutPort))
    
 
@@ -367,7 +374,8 @@
   (terpri OutPort))
 
 
-(defun Extern ()
+(defun Extern (L)
+  (assert (null L))
   (princ "extern " OutPort))
 
 
@@ -382,7 +390,8 @@
   (evalfexpr (cadr L)))
    
 
-(defun FloatType ()
+(defun FloatType (L)
+  (assert (null L))
   (princ "float " OutPort))
    
 
@@ -600,7 +609,8 @@
   (evalfexpr (caddr L)))
 
 
-(defun IntType ()
+(defun IntType (L)
+  (assert (null L))
   (princ "int " OutPort))
 
 
@@ -628,7 +638,8 @@
   (evalfexpr (cadr L)))
 
 
-(defun LongType ()
+(defun LongType (L)
+  (assert (null L))
   (princ "long " OutPort))
 
 
@@ -655,7 +666,8 @@
   (evalfexpr (car L)))
 
 
-(defun NullStmt ()
+(defun NullStmt (L)
+  (assert (null L))
   (princ ";" OutPort))
 
 
@@ -713,7 +725,8 @@
   (princ ")" OutPort))
 
 
-(defun Ptr ()
+(defun Ptr (L)
+  (assert (null L))
   (princ "*" OutPort))
 
 
@@ -738,11 +751,13 @@
   (evalfexpr (cadr L)))
 
 
-(defun Register ()
+(defun Register (L)
+  (assert (null L))
   (princ "register " OutPort))
 
 
-(defun ReturnStmt ()
+(defun ReturnStmt (L)
+  (assert (null L))
   (princ "return;" OutPort)) 
 
 
@@ -759,15 +774,18 @@
   (evalfexpr (cadr L)))
 
 
-(defun ShortType ()
+(defun ShortType (L)
+  (assert (null L))
   (princ "short " OutPort))
 
 
-(defun SignedType ()
+(defun SignedType (L)
+  (assert (null L))
   (princ "signed " OutPort))
 
 
-(defun SimpArrayAbstDecl ()
+(defun SimpArrayAbstDecl (L)
+  (assert (null L))
   (princ "[]" OutPort))
 
 
@@ -777,7 +795,8 @@
   (princ "]" OutPort))
 
 
-(defun SimpFuncAbstDecl ()
+(defun SimpFuncAbstDecl (L)
+  (assert (null L))
   (princ "()" OutPort))
 
 
@@ -798,7 +817,8 @@
   (princ ") " OutPort))
 
 
-(defun Static ()
+(defun Static (L)
+  (assert (null L))
   (princ "static " OutPort))
 
 
@@ -880,7 +900,8 @@
   (evalfexpr (cadr L)))
 
 
-(defun TypeDef ()
+(defun TypeDef (L)
+  (assert (null L))
   (princ "TypeDef " OutPort))
 
 
@@ -924,7 +945,8 @@
   (princ "}" OutPort))
 
 
-(defun UnsignedType ()
+(defun UnsignedType (L)
+  (assert (null L))
   (princ "unsigned " OutPort))
 
 
@@ -934,11 +956,13 @@
   (princ ") " OutPort))
 
 
-(defun VoidType ()
+(defun VoidType (L)
+  (assert (null L))
   (princ "void " OutPort))
 
 
-(defun VolatileType ()
+(defun VolatileType (L)
+  (assert (null L))
   (princ "volatile " OutPort))
    
 
@@ -993,7 +1017,8 @@
   (terpri OutPort))
 
 
-(defun EmptyStmt ()
+(defun EmptyStmt (L)
+  (assert (null L))
   (princ "" OutPort))
 
 

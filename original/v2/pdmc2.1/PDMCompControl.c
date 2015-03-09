@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <libgen.h>
 #define NameSize 50
 #define MaxPDMFile 20
 
@@ -47,8 +48,9 @@ char *argv[], *envp[];
 	for (Counter = 0; Counter <=  (strlen(PDMFileName) - 5); Counter++)
 		OutputFileName[Counter] = PDMFileName[Counter];
 	OutputFileName[Counter] = '\0';
-
-	sprintf(Command, "echo  %s > pdmc.schemaname", OutputFileName);
+	char* SchemaName = strdup(OutputFileName);
+	sprintf(Command, "echo  %s > pdmc.schemaname", basename(SchemaName));
+	free(SchemaName);
 	CSystem(Command);
 
 	strcat(OutputFileName, ".h");
@@ -58,11 +60,11 @@ char *argv[], *envp[];
 	fprintf(stderr,"checking syntax.\n");
 
 	fprintf(stderr,"   %s\n", PDMFileName);
-	sprintf(Command, "PDMParser < %s > pdmc.pdm.input", PDMFileName);
+	sprintf(Command, "./PDMParser < %s > pdmc.pdm.input", PDMFileName);
 	CSystem(Command);
 			
-	CSystem("PDMComp.o");
-	sprintf(Command, "PosSlash < pdmc.output | cb -s > %s", OutputFileName);
+	CSystem("./PDMRun");
+	sprintf(Command, "indent pdmc.output -kr -o %s", OutputFileName);
 	CSystem(Command);
 	CSystem("rm pdmc.*");
 }
