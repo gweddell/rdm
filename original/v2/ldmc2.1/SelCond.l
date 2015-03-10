@@ -3,26 +3,6 @@
 ;***********************************************************************
 
 ;********************** Equational Logic Reasoner **********************
-
-;(declare
-;   (special Schema)
-;   (special Classes)
-;   (special BuiltInClasses)
-;   (special Properties)
-;   (special Queries)
-;   (special Indices)
-;   (special Stores)
-;   (special Transactions)
-;   (special QueryName?)
-;   (special QueryOrTransName)
-;   (special Source)
-;   (special PDMPort)
-;   (special DefaultRCntEst)
-;   (special VarStack)
-;   (special MatchVarStack)
-;   (special FreeMatchVars)
-;   (special MatchVar))
-
 ;***********************************************************************
 ; A data graph is represented along with a query during join order
 ; selection, to reason about the case where as a logical consequence

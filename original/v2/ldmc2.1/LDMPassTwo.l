@@ -3,26 +3,6 @@
 ;***********************************************************************
 
 ;******************************* PASS TWO ******************************
-
-;(declare
-;   (special Schema)
-;   (special Classes)
-;   (special BuiltInClasses)
-;   (special Properties)
-;   (special Queries)
-;   (special Indices)
-;   (special Stores)
-;   (special Transactions)
-;   (special QueryName?)
-;   (special QueryOrTransName)
-;   (special Source)
-;   (special PDMPort)
-;   (special DefaultRCntEst)
-;   (special VarStack)
-;   (special MatchVarStack)
-;   (special FreeMatchVars)
-;   (special MatchVar))
-
 ;***********************************************************************
 ; PassTwo compiles queries into low level ASL code suitable for final
 ; code generation in PassFive.  Procedure OptimizeQuery is applied to

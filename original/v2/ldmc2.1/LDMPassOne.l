@@ -3,7 +3,6 @@
 ;***********************************************************************
 
 ;***************************** PASS ONE ********************************
-
 ;***********************************************************************
 ; This file contains the procedures to perform the initial parse
 ; of LDM source.  Semantic checks that are performed:

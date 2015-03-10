@@ -7,25 +7,6 @@
 (defvar DefaultQueryFreqEst)
 (defvar DefaultTransFreqEst)
 
-;(declare
-;   (special Schema)
-;   (special Classes)
-;   (special BuiltInClasses)
-;   (special Properties)
-;   (special Queries)
-;   (special Indices)
-;   (special Stores)
-;   (special Transactions)
-;   (special QueryName?)
-;   (special QueryOrTransName)
-;   (special Source)
-;   (special PDMPort)
-;   (special DefaultRCntEst)
-;   (special VarStack)
-;   (special MatchVarStack)
-;   (special FreeMatchVars)
-;   (special MatchVar))
-
 ;***********************************************************************
 ; The routines in this file non-destructively access schema information.
 ;***********************************************************************

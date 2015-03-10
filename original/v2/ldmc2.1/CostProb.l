@@ -1,26 +1,6 @@
 ;***********************************************************************
 ; Copyright (C) 1989, G. E. Weddell.
 ;***********************************************************************
-
-;(declare
-;   (special Schema)
-;   (special Classes)
-;   (special BuiltInClasses)
-;   (special Properties)
-;   (special Queries)
-;   (special Indices)
-;   (special Stores)
-;   (special Transactions)
-;   (special QueryName?)
-;   (special QueryOrTransName)
-;   (special Source)
-;   (special PDMPort)
-;   (special DefaultRCntEst)
-;   (special VarStack)
-;   (special MatchVarStack)
-;   (special FreeMatchVars)
-;   (special MatchVar))
-
 ;************************** Cost of a Query ****************************
 
 (defun CostQuery (Q)

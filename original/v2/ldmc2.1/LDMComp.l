@@ -6,25 +6,6 @@
 ; Declarations for the lisp compiler.
 ;***********************************************************************
 
-(defvar Schema nil)
-(defvar Classes nil)
-(defvar BuiltInClasses nil)
-(defvar Properties nil)
-(defvar Queries nil)
-(defvar Indices nil)
-(defvar Stores nil)
-(defvar Transactions nil)
-(defvar QueryName? nil)
-(defvar QueryOrTransName nil)
-(defvar Source nil)
-(defvar PDMPort nil)
-(defvar LDMPort nil)
-(defvar DefaultRCntEst nil)
-(defvar VarStack nil)
-(defvar MatchVarStack nil)
-(defvar FreeMatchVars nil)
-(defvar MatchVar nil)
-
 (defvar UnitSpace nil)
 (defvar UnitTime nil)
 

@@ -3,26 +3,6 @@
 ;***********************************************************************
 
 ;***************** PATH FUNCTIONAL DEPENDENCY REASONER *****************
-
-;(declare
-;   (special Schema)
-;   (special Classes)
-;   (special BuiltInClasses)
-;   (special Properties)
-;   (special Queries)
-;   (special Indices)
-;   (special Stores)
-;   (special Transactions)
-;   (special QueryName?)
-;   (special QueryOrTransName)
-;   (special Source)
-;   (special PDMPort)
-;   (special DefaultRCntEst)
-;   (special VarStack)
-;   (special MatchVarStack)
-;   (special FreeMatchVars)
-;   (special MatchVar))
-
 ;***********************************************************************
 ; "NonKeyVars" determines which of a given set of expression variables
 ; are sufficiently limited by constraints imposed by selection and join
