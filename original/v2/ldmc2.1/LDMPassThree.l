@@ -29,9 +29,9 @@
 
 
 (defun AddSchemaClass ()
-   (NewClass (concat Schema 'Struct))
-   (putprop (concat Schema 'Struct) t 'UserClass?)
-   (NewProp (concat Schema 'Struct) (concat Schema 'Struct)))
+   (NewClass (concat Schema '|Struct|))
+   (putprop (concat Schema '|Struct|) t 'UserClass?)
+   (NewProp (concat Schema '|Struct|) (concat Schema '|Struct|)))
 
 
 (defun FindObjectIdRep ()
@@ -42,7 +42,7 @@
 (defun ChgIdCheck (L)
    (if
       (Match
-         '(? ? ? (Block ? * (Assign (gApply (? ? > C) (* Id)) > T)
+         '(? ? ? (Block ? * (Assign (gApply (? ? > C) (* |Id|)) > T)
             where (or
                (eq 'Pointer (ClassReference <q C))
                (eq 'Pointer (ClassReference (ExpressionType <q T))))
@@ -82,8 +82,8 @@
       (setq TopCList Classes)
     loop
       (if (null TopCList)
-         (progn (NewProp 'Msc 'Integer)
-         (AddPropConstraint 'Msc `(Range 1 ,MaxMscVal))
+         (progn (NewProp '|Msc| 'Integer)
+         (AddPropConstraint '|Msc| `(Range 1 ,MaxMscVal))
          (return t)))
       (setq C (car TopCList) TopCList (cdr TopCList))
       (setq NextMscVal 1)
@@ -114,34 +114,34 @@
    (case (IndexType I)
       (List
          (NewClassProps `(
-            (,(concat Schema 'Struct) ,(concat I 'Head) ,C)
-            (,C ,(concat I 'Prev) ,C)
-            (,C ,(concat I 'Next) ,C))))
+            (,(concat Schema '|Struct|) ,(concat I '|Head|) ,C)
+            (,C ,(concat I '|Prev|) ,C)
+            (,C ,(concat I '|Next|) ,C))))
       (DistList
          (NewClassProps `(
-            (,(concat Schema 'Struct) ,(concat I 'Head) ,C)
-            (,C ,(concat I 'Prev) ,C)
-            (,C ,(concat I 'Next) ,C)
-            (,(Dom (DistPF I)) ,(concat I 'First) ,C))))
+            (,(concat Schema '|Struct|) ,(concat I '|Head|) ,C)
+            (,C ,(concat I '|Prev|) ,C)
+            (,C ,(concat I '|Next|) ,C)
+            (,(Dom (DistPF I)) ,(concat I '|First|) ,C))))
       (DistPointer
          (NewClassProps `(
-            (,(concat Schema 'Struct) ,(concat I 'Head) ,C)
-            (,(Dom (DistPF I)) ,(concat I 'First) ,C))))
+            (,(concat Schema '|Struct|) ,(concat I '|Head|) ,C)
+            (,(Dom (DistPF I)) ,(concat I '|First|) ,C))))
       (BinaryTree
          (NewClassProps `(
-            (,(concat Schema 'Struct) ,(concat I 'Head) ,C)
-            (,C ,(concat I 'LSon) ,C)
-            (,C ,(concat I 'RSon) ,C)
-            (,C ,(concat I 'Mark) Integer)))
-         (AddPropConstraint (concat I 'Mark) '(Range 0 1)))
+            (,(concat Schema '|Struct|) ,(concat I '|Head|) ,C)
+            (,C ,(concat I '|LSon|) ,C)
+            (,C ,(concat I '|RSon|) ,C)
+            (,C ,(concat I '|Mark|) Integer)))
+         (AddPropConstraint (concat I '|Mark|) '(Range 0 1)))
       (DistBinaryTree
          (NewClassProps `(
-            (,(concat Schema 'Struct) ,(concat I 'Head) ,C)
-            (,C ,(concat I 'LSon) ,C)
-            (,C ,(concat I 'RSon) ,C)
-            (,C ,(concat I 'Mark) Integer)
-            (,(Dom (DistPF I)) ,(concat I 'First) ,C)))
-         (AddPropConstraint (concat I 'Mark) '(Range 0 1)))))
+            (,(concat Schema '|Struct|) ,(concat I '|Head|) ,C)
+            (,C ,(concat I '|LSon|) ,C)
+            (,C ,(concat I '|RSon|) ,C)
+            (,C ,(concat I '|Mark|) Integer)
+            (,(Dom (DistPF I)) ,(concat I '|First|) ,C)))
+         (AddPropConstraint (concat I '|Mark|) '(Range 0 1)))))
 
 
 (defun AddPropertiesForStores () (mapc 'AddStoreProperties Stores))
@@ -149,7 +149,7 @@
 
 (defun AddStoreProperties (S)
    (case (StoreType S)
-      (Dynamic (NewClassProps `( (,(concat Schema 'Struct) ,S StoreTemplate))))))
+      (Dynamic (NewClassProps `( (,(concat Schema '|Struct|) ,S |StoreTemplate|))))))
 
 
 ;***********************************************************************
@@ -162,8 +162,8 @@
    (setq SInitL (mapcar #'(lambda (SName) `(SInit ,SName)) Stores))
    (setq IInitL (mapcar #'(lambda (IName) `(IInit ,IName)) Indices))
    (NewTrans
-      (concat 'Init Schema)
-      `(StmtTrans ,(concat 'Init Schema) ()
+      (concat '|Init| Schema)
+      `(StmtTrans ,(concat '|Init| Schema) ()
          (Block () ,@SInitL ,@IInitL))))
 
 
@@ -220,7 +220,7 @@
          (AddSupClasses C '(Entity))))
       Classes)
    (NewClass 'Entity)
-   (AddClassProps 'Entity '(Msc)))
+   (AddClassProps 'Entity '(|Msc|)))
 
 
 ;***********************************************************************

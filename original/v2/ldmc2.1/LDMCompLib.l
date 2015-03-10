@@ -69,7 +69,7 @@
             (t (if (member T2 '(Integer Real DoubleReal)) T1 T2))))
       (gApply
          (setq T1 (ExpressionType (cadr E)))
-         (do ((PList (caddr E) (cdr PList))) ((or (null PList) (eq (car PList) 'Id)))
+         (do ((PList (caddr E) (cdr PList))) ((or (null PList) (eq (car PList) '|Id|)))
             (setq T1 (ClassOf (car PList))))
          T1)))
 
@@ -84,7 +84,7 @@
 (defun AppendPF (Term PF)
    (cond
       ((null PF) Term)
-      ((equal PF '(Id)) Term)
+      ((equal PF '(|Id|)) Term)
       ((eq (car Term) 'gApply) `(gApply ,(cadr Term) (,@(caddr Term) ,@PF)))
       (t `(gApply ,Term ,PF))))
 

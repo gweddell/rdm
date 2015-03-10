@@ -15,6 +15,7 @@
 (defvar QueryName? nil)
 (defvar QueryOrTransName nil)
 (defvar Source nil)
+(defvar LDMPort nil)
 (defvar PDMPort nil)
 (defvar DefaultRCntEst nil)
 (defvar VarStack nil)

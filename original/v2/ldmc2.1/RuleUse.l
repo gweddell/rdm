@@ -56,7 +56,7 @@
 
 (defun fix (&rest args) (apply #'truncate args))
 (defun concat (&rest args)
-   (read-from-string (apply #'concatenate (cons 'string (mapcar #'symbol-name args)))))
+   (read-from-string (concatenate 'string "|" (apply #'concatenate (cons 'string (mapcar #'symbol-name args))) "|")))
 
 (defun ApplyRuleControl (Control Form)
    (cond

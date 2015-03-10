@@ -42,7 +42,7 @@
 (LoadRules '(
 
 (AssignIdChk
-   (Block > VList >* SList1 (Assign (gApply > V (Id)) > T) >* SList2)
+   (Block > VList >* SList1 (Assign (gApply > V (|Id|)) > T) >* SList2)
    (Block < VList
       << SList1
       (Sub* < V)

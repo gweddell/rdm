@@ -437,7 +437,7 @@
       (if (eq (car LHS) 'Apply)
          (progn
             (setq Prop (car (last (caddr LHS))))
-            (if (not (eq Prop 'Id)) (putprop Prop t 'Updated?))))
+            (if (not (eq Prop '|Id|)) (putprop Prop t 'Updated?))))
       (list (ValidateAssign `(Assign ,LHS ,(ParseTerm (cadr L)))))))
 
 (defun DefSizeEst (L) (putprop (car L) (Valof (cadr L)) 'RCntEst))
@@ -643,7 +643,7 @@
 
 
 (defun ValidateAssign (Assign)
-   (if (Match '(Assign (gApply ? (Id)) ?) Assign) 
+   (if (Match '(Assign (gApply ? (|Id|)) ?) Assign) 
       Assign
       (ValidateInit Assign)))
 
@@ -651,6 +651,6 @@
 (defun CheckPF (CName PF)
    (if (null PF)
       t
-      (or (equal PF '(Id))
+      (or (equal PF '(|Id|))
              (and (member (car PF) (ClassProps* CName))
                   (CheckPF (PropType (car PF)) (cdr PF))))))

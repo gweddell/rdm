@@ -40,7 +40,7 @@ LDMSpec
 
 Identifier
 	: IDENTIFIER
-		{ printf("%s ", yytext); }
+		{ printf("|%s| ", yytext); }
 	;
 
 LDMDDLSpec
