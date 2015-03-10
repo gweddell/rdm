@@ -1,45 +1,38 @@
 ;***********************************************************************************************************************************
 ;***********************************************************************************************************************************
 
-(declare
-   (special InfoList
-            ScopeList
-            SchemaVarName
-            errport
-            @SchemaVar))
+(defvar InfoList nil)
+(defvar ScopeList)
+(defvar InlineFlag 0)
+(defvar SchemaVarName)
+(defvar @SchemaVar)
 
+(load "PatMatch.l")
+(load "CDBCompLib.l")
+(load "GenCCode.l")
 
-(load "/u2/gweddell/research/dbtool/version2.1/cdbc2.1/PatMatch")
-(load "/u2/gweddell/research/dbtool/version2.1/cdbc2.1/CDBCompLib")
-(load "/u2/gweddell/research/dbtool/version2.1/cdbc2.1/GenCCode")
-
-
-(setq MatchVar (gensym 'B) MatchVarStack nil FreeMatchVars nil)
-
-
-(setq user-top-level 'Compile)
-
+(setq MatchVar (gensym "B") MatchVarStack nil FreeMatchVars nil)
 
 ;***********************************************************************************************************************************
 ;***********************************************************************************************************************************
 
 
-(defun Compile () 
-  (prog (InfoList PDMCode CDBCode CCode @SchemaVar Port NumPDMFile Temp)
+(defun MAIN () 
+  (prog (PDMCode CDBCode CCode Port NumPDMFile Temp)
         (setq @SchemaVar 0)
-        (setq Port (fileopen "cdbc.pdm.number" "r"))
+        (setq Port (open "cdbc.pdm.number"))
         (setq NumPDMFile (read Port))
         (close Port)
         (cond ((equal NumPDMFile 0)
-               (setq PDMCode (PhaseOne 'cdbc.pdm.input0)) 
+               (setq PDMCode (PhaseOne "cdbc.pdm.input0")) 
                (PhaseThree PDMCode))
               (t
-               (do Temp 1 (add1 Temp) (> Temp NumPDMFile)
-                   (setq PDMCode (PhaseOne (concat 'cdbc.pdm.input Temp))) 
+               (do ((Temp 1 (add1 Temp))) ((> Temp NumPDMFile))
+                   (setq PDMCode (PhaseOne (concatenate 'string "cdbc.pdm.input" (write-to-string Temp)))) 
                    (PhaseThree PDMCode))))
-        (setq CDBCode (PhaseTwo 'cdbc.cdb.input)) 
+        (setq CDBCode (PhaseTwo "cdbc.cdb.input")) 
         (setq CCode (PhaseFour CDBCode))
-        (PhaseFive CCode 'cdbc.output)
+        (PhaseFive CCode "cdbc.output")
         (exit)))
 
 
@@ -50,7 +43,7 @@
 
 (defun PhaseOne (PDMFile)
   (prog (PDMCode Port)
-        (setq Port (fileopen PDMFile "r"))
+        (setq Port (open PDMFile))
         (setq PDMCode (read Port))
         (close Port)
         (setq PDMCode (FixInput PDMCode))
@@ -59,7 +52,7 @@
 
 (defun PhaseTwo (CDBFile)
   (prog (CDBCode Port)
-        (setq Port (fileopen CDBFile "r"))
+        (setq Port (open CDBFile))
         (setq CDBCode (read Port))
         (close Port)
         (setq CDBCode (FixInput CDBCode))
@@ -67,20 +60,20 @@
 
 
 (defun PhaseThree (PDMCode)
-  (Print "processing PDM code.")
+  (PrintMsg "processing PDM code.")
   (ProcessPDMCode PDMCode))
 
 
 (defun PhaseFour (CDBCode)
   (prog ()
-        (Print "processing CDB code.")
+        (PrintMsg "processing CDB code.")
         (setq ScopeList '(()) SchemaVarName nil)
         (setq CDBCode (ProcessCDBCode CDBCode))
         (return CDBCode)))
 
 
 (defun PhaseFive (CCode OutputFile)
-  (Print "code generation.")
+  (PrintMsg "code generation.")
   (GenCode CCode OutputFile))
 
 
@@ -91,11 +84,11 @@
 (defun ProcessPDMCode (PDMCode) 
   (prog (Temp FieldList) 
         (setq PDMCode (caddr PDMCode))
-        (do PDMCode PDMCode (caddr PDMCode) (null PDMCode) 
+        (do ((PDMCode PDMCode (caddr PDMCode))) ((null PDMCode))
             (cond ((equal (caadr PDMCode) 'ClassSpec) 
                    (setq InfoList (append InfoList `((Reference ,(cadadadr PDMCode) ,(caadaddddadr PDMCode))
                                                      (IsA ,(cadadadr PDMCode) ,(caddadadr PDMCode)))))
-                   (do Temp (RestoreList (cadaddadr PDMCode)) (cdr Temp) (null Temp)
+                   (do ((Temp (RestoreList (cadaddadr PDMCode)) (cdr Temp))) ((null Temp))
                        (setq InfoList (append1 InfoList `(Property ,(cadadadr PDMCode) ,(car Temp)))))
 
                    (setq FieldList nil)
@@ -106,7 +99,7 @@
                    (setq FieldList (append FieldList (RestoreList (cadaddddddadr PDMCode))))
                    (setq InfoList (append1 InfoList `(FieldList ,(cadadadr PDMCode) ,FieldList)))
 
-                   (do Temp FieldList (cdr Temp) (null Temp)
+                   (do ((Temp FieldList (cdr Temp))) ((null Temp))
                        (setq InfoList (append1 InfoList `(Field ,(cadadadr PDMCode) ,(car Temp))))))
 
                   ((equal (caadr PDMCode) 'PropertySpec) 
@@ -178,7 +171,7 @@
                       (t
                        (setq SchemaVarName '(nil))))
                 (return 
-                 `(File (Preprocessor1 (include ,(concat 'xx4 (cadadr CDBCode) '.hxx4)))
+                 `(File (Preprocessor1 (,(concatenate 'string "include \"" (string (cadadr CDBCode)) ".h\"")))
                         (DeclSpecWVars (StructWId (Id ,(concat (cadadr CDBCode) 'Struct))) ,(ProcessCDBCode (caddr CDBCode))))))
                ((equal (car CDBCode) 'IfQuery)
                 (return (IfElseQueryCode (QueryTypeCheck nil (cadr CDBCode))
@@ -268,7 +261,7 @@
                        Goto 
                        InitListHdr 
                        InitListHdrWCom 
-                       LogNot 
+                       NotOp 
                        OnesComp 
                        PostInc 
                        PreDec 
@@ -291,7 +284,7 @@
                        VarWParens))
              (return 1))
         (and (member KeyWord
-                     `(AbstDeclWPtrAbsDecl 
+                     '(AbstDeclWPtrAbsDecl 
                        Access 
                        AndPred 
                        ArgExpList 
@@ -319,7 +312,7 @@
                        CompndFuncAbstDeclWPList 
                        DeclList 
                        DivOp 
-                       Do 
+                       DoStmt
                        EnumList 
                        EnumWIdEnumList 
                        EnumWInit 
@@ -337,7 +330,7 @@
                        GEPred 
                        GTPred 
                        IdList 
-                       If 
+                       IfStmt
                        InitDecl 
                        InitDeclList 
                        InitList 
@@ -407,8 +400,8 @@
 																				  (Access (Id ,SchemaVar) (Id ,(car Sel)))))))))
                   (t
                    (setq Code `(StmtList ,Code (ExprStmt (AssignOp ,(car Select) (Access (Id ,SchemaVar) (Id ,(car Sel))))))))))
-        (setq Code `(StmtList ,Code (If (Access (Id ,SchemaVar) (Id Result)) ,(ProcessCDBCode Stmt1))))
-        (setq Code `(Do (CompndStmtWSList ,Code) (Access (Id ,SchemaVar) (Id Result))))
+        (setq Code `(StmtList ,Code (IfStmt (Access (Id ,SchemaVar) (Id Result)) ,(ProcessCDBCode Stmt1))))
+        (setq Code `(DoStmt (CompndStmtWSList ,Code) (Access (Id ,SchemaVar) (Id Result))))
         (setq Code `(StmtList (ExprStmt (AssignOp (Access (Id ,SchemaVar) (Id First)) (Const "1"))) ,Code))
         (return 
          `(CompndStmtWDListSList (DeclSpecWVars (StructWId (Id ,(concat (cadr QueryName) 'Struct))) (Id ,SchemaVar)) ,Code))))
@@ -439,7 +432,7 @@
 																				  (Access (Id ,SchemaVar) (Id ,(car Sel)))))))))
                   (t
                    (setq Code `(StmtList ,Code (ExprStmt (AssignOp ,(car Select) (Access (Id ,SchemaVar) (Id ,(car Sel))))))))))
-        (setq Code `(StmtList ,Code (If (Access (Id ,SchemaVar) (Id Result)) ,(ProcessCDBCode Stmt1))))
+        (setq Code `(StmtList ,Code (IfStmt (Access (Id ,SchemaVar) (Id Result)) ,(ProcessCDBCode Stmt1))))
         (setq Code `(While (Access (Id ,SchemaVar) (Id Result)) (CompndStmtWSList ,Code)))
         (setq Code `(StmtList (ExprStmt (AssignOp (Access (Id ,SchemaVar) (Id Result)) (Const 1))) ,Code))
         (return 
@@ -472,7 +465,7 @@
                   (t
                    (setq Code `(StmtList ,Code (ExprStmt (AssignOp ,(car Select) (Access (Id ,SchemaVar) (Id ,(car Sel))))))))))
         (cond ((null Stmt2)
-               (setq Code `(StmtList ,Code (If (Access (Id ,SchemaVar) (Id Result)) ,(ProcessCDBCode Stmt1)))))
+               (setq Code `(StmtList ,Code (IfStmt (Access (Id ,SchemaVar) (Id Result)) ,(ProcessCDBCode Stmt1)))))
               (t
                (setq Code `(StmtList ,Code (IfElse (Access (Id ,SchemaVar) (Id Result)) 
                                                    ,(ProcessCDBCode Stmt1) ,(ProcessCDBCode Stmt2))))))
@@ -483,18 +476,18 @@
 (defun TransCode (TransName Parameters SchemaName)
   (prog (Temp1 Temp2)
         (and (null SchemaName) (or (null SchemaVarName) (equal SchemaVarName '(nil)))
-             (Error `("***CDB Error: Explicit schema variable is required in a call to transaction" ,(cadr TransName))))
+             (ErrorMsg `("***CDB Error: Explicit schema variable is required in a call to transaction" ,(cadr TransName))))
         (if (null SchemaName) (setq SchemaName (list 'Id SchemaVarName)))  
         (if (not (Match `(* (Trans ,(cadr TransName) ? > P1) *) InfoList))
-            (Error `("***CDB Error: Transaction" ,(cadr TransName) "has not been defined in PDM source.")))
+            (ErrorMsg `("***CDB Error: Transaction" ,(cadr TransName) "has not been defined in PDM source.")))
         (setq Temp1 (RestoreArgExpList Parameters) Temp2 (Build '(<< P1)))
         (if (not (equal (length Temp1) (length Temp2))) 
-            (Error `("***CDB Error: Parameter error in a call to transaction" ,(cadr TransName))))
+            (ErrorMsg `("***CDB Error: Parameter error in a call to transaction" ,(cadr TransName))))
         (do ((Temp1 Temp1 (cdr Temp1)) (Temp2 Temp2 (cdr Temp2))) ((null Temp1))
             (and
              (not (member (caar Temp1) '(Const StrLit)))
              (not (CheckSuperClass (PathFuncClass (car Temp1)) (car Temp2)))
-             (Error `("***CDB Error: Parameter type not match in a call to transaction" ,(cadr TransName)))))
+             (ErrorMsg `("***CDB Error: Parameter type not match in a call to transaction" ,(cadr TransName)))))
         (cond ((null Parameters)
                (return `(FuncCallP ,TransName (AddrOp ,SchemaName))))
               (t
@@ -522,7 +515,7 @@
                      ((equal (car Name2) 'ArrayVarWSize)
                       (setq ScopeList (cons (cons (list (list 'Array (cadadr Name2)) Name1) (car ScopeList)) (cdr ScopeList))))
                      (t
-                      (Error `("***CDB Error:" "Illegal variable declaration to prop" ,Name1 "."))))
+                      (ErrorMsg `("***CDB Error:" "Illegal variable declaration to prop" ,Name1 "."))))
                (return (GenStructDeclCode Name2 Name1 'StructDecl))))))
 
 
@@ -533,7 +526,7 @@
               ((member (car Code) '(StructDecl))
                (return `(DeclSpecWVars (StorDeclSpec (Extern) ,(cadr Code)) ,(caddr Code))))
               (t
-               (Print "*****warning: from ExternDeclCode")))))
+               (PrintMsg "*****warning: from ExternDeclCode")))))
 
 
 ;***********************************************************************************************************************************
@@ -545,28 +538,28 @@
         (cond ((equal (car QueryCall) 'QueryCallWSchema)
                (setq SchemaName (caddr QueryCall)))
               ((or (null SchemaVarName) (equal SchemaVarName '(nil)))
-               (Error `("***CDB Error: Explicit schema variable is required in a call to query" ,(cadadadr QueryCall))))
+               (ErrorMsg `("***CDB Error: Explicit schema variable is required in a call to query" ,(cadadadr QueryCall))))
               (t
                (setq SchemaName (list 'Id SchemaVarName)))) 
         (if (not (Match `(* (Query ,(cadadadr QueryCall) ? > P1 ? > P2) *) InfoList))
-            (Error `("***CDB Error: Query" ,(cadadadr QueryCall) "has not been defined in PDM source.")))
+            (ErrorMsg `("***CDB Error: Query" ,(cadadadr QueryCall) "has not been defined in PDM source.")))
         (setq S2 (Build '(<< P2)) G2 (Build '(<< P1)) S1 (RestoreIdList Select) G1 (RestoreArgExpList (caddadr QueryCall)))
         (if (not (equal (length S1) (length S2))) 
-            (Error `("***CDB Error: Select clause error in a call to query" ,(cadadadr QueryCall))))
+            (ErrorMsg `("***CDB Error: Select clause error in a call to query" ,(cadadadr QueryCall))))
         (if (not (equal (length G1) (length G2))) 
-            (Error `("***CDB Error: Parameter error in a call to query" ,(cadadadr QueryCall))))
+            (ErrorMsg `("***CDB Error: Parameter error in a call to query" ,(cadadadr QueryCall))))
         (do ((S1 S1 (cdr S1)) (S2 S2 (cdr S2))) ((null S1))
             (if (not (CheckSuperClass (car S2) (PathFuncClass (car S1))))
-                (Error `("***CDB Error: Select clause parameter type not match in a call to query" ,(cadadadr QueryCall)))))
+                (ErrorMsg `("***CDB Error: Select clause parameter type not match in a call to query" ,(cadadadr QueryCall)))))
         (do ((G1 G1 (cdr G1)) (G2 G2 (cdr G2))) ((null G1))
             (cond ((not (CheckSuperClass (PathFuncClass (car G1)) (car G2)))
-						 (Error `("***CDB Error: Given clause parameter type not match in a call to query" ,(cadadadr QueryCall))))))
+						 (ErrorMsg `("***CDB Error: Given clause parameter type not match in a call to query" ,(cadadadr QueryCall))))))
         (return SchemaName)))
 
 
-(defun FindType2(T)
+(defun FindType2 (S)
   (prog ()
-		  (CMatch `(* (Type ,T > P1 *) *) InfoList)
+		  (CMatch `(* (Type ,S > P1 *) *) InfoList)
         (return (car (Build '(< P1))))))
 
 
@@ -576,14 +569,14 @@
                (setq N (list 'Array (cadadr N))))
               (t
                (setq N (cadr N))))
-        (do Temp1 ScopeList (cdr Temp1) (null Temp1)
-            (do Temp2 (car Temp1) (cdr Temp2) (null Temp2)
+        (do ((Temp1 ScopeList (cdr Temp1))) ((null Temp1))
+            (do ((Temp2 (car Temp1) (cdr Temp2))) ((null Temp2))
                 (if (equal (caar Temp2) N) (setq Result (cadar Temp2)))))
         (if (not (null Result)) (return Result))
         (cond ((atom N)
-               (Error `("***CDB Error: Object-valued variable" ,N "has not been defined")))
+               (ErrorMsg `("***CDB Error: Object-valued variable" ,N "has not been defined")))
               (t
-               (Error `("***CDB Error: Object-valued variable" ,(cadr N) "has not been defined"))))))
+               (ErrorMsg `("***CDB Error: Object-valued variable" ,(cadr N) "has not been defined"))))))
 
 
 (defun CheckProperty (V1 V2)
@@ -595,7 +588,7 @@
 							(t
 							 (return (car (Build '(< P1))))))) 
 				  (t
-               (Error `("***CDB Error: Illegal path function on class " ,V1))))))
+               (ErrorMsg `("***CDB Error: Illegal path function on class " ,V1))))))
 
 
 (defun FindType (V)

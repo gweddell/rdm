@@ -87,22 +87,24 @@ char *argv[], *envp[];
 		CSystem(Command);
       if (NumPDMFile == 0) {
 			fprintf(stderr,"   %s\n", PDMFileName[0]);
-    		sprintf(Command, "PDMParser < %s > cdbc.pdm.input0", PDMFileName[0]);
+    		sprintf(Command, "./PDMParser < %s > cdbc.pdm.input0", PDMFileName[0]);
 			CSystem(Command);
 		}
 		else 
 			for (Counter = 1; Counter <= NumPDMFile; Counter++) {
 				fprintf(stderr,"   %s\n", PDMFileName[Counter]);
-    			sprintf (Command, "PDMParser < %s > cdbc.pdm.input%d",
+    			sprintf (Command, "./PDMParser < %s > cdbc.pdm.input%d",
 										PDMFileName[Counter], Counter);
 				CSystem(Command);
 			}	
 				
 		fprintf(stderr,"   %s\n", CDBFileName);
-    	sprintf(Command, "PreSlash < %s | CDBParser > cdbc.cdb.input", CDBFileName);
+    	//sprintf(Command, "PreSlash < %s | ./CDBParser > cdbc.cdb.input", CDBFileName);
+    	sprintf(Command, "./CDBParser < %s > cdbc.cdb.input", CDBFileName);
 		CSystem(Command);
-		CSystem("CDBComp.o");
-		sprintf(Command, "PosSlash < cdbc.output | cb -s > %s", OutputFileName);
+		CSystem("./CDBRun");
+		//sprintf(Command, "PosSlash < cdbc.output | cb -s > %s", OutputFileName);
+		sprintf(Command, "indent cdbc.output -kr -o %s", OutputFileName);
 		CSystem(Command);
 		CSystem("rm cdbc.pdm.*");
 		CSystem("rm cdbc.cdb.*");
