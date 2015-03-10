@@ -534,7 +534,7 @@
 
 
 (defun Id (L)
-  (print (car L) OutPort))
+  (princ (car L) OutPort))
 
 
 (defun IdList (L)

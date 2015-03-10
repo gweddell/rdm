@@ -611,7 +611,7 @@ FunctionBody
 
 Identifier
    : IDENTIFIER
-      { printf("%s Id 1 ", yytext); }
+      { printf("|%s| Id 1 ", yytext); }
    ;
 
 

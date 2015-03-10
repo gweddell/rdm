@@ -172,7 +172,7 @@
                        (setq SchemaVarName '(nil))))
                 (return 
                  `(File (Preprocessor1 (,(concatenate 'string "include \"" (string (cadadr CDBCode)) ".h\"")))
-                        (DeclSpecWVars (StructWId (Id ,(concat (cadadr CDBCode) 'Struct))) ,(ProcessCDBCode (caddr CDBCode))))))
+                        (DeclSpecWVars (StructWId (Id ,(concat (cadadr CDBCode) '|Struct|))) ,(ProcessCDBCode (caddr CDBCode))))))
                ((equal (car CDBCode) 'IfQuery)
                 (return (IfElseQueryCode (QueryTypeCheck nil (cadr CDBCode))
                                          (cadadaddr CDBCode)
@@ -385,7 +385,7 @@
             (cond ((equal (FindType(car Given)) 'String) 
                    (setq Code `(StmtList 
                                 ,Code (ExprStmt 
-                                       (FuncCallP (Id strcpy) 
+                                       (FuncCallP (Id |strcpy|) 
                                                   (ArgExpList (Access (Id ,SchemaVar) (Id ,(car Giv))) 
 																				  ,(ProcessCDBCode (car Given))))))))
                   (t
@@ -395,16 +395,16 @@
             (cond ((equal (FindType(car Select)) 'String) 
                    (setq Code `(StmtList 
                                 ,Code (ExprStmt 
-                                       (FuncCallP (Id strcpy) 
+                                       (FuncCallP (Id |strcpy|) 
                                                   (ArgExpList ,(car Select) 
 																				  (Access (Id ,SchemaVar) (Id ,(car Sel)))))))))
                   (t
                    (setq Code `(StmtList ,Code (ExprStmt (AssignOp ,(car Select) (Access (Id ,SchemaVar) (Id ,(car Sel))))))))))
-        (setq Code `(StmtList ,Code (IfStmt (Access (Id ,SchemaVar) (Id Result)) ,(ProcessCDBCode Stmt1))))
-        (setq Code `(DoStmt (CompndStmtWSList ,Code) (Access (Id ,SchemaVar) (Id Result))))
-        (setq Code `(StmtList (ExprStmt (AssignOp (Access (Id ,SchemaVar) (Id First)) (Const "1"))) ,Code))
+        (setq Code `(StmtList ,Code (IfStmt (Access (Id ,SchemaVar) (Id |Result|)) ,(ProcessCDBCode Stmt1))))
+        (setq Code `(DoStmt (CompndStmtWSList ,Code) (Access (Id ,SchemaVar) (Id |Result|))))
+        (setq Code `(StmtList (ExprStmt (AssignOp (Access (Id ,SchemaVar) (Id |First|)) (Const "1"))) ,Code))
         (return 
-         `(CompndStmtWDListSList (DeclSpecWVars (StructWId (Id ,(concat (cadr QueryName) 'Struct))) (Id ,SchemaVar)) ,Code))))
+         `(CompndStmtWDListSList (DeclSpecWVars (StructWId (Id ,(concat (cadr QueryName) '|Struct|))) (Id ,SchemaVar)) ,Code))))
 
 
 (defun WhileQueryCode (Schema QueryName Select Given Stmt1)
@@ -412,12 +412,12 @@
         (CMatch `(* (Query ,(cadr QueryName) > P1 ? > P2 ?) *) InfoList)
         (setq Sel (Build '(<< P2)) Giv (Build '(<< P1)))
         (setq SchemaVar (GenerateName 'SchemaVar))
-        (setq Code `(ExprStmt (AssignOp (Access (Id ,SchemaVar) (Id First)) (Const "1"))))
+        (setq Code `(ExprStmt (AssignOp (Access (Id ,SchemaVar) (Id |First|)) (Const "1"))))
         (do ((Giv Giv (cdr Giv)) (Given Given (cdr Given))) ((null Giv))
             (cond ((equal (FindType(car Given)) 'String) 
                    (setq Code `(StmtList 
                                 ,Code (ExprStmt 
-                                       (FuncCallP (Id strcpy) 
+                                       (FuncCallP (Id |strcpy|) 
                                                   (ArgExpList (Access (Id ,SchemaVar) (Id ,(car Giv))) 
 																				  ,(ProcessCDBCode (car Given))))))))
                   (t
@@ -427,16 +427,16 @@
             (cond ((equal (FindType(car Select)) 'String) 
                    (setq Code `(StmtList 
                                 ,Code (ExprStmt 
-                                       (FuncCallP (Id strcpy) 
+                                       (FuncCallP (Id |strcpy|) 
                                                   (ArgExpList ,(car Select) 
 																				  (Access (Id ,SchemaVar) (Id ,(car Sel)))))))))
                   (t
                    (setq Code `(StmtList ,Code (ExprStmt (AssignOp ,(car Select) (Access (Id ,SchemaVar) (Id ,(car Sel))))))))))
-        (setq Code `(StmtList ,Code (IfStmt (Access (Id ,SchemaVar) (Id Result)) ,(ProcessCDBCode Stmt1))))
-        (setq Code `(While (Access (Id ,SchemaVar) (Id Result)) (CompndStmtWSList ,Code)))
-        (setq Code `(StmtList (ExprStmt (AssignOp (Access (Id ,SchemaVar) (Id Result)) (Const 1))) ,Code))
+        (setq Code `(StmtList ,Code (IfStmt (Access (Id ,SchemaVar) (Id |Result|)) ,(ProcessCDBCode Stmt1))))
+        (setq Code `(While (Access (Id ,SchemaVar) (Id |Result|)) (CompndStmtWSList ,Code)))
+        (setq Code `(StmtList (ExprStmt (AssignOp (Access (Id ,SchemaVar) (Id |Result|)) (Const 1))) ,Code))
         (return 
-         `(CompndStmtWDListSList (DeclSpecWVars (StructWId (Id ,(concat (cadr QueryName) 'Struct))) (Id ,SchemaVar)) ,Code))))
+         `(CompndStmtWDListSList (DeclSpecWVars (StructWId (Id ,(concat (cadr QueryName) '|Struct|))) (Id ,SchemaVar)) ,Code))))
 
 
 (defun IfElseQueryCode (Schema QueryName Select Given Stmt1 Stmt2)
@@ -444,12 +444,12 @@
         (CMatch `(* (Query ,(cadr QueryName) > P1 ? > P2 ?) *) InfoList)
         (setq Sel (Build '(<< P2)) Giv (Build '(<< P1)))
         (setq SchemaVar (GenerateName 'SchemaVar))
-        (setq Code `(ExprStmt (AssignOp (Access (Id ,SchemaVar) (Id First)) (Const "1"))))
+        (setq Code `(ExprStmt (AssignOp (Access (Id ,SchemaVar) (Id |First|)) (Const "1"))))
         (do ((Giv Giv (cdr Giv)) (Given Given (cdr Given))) ((null Giv))
             (cond ((equal (FindType(car Given)) 'String) 
                    (setq Code `(StmtList 
                                 ,Code (ExprStmt 
-                                       (FuncCallP (Id strcpy) 
+                                       (FuncCallP (Id |strcpy|) 
                                                   (ArgExpList (Access (Id ,SchemaVar) (Id ,(car Giv))) 
 																				  ,(ProcessCDBCode (car Given))))))))
                   (t
@@ -459,18 +459,18 @@
             (cond ((equal (FindType(car Select)) 'String) 
                    (setq Code `(StmtList 
                                 ,Code (ExprStmt 
-                                       (FuncCallP (Id strcpy) 
+                                       (FuncCallP (Id |strcpy|) 
                                                   (ArgExpList ,(car Select) 
 																				  (Access (Id ,SchemaVar) (Id ,(car Sel)))))))))
                   (t
                    (setq Code `(StmtList ,Code (ExprStmt (AssignOp ,(car Select) (Access (Id ,SchemaVar) (Id ,(car Sel))))))))))
         (cond ((null Stmt2)
-               (setq Code `(StmtList ,Code (IfStmt (Access (Id ,SchemaVar) (Id Result)) ,(ProcessCDBCode Stmt1)))))
+               (setq Code `(StmtList ,Code (IfStmt (Access (Id ,SchemaVar) (Id |Result|)) ,(ProcessCDBCode Stmt1)))))
               (t
-               (setq Code `(StmtList ,Code (IfElse (Access (Id ,SchemaVar) (Id Result)) 
+               (setq Code `(StmtList ,Code (IfElse (Access (Id ,SchemaVar) (Id |Result|)) 
                                                    ,(ProcessCDBCode Stmt1) ,(ProcessCDBCode Stmt2))))))
         (return 
-         `(CompndStmtWDListSList (DeclSpecWVars (StructWId (Id ,(concat (cadr QueryName) 'Struct))) (Id ,SchemaVar)) ,Code))))
+         `(CompndStmtWDListSList (DeclSpecWVars (StructWId (Id ,(concat (cadr QueryName) '|Struct|))) (Id ,SchemaVar)) ,Code))))
 
 
 (defun TransCode (TransName Parameters SchemaName)
@@ -499,10 +499,10 @@
         (cond ((equal (caadr Code) 'At)
                (CMatch `(* (Type ,(cadaddadr Code) > P1 *) *) InfoList)
                (return 
-                `(FuncCallP (Id ,(concat 'Access (car (Build '(< P1))) (cadaddr Code))) ,(AccessCode (cadr Code)))))
+                `(FuncCallP (Id ,(concat '|Access| (car (Build '(< P1))) (cadaddr Code))) ,(AccessCode (cadr Code)))))
               (t
                (return
-                `(FuncCallP (Id, (concat 'Access (PathFuncClass (cadr Code)) (cadaddr Code))) ,(cadr Code)))))))
+                `(FuncCallP (Id, (concat '|Access| (PathFuncClass (cadr Code)) (cadaddr Code))) ,(cadr Code)))))))
 
 
 (defun PropDeclCode (Name1 Name2)

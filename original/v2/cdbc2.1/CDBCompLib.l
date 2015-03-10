@@ -51,7 +51,7 @@
 (defun append1 (L e) (append L (list e)))
 (defun add1 (&rest args) (apply #'1+ args))
 (defun concat (&rest args)
-   (read-from-string (apply #'concatenate (cons 'string (mapcar #'symbol-name args)))))
+   (read-from-string (concatenate 'string "|" (apply #'concatenate (cons 'string (mapcar #'symbol-name args))) "|")))
 
 (defun RestoreList (L)
   (prog ()
@@ -101,7 +101,7 @@
 
 
 (defun ErrorMsg (L)
-  (prog (Temp)
+  (prog ()
         (do ((Temp L (cdr Temp))) ((null Temp))
             (princ (car Temp) *error-output*)
             (princ " " *error-output*))
@@ -119,7 +119,7 @@
   (prog ()
         (cond ((equal Name 'SchemaVar)
                (setq @SchemaVar (add1 @SchemaVar))
-               (return (intern (concatenate 'string "CDBSCHEMAVAR" (write-to-string @SchemaVar))))))))
+               (return (concat '|CDBCSchemaVar| (make-symbol (write-to-string @SchemaVar))))))))
 
 
 (defun GenStructDeclCode (Name1 Name2 Name3)
