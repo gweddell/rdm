@@ -1,0 +1,25 @@
+Changes that were made when porting from Franz Lisp to Common Lisp
+------------------------------------------------------------------
+
+Refactor if statement to remove else and elseif, using progn when appropriate
+Refactor do loop with new syntax (extra parentheses)
+
+Rename variables named 'T' to something else (eg. 'S')
+Rename Class, Or, And, Not, EQ, Apply, Delete, List, Array to gClass, gOr, gAnd, gNot, gEQ, gApply, gDelete, gList, gArray
+Rename Type to ExpressionType
+Rename Substitute to SubstituteVar
+
+Put # before an anonymous function
+
+Replace assq with assoc
+Replace caseq with case
+Replace memq with member
+Replace remq with remove
+Replace delq with delete
+Replace patom with princ
+
+Replace readlist and exploden
+An interned gensym can be generated using gentemp
+Change argument of gensym to take string instead of symbol
+
+Redefine add, diff, etc. with +, -, etc. Do NOT replace add, diff, minus, times, etc. with CL counterparts, because pattern matcher uses these symbols.
