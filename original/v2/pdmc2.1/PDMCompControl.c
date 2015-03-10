@@ -49,7 +49,7 @@ char *argv[], *envp[];
 		OutputFileName[Counter] = PDMFileName[Counter];
 	OutputFileName[Counter] = '\0';
 	char* SchemaName = strdup(OutputFileName);
-	sprintf(Command, "echo  %s > pdmc.schemaname", basename(SchemaName));
+	sprintf(Command, "echo \\|%s\\| > pdmc.schemaname", basename(SchemaName));
 	free(SchemaName);
 	CSystem(Command);
 

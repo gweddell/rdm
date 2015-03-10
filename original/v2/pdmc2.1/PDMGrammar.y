@@ -495,12 +495,12 @@ PDMNameSeq
 
 Identifier
       : ID
-         { printf("%s ", yytext); }
+         { printf("|%s| ", yytext); }
       ;
 
 Id
       : ID
-         { printf("%s Id 1 ", yytext); }
+         { printf("|%s| Id 1 ", yytext); }
       ;
 
 PDMNumber

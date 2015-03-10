@@ -24,7 +24,7 @@
 
 (defun MAIN ()
   (prog (HeaderCode PDMCode Port)
-	(setq InfoList '((Reference StoreTemplate Direct)))
+	(setq InfoList '((Reference |StoreTemplate| Direct)))
         (setq InlineFlag 1
               @SchemaVar 0
               @Dummy 0
@@ -193,7 +193,7 @@
                    (CMatch `(* (Reference ,Class > P1) *) InfoList)
                    (CMatch `(* (Type ,Property > P2 *) *) InfoList)
                    (setq Reference (car (Build '(< P1))) Type (car (Build '(< P2))))
-                   (setq TempCode1 `(FuncVarWPIdList (Id ,(concat 'Access Class Property)) (Id P)))
+                   (setq TempCode1 `(FuncVarWPIdList (Id ,(concat '|Access| Class Property)) (Id P)))
                    (setq TempCode1 (GenStructDeclCode TempCode1 Property 'InlineFuncDefnWDeclSpec))
                    (cond ((equal Reference 'Direct)
                           (setq TempCode2 `(CompndStmtWSList (ReturnWExp (PrimExp (FieldAcc (Id P) (Id ,Property)))))))
@@ -203,31 +203,31 @@
                    (setq TempCode2 `(FuncBodyWDeclList ,(GenStructDeclCode 'P Class 'DeclSpecWVars) ,TempCode2))
                    (setq Code `(File ,Code ,(append1 TempCode1 TempCode2)))
                    (setq TempCode1 
-                         `(DeclList ,(GenStructDeclCode 'P Class 'DeclSpecWVars) ,(GenStructDeclCode 'Val Property 'DeclSpecWVars)))
+                         `(DeclList ,(GenStructDeclCode 'P Class 'DeclSpecWVars) ,(GenStructDeclCode '|Val| Property 'DeclSpecWVars)))
                    (cond ((equal Reference 'Direct)
                           (cond ((equal Type 'String)
                                  (setq TempCode2 
                                        `(CompndStmtWSList  
                                          (ExprStmt 
-                                          (FuncCallP (Id strcpy) (ArgExpList (FieldAcc (Id P) (Id ,Property)) (Id Val)))))))
+                                          (FuncCallP (Id |strcpy|) (ArgExpList (FieldAcc (Id P) (Id ,Property)) (Id |Val|)))))))
                                 (t
                                  (setq TempCode2 
-                                       `(CompndStmtWSList (ExprStmt (AssignOp (FieldAcc (Id P) (Id ,Property)) (Id Val))))))))
+                                       `(CompndStmtWSList (ExprStmt (AssignOp (FieldAcc (Id P) (Id ,Property)) (Id |Val|))))))))
                          (t
                           (cond ((equal Type 'String)
                                  (setq TempCode2 
                                        `(CompndStmtWSList  
                                          (ExprStmt 
-                                          (FuncCallP (Id strcpy) 
-                                                     (ArgExpList (FieldAcc (PrimExp (BangOp (Id P))) (Id ,Property)) (Id Val)))))))
+                                          (FuncCallP (Id |strcpy|) 
+                                                     (ArgExpList (FieldAcc (PrimExp (BangOp (Id P))) (Id ,Property)) (Id |Val|)))))))
                                 (t
                                  (setq TempCode2 
                                        `(CompndStmtWSList 
-                                         (ExprStmt (AssignOp (FieldAcc (PrimExp (BangOp (Id P))) (Id ,Property)) (Id Val)))))))))
+                                         (ExprStmt (AssignOp (FieldAcc (PrimExp (BangOp (Id P))) (Id ,Property)) (Id |Val|)))))))))
                    (setq Code `(File ,Code
                                      (InlineFuncDefnWDeclSpec
                                       (VoidType)
-                                      (FuncVarWPIdList (Id ,(concat 'Assign Class Property)) (IdList (Id P) (Id Val)))
+                                      (FuncVarWPIdList (Id ,(concat '|Assign| Class Property)) (IdList (Id P) (Id |Val|)))
                                       (FuncBodyWDeclList ,TempCode1 ,TempCode2)))))))
         (return Code)))
 
@@ -247,11 +247,11 @@
               `(File ,Code (File 
                             (File
                              (Comment "Structure for Store") 
-                             (DeclSpecWVars (IntType) (InitDecl (PtrVar (Ptr) (Id PDMCellStore)) (Const "0"))))
-                            (DeclSpec (StructWIdDecl (Id StoreTemplate) 
-                                                     (StructDecl (StructWId (Id StoreTemplate)) (PtrVar (Ptr) (Id Next))))))))
+                             (DeclSpecWVars (IntType) (InitDecl (PtrVar (Ptr) (Id |PDMCellStore|)) (Const "0"))))
+                            (DeclSpec (StructWIdDecl (Id |StoreTemplate|) 
+                                                     (StructDecl (StructWId (Id |StoreTemplate|)) (PtrVar (Ptr) (Id |Next|))))))))
         (do ((StoreList StoreList (cdr StoreList))) ((null StoreList))
-            (setq Code `(File ,Code (DefineStore ,(concat (cadar StoreList) 'Size) ,(RestoreList (cadddar StoreList))))))
+            (setq Code `(File ,Code (DefineStore ,(concat (cadar StoreList) '|Size|) ,(RestoreList (cadddar StoreList))))))
         (return Code)))
 
 
@@ -272,12 +272,12 @@
                   S2 (RestoreList (caddadddar Query))
                   D1 (RestoreList (cadaddddar Query)) 
                   D2 (RestoreList (caddaddddar Query))
-                  Temp `(StructDeclList (StructDecl (IntType) (Id First)) (StructDecl (IntType) (Id Result))))
+                  Temp `(StructDeclList (StructDecl (IntType) (Id |First|)) (StructDecl (IntType) (Id |Result|))))
             (do ((CutList (FindCutVar (cadddddar Query)) (cdr CutList))) ((null CutList))
-                (setq Temp `(StructDeclList ,Temp (StructDecl (IntType) (Id ,(concat (car CutList) 'Cut))))))
+                (setq Temp `(StructDeclList ,Temp (StructDecl (IntType) (Id ,(concat (car CutList) '|Cut|))))))
             (do ((G1 (append G1 S1 D1) (cdr G1)) (G2 (append G2 S2 D2) (cdr G2))) ((null G1))
                 (setq Temp `(StructDeclList ,Temp ,(GenStructDeclCode (car G1) (car G2) 'StructDecl))))
-            (setq Code `(File ,Code (DeclSpec (StructWIdDecl (Id ,(concat Name 'Struct)) ,Temp)))))
+            (setq Code `(File ,Code (DeclSpec (StructWIdDecl (Id ,(concat Name '|Struct|)) ,Temp)))))
         (return Code)))
 
 
@@ -313,9 +313,9 @@
 
             ;function header
             (cond ((null (cadaddar PDMTrans))
-                   (setq FuncHead `(FuncVarWPIdList (Id ,(cadar PDMTrans)) (Id PDMCSchema))))
+                   (setq FuncHead `(FuncVarWPIdList (Id ,(cadar PDMTrans)) (Id |PDMCSchema|))))
                   (t
-                   (setq FuncHead `(FuncVarWPIdList (Id ,(cadar PDMTrans)) (IdList (Id PDMCSchema) ,(cadaddar PDMTrans))))))
+                   (setq FuncHead `(FuncVarWPIdList (Id ,(cadar PDMTrans)) (IdList (Id |PDMCSchema|) ,(cadaddar PDMTrans))))))
             (cond ((equal (caaddddar PDMTrans) 'Procedure)
                    (setq FuncHead `(InlineFuncDefnWDeclSpec (VoidType) ,FuncHead)))
                   (t
@@ -329,7 +329,7 @@
                    (setq FuncHead (GenStructDeclCode FuncHead Temp1 'InlineFuncDefnWDeclSpec))))
 
             ;parameter declarations
-            (setq ParaDecl `(DeclSpecWVars (StructWId (Id ,(concat SchemaName 'Struct))) (PtrVar (Ptr) (Id PDMCSchema))))
+            (setq ParaDecl `(DeclSpecWVars (StructWId (Id ,(concat SchemaName '|Struct|))) (PtrVar (Ptr) (Id |PDMCSchema|))))
             (setq List1 (RestoreList (cadaddar PDMTrans)))
             (setq List2 (RestoreList (caddaddar PDMTrans)))
             (do ((List1 List1 (cdr List1)) (List2 List2 (cdr List2))) ((null List1))
@@ -423,13 +423,13 @@
 (defun TransInitIndex (Action)
   (prog ()
 		  (return
-			`(ExprStmt (AssignOp (FieldAcc (Id PDMCSchema) (Id ,(concat (cadadr Action) 'Head))) (Const "0"))))))
+			`(ExprStmt (AssignOp (FieldAcc (Id |PDMCSchema|) (Id ,(concat (cadadr Action) '|Head|))) (Const "0"))))))
 	
 
 (defun TransInitStore (Action)
   (prog ()
 		  (return
-			`(ExprStmt (AssignOp (FieldAcc (Id PDMCSchema) (Id ,(cadadr Action))) (Const "0"))))))
+			`(ExprStmt (AssignOp (FieldAcc (Id |PDMCSchema|) (Id ,(cadadr Action))) (Const "0"))))))
 
 
 (defun TransCopy (Action) 
@@ -439,7 +439,7 @@
 
         (return 
          `(ExprStmt 
-           (FuncCallP (Id ,(concat 'Copy (cadadddr Action))) (ParamList (Id PDMCSchema) (ParamList ,(cadr Action) ,(caddr Action))))))))
+           (FuncCallP (Id ,(concat '|Copy| (cadadddr Action))) (ParamList (Id |PDMCSchema|) (ParamList ,(cadr Action) ,(caddr Action))))))))
 
 
 
@@ -452,11 +452,11 @@
 
         (CMatch `(* (IndexSpec ,(cadaddr Action) ? ? ? ? > P1) *) InfoList)
         (cond ((null (car (Build '(< P1))))
-               (return `(ExprStmt (FuncCallP (Id ,(concat 'Add (cadaddr Action))) (ParamList (Id PDMCSchema) ,(cadr Action))))))
+               (return `(ExprStmt (FuncCallP (Id ,(concat '|Add| (cadaddr Action))) (ParamList (Id |PDMCSchema|) ,(cadr Action))))))
               (t
-               (return `(ExprStmt (FuncCallP (Id ,(concat 'Add (cadaddr Action))) 
-                                             (ParamList (ParamList (Id PDMCSchema) ,(cadr Action))
-                                                        (Id ,(concat (cadaddr Action) 'Compare))))))))))
+               (return `(ExprStmt (FuncCallP (Id ,(concat '|Add| (cadaddr Action))) 
+                                             (ParamList (ParamList (Id |PDMCSchema|) ,(cadr Action))
+                                                        (Id ,(concat (cadaddr Action) '|Compare|))))))))))
 
 
 (defun TransRemove (Action) 
@@ -466,25 +466,25 @@
 
         (CMatch `(* (IndexSpec ,(cadaddr Action) ? ? ? ? > P1) *) InfoList)
         (cond ((null (car (Build '(< P1))))
-               (return `(ExprStmt (FuncCallP (Id ,(concat 'Sub (cadaddr Action))) (ParamList (Id PDMCSchema) ,(cadr Action))))))
+               (return `(ExprStmt (FuncCallP (Id ,(concat '|Sub| (cadaddr Action))) (ParamList (Id |PDMCSchema|) ,(cadr Action))))))
               (t
-               (return `(ExprStmt (FuncCallP (Id ,(concat 'Sub (cadaddr Action))) 
-                                             (ParamList (ParamList (Id PDMCSchema) ,(cadr Action))
-                                                        (Id ,(concat (cadaddr Action) 'Compare))))))))))
+               (return `(ExprStmt (FuncCallP (Id ,(concat '|Sub| (cadaddr Action))) 
+                                             (ParamList (ParamList (Id |PDMCSchema|) ,(cadr Action))
+                                                        (Id ,(concat (cadaddr Action) '|Compare|))))))))))
 
 
 (defun TransCreate (Action)
   (cond ((equal (caadr Action) 'AS)
          (setq Action (list (car Action) (cadadr Action) (caddr Action)))))
 
-  `(ExprStmt (FuncCallP (Id ,(concat 'Create (cadaddr Action))) (ParamList (Id PDMCSchema) ,(cadr Action)))))
+  `(ExprStmt (FuncCallP (Id ,(concat '|Create| (cadaddr Action))) (ParamList (Id |PDMCSchema|) ,(cadr Action)))))
 
                
 (defun TransDestroy (Action)
   (cond ((equal (caadr Action) 'AS)
          (setq Action (list (car Action) (cadadr Action) (caddr Action)))))
 
-  `(ExprStmt (FuncCallP (Id ,(concat 'Destroy (cadaddr Action))) (ParamList (Id PDMCSchema) ,(cadr Action)))))
+  `(ExprStmt (FuncCallP (Id ,(concat '|Destroy| (cadaddr Action))) (ParamList (Id |PDMCSchema|) ,(cadr Action)))))
 
 
 (defun TransAllocate (Action List1 List2)
@@ -499,16 +499,16 @@
         (setq Var (cadr Action) Store (cadaddr Action) StructName Temp)
         (CMatch `(* (Msc ,Temp > P2 > P3) *) InfoList)
         (return `(StmtList
-                  (IfElse (EqPred (FieldAcc (Id PDMCSchema) (Id ,Store)) (Const "0"))
+                  (IfElse (EqPred (FieldAcc (Id |PDMCSchema|) (Id ,Store)) (Const "0"))
                           (ExprStmt (AssignOp ,Var (CastExp (TypeSpecListWAbsDecl (StructWId (Id ,StructName)) (Ptr)) 
-                                                            (FuncCallP (Id malloc) (Id ,(concat Store 'Size))))))
+                                                            (FuncCallP (Id |malloc|) (Id ,(concat Store '|Size|))))))
                           (CompndStmtWSList
                            (StmtList
                             (ExprStmt (AssignOp ,Var (CastExp (TypeSpecListWAbsDecl (StructWId (Id ,StructName)) (Ptr)) 
-                                                              (PrimExp (FieldAcc (Id PDMCSchema) (Id ,Store))))))
-                            (ExprStmt (AssignOp (FieldAcc (Id PDMCSchema) (Id ,Store)) 
-                                                (FieldAcc (Id PDMCSchema) (FieldAcc (Id ,Store) (Id Next))))))))
-                  (ExprStmt (FuncCallP (Id ,(concat 'Assign StructName 'Msc)) (ParamList ,Var (Const ,(car (Build '(< P2)))))))))))
+                                                              (PrimExp (FieldAcc (Id |PDMCSchema|) (Id ,Store))))))
+                            (ExprStmt (AssignOp (FieldAcc (Id |PDMCSchema|) (Id ,Store)) 
+                                                (FieldAcc (Id |PDMCSchema|) (FieldAcc (Id ,Store) (Id |Next|))))))))
+                  (ExprStmt (FuncCallP (Id ,(concat '|Assign| StructName '|Msc|)) (ParamList ,Var (Const ,(car (Build '(< P2)))))))))))
 
 
 
@@ -525,17 +525,17 @@
         (setq Var (cadr Action) Store (cadaddr Action) StructName Temp)
         (CMatch `(* (Msc ,Temp > P2 > P3) *) InfoList)
         (return `(StmtList
-                  (IfElse (EqPred (FieldAcc (Id PDMCSchema) (Id ,Store)) (Const "0"))
+                  (IfElse (EqPred (FieldAcc (Id |PDMCSchema|) (Id ,Store)) (Const "0"))
                           (ExprStmt (AssignOp (PrimExp (BangOp ,Var)) (CastExp (TypeSpecListWAbsDecl (StructWId (Id ,StructName)) (Ptr)) 
-                                                            (FuncCallP (Id malloc) (Id ,(concat Store 'Size))))))
+                                                            (FuncCallP (Id |malloc|) (Id ,(concat Store '|Size|))))))
                           (CompndStmtWSList
                            (StmtList
                             (ExprStmt 
 									  (AssignOp (PrimExp (BangOp ,Var)) (CastExp (TypeSpecListWAbsDecl (StructWId (Id ,StructName)) (Ptr)) 
-                                                              (PrimExp (FieldAcc (Id PDMCSchema) (Id ,Store))))))
-                            (ExprStmt (AssignOp (FieldAcc (Id PDMCSchema) (Id ,Store)) 
-                                                (FieldAcc (Id PDMCSchema) (FieldAcc (Id ,Store) (Id Next))))))))
-                  (ExprStmt (FuncCallP (Id ,(concat 'Assign StructName 'Msc)) (ParamList ,Var (Const ,(car (Build '(< P2)))))))))))
+                                                              (PrimExp (FieldAcc (Id |PDMCSchema|) (Id ,Store))))))
+                            (ExprStmt (AssignOp (FieldAcc (Id |PDMCSchema|) (Id ,Store)) 
+                                                (FieldAcc (Id |PDMCSchema|) (FieldAcc (Id ,Store) (Id |Next|))))))))
+                  (ExprStmt (FuncCallP (Id ,(concat '|Assign| StructName '|Msc|)) (ParamList ,Var (Const ,(car (Build '(< P2)))))))))))
 
 
 (defun TransAllocId (Action List1 List2)
@@ -550,16 +550,16 @@
 
         (setq Var (cadr Action) StructName Temp)
 
-        (return  `(IfElse (EqPred (Id PDMCellStore) (Const "0"))
+        (return  `(IfElse (EqPred (Id |PDMCellStore|) (Const "0"))
                           (ExprStmt 
 									(AssignOp ,Var (CastExp (TypeSpecListWAbsDecl (StructWId (Id ,StructName)) (PtrPtr (Ptr))) 
-																	(FuncCallP (Id malloc) (SizeTypeOp (TypeSpecListWAbsDecl (IntType) (Ptr))))))) 
+																	(FuncCallP (Id |malloc|) (SizeTypeOp (TypeSpecListWAbsDecl (IntType) (Ptr))))))) 
                           (CompndStmtWSList
                            (StmtList
                             (ExprStmt (AssignOp ,Var (CastExp (TypeSpecListWAbsDecl (StructWId (Id ,StructName)) (PtrPtr (Ptr)))
-                                                              (Id PDMCellStore))))
-                            (ExprStmt (AssignOp (Id PDMCellStore) 
-																(CastExp (TypeSpecListWAbsDecl (IntType) (Ptr)) (BangOp (Id PDMCellStore)))))))))))
+                                                              (Id |PDMCellStore|))))
+                            (ExprStmt (AssignOp (Id |PDMCellStore|) 
+																(CastExp (TypeSpecListWAbsDecl (IntType) (Ptr)) (BangOp (Id |PDMCellStore|)))))))))))
 
 
 (defun TransFree (Action)
@@ -573,10 +573,10 @@
 
 (defun TransFreeCode (Var Store)
   `(StmtList
-    (ExprStmt (AssignOp (FieldAcc (PrimExp (CastExp (TypeSpecListWAbsDecl (StructWId (Id StoreTemplate)) (Ptr)) ,Var)) (Id Next)) 
-                        (FieldAcc (Id PDMCSchema) ,Store)))
-    (ExprStmt (AssignOp (FieldAcc (Id PDMCSchema) ,Store) 
-								(CastExp (TypeSpecListWAbsDecl (StructWId (Id StoreTemplate)) (Ptr)) ,Var)))))
+    (ExprStmt (AssignOp (FieldAcc (PrimExp (CastExp (TypeSpecListWAbsDecl (StructWId (Id |StoreTemplate|)) (Ptr)) ,Var)) (Id |Next|)) 
+                        (FieldAcc (Id |PDMCSchema|) ,Store)))
+    (ExprStmt (AssignOp (FieldAcc (Id |PDMCSchema|) ,Store) 
+								(CastExp (TypeSpecListWAbsDecl (StructWId (Id |StoreTemplate|)) (Ptr)) ,Var)))))
 
 
 
@@ -593,12 +593,12 @@
   `(StmtList
     (ExprStmt 
      (AssignOp (FieldAcc 
-					 (PrimExp (CastExp (TypeSpecListWAbsDecl (StructWId (Id StoreTemplate)) (Ptr)) (PrimExp (BangOp ,Var)))) (Id Next)) 
-					(FieldAcc (Id PDMCSchema) ,Store)))
+					 (PrimExp (CastExp (TypeSpecListWAbsDecl (StructWId (Id |StoreTemplate|)) (Ptr)) (PrimExp (BangOp ,Var)))) (Id |Next|)) 
+					(FieldAcc (Id |PDMCSchema|) ,Store)))
 	 (ExprStmt 
 	  (AssignOp 
-		(FieldAcc (Id PDMCSchema) ,Store) 
-		(CastExp (TypeSpecListWAbsDecl (StructWId (Id StoreTemplate)) (Ptr)) (PrimExp (BangOp ,Var)))))))
+		(FieldAcc (Id |PDMCSchema|) ,Store) 
+		(CastExp (TypeSpecListWAbsDecl (StructWId (Id |StoreTemplate|)) (Ptr)) (PrimExp (BangOp ,Var)))))))
 
 
 
@@ -610,17 +610,17 @@
 									 (AssignOp (BangOp ,(cadr Action))
 												  (CastExp 
 													(TypeSpecListWAbsDecl (StructWId (Id ,(PathFuncClass (cadr Action)))) (Ptr)) 
-													(Id PDMCellStore))))
-									(ExprStmt (AssignOp (Id PDMCellStore) (CastExp (TypeSpecListWAbsDecl (IntType) (Ptr)) ,(cadr Action)))))))
+													(Id |PDMCellStore|))))
+									(ExprStmt (AssignOp (Id |PDMCellStore|) (CastExp (TypeSpecListWAbsDecl (IntType) (Ptr)) ,(cadr Action)))))))
               (t
                (return
                 `(StmtList 
 						(ExprStmt
 						 (AssignOp (BangOp ,(cadadr Action))
 									  (CastExp (TypeSpecListWAbsDecl (StructWId (Id ,(PathFuncClass (cadadr Action)))) (Ptr)) 
-												  (Id PDMCellStore))))
+												  (Id |PDMCellStore|))))
 						(ExprStmt 
-						 (AssignOp (Id PDMCellStore) (CastExp (TypeSpecListWAbsDecl (IntType) (Ptr)) ,(cadadr Action))))))))))
+						 (AssignOp (Id |PDMCellStore|) (CastExp (TypeSpecListWAbsDecl (IntType) (Ptr)) ,(cadadr Action))))))))))
 
 
 (defun TransIf (Action List1 List2)
@@ -654,12 +654,12 @@
         (cond ((equal (car Pred) 'INPred)
                (return 
                (ProcessIndexSpecCode (list 'BitAndOp 
-                      (list 'At (cadr Pred) '(Id Msc)) 
+                      (list 'At (cadr Pred) '(Id |Msc|)) 
                       (cons 'Constant (cons 'Integer (Build '(< P2))))))))
               ((equal (car Pred) 'ISPred)
                (return 
               (ProcessIndexSpecCode  (list 'EqPred 
-                      (list 'At (cadr Pred) '(Id Msc)) 
+                      (list 'At (cadr Pred) '(Id |Msc|)) 
                       (cons 'Constant (cons 'Integer (Build '(< P1))))))))
               (t
                (PrintMsg "*****warning: from CheckMscPred")))))
@@ -692,7 +692,7 @@
                (do ((L1 L1 (cdr L1)) (L2 L2 (cdr L2))) ((null L1))
                    (cond ((equal (cadadar Code) (car L1)) (setq Temp (car L2)))))
 
-               (return `(ExprStmt (FuncCallP (Id ,(concat `Assign Temp (cadaddar Code))) 
+               (return `(ExprStmt (FuncCallP (Id ,(concat '|Assign| Temp (cadaddar Code))) 
                                              (ParamList ,(cadar Code) ,(ProcessIndexSpecCode (cadr Code))))))))))
 
 
@@ -769,7 +769,7 @@
            ;;set up BodyList (produce actual code for each operation like "IndexInit", "Select"....)
            (setq BodyList (list (list 3 (SetRefer 2 'Put) '(2) 
                                       `(StmtList 
-                                        (ExprStmt (AssignOp (FieldAcc (Id PDMCQStruct) (Id Result)) (Const "1")))
+                                        (ExprStmt (AssignOp (FieldAcc (Id |PDMCQStruct|) (Id |Result|)) (Const "1")))
                                         (ReturnStmt)))))
 
            (do ((NodeList NodeList (cdr NodeList))) ((null NodeList))
@@ -811,13 +811,13 @@
 
            (setq BodyCode `(StmtList 
                             (StmtList 
-                             (If (EqPred (FieldAcc (Id PDMCQStruct) (Id First)) (Const "0")) (Goto (Id 2)))
-                             (ExprStmt (AssignOp (FieldAcc (Id PDMCQStruct) (Id First)) (Const "0"))))
+                             (If (EqPred (FieldAcc (Id |PDMCQStruct|) (Id |First|)) (Const "0")) (Goto (Id 2)))
+                             (ExprStmt (AssignOp (FieldAcc (Id |PDMCQStruct|) (Id |First|)) (Const "0"))))
                             ,BodyCode))
 
            (setq BodyCode `(StmtList ,BodyCode 
                                     (LabeledStmt (Id ,(caddddr ExternalPoints)) 
-                                                 (StmtList (ExprStmt (AssignOp (FieldAcc (Id PDMCQStruct) (Id Result)) (Const "0")))
+                                                 (StmtList (ExprStmt (AssignOp (FieldAcc (Id |PDMCQStruct|) (Id |Result|)) (Const "0")))
                                                            (ReturnStmt)))))
 
            ;;change number labels to actual labels
@@ -826,11 +826,11 @@
         
            (setq Code `(File ,Code
                              (InlineFuncDefnWDeclSpec 
-                              (VoidType) (FuncVarWPIdList (Id ,CurrentQuery) (IdList (Id PDMCSchema) (Id PDMCQStruct)))
+                              (VoidType) (FuncVarWPIdList (Id ,CurrentQuery) (IdList (Id |PDMCSchema|) (Id |PDMCQStruct|)))
                               (FuncBodyWDeclList 
                                (DeclList 
-                                (DeclSpecWVars (StructWId (Id ,(concat SchemaName 'Struct))) (PtrVar (Ptr) (Id PDMCSchema)))
-                                (DeclSpecWVars (StructWId (Id ,(concat CurrentQuery 'Struct))) (PtrVar (Ptr) (Id PDMCQStruct))))
+                                (DeclSpecWVars (StructWId (Id ,(concat SchemaName '|Struct|))) (PtrVar (Ptr) (Id |PDMCSchema|)))
+                                (DeclSpecWVars (StructWId (Id ,(concat CurrentQuery '|Struct|))) (PtrVar (Ptr) (Id |PDMCQStruct|))))
                                (CompndStmtWSList ,BodyCode))))))
        (return Code)))
 
@@ -864,8 +864,8 @@
                                         (append1 NodeList (list 'Cut In1 Temp1 
                                                                 `(ExprStmt 
                                                                   (AssignOp 
-                                                                   (FieldAcc (Id PDMCQStruct) 
-                                                                             (Id ,(concat (cadr QueryBody) 'Cut))) 
+                                                                   (FieldAcc (Id |PDMCQStruct|) 
+                                                                             (Id ,(concat (cadr QueryBody) '|Cut|))) 
                                                                    (Const "1")))))))) 
 
               ((equal 'NullTuple (car QueryBody))
@@ -876,7 +876,7 @@
                       (cond ((equal (caadr QueryBody) 'At) (PrintMsg "*****warning: from TravelQueryBody")))
                       (setq Temp1 (ProcessIndexSpecCode `(ExprStmt (AssignOp ,(cadr QueryBody) ,(caddr QueryBody))))) 
                       (do ((Temp2 (car ScopeList) (cdr Temp2))) ((null Temp2))
-                          (setq Temp1 (subst `(FieldAcc (Id PDMCQStruct) (Id ,(caar Temp2)) :test #'equal) `(Id ,(caar Temp2)) Temp1)))
+                          (setq Temp1 (subst `(FieldAcc (Id |PDMCQStruct|) (Id ,(caar Temp2)) :test #'equal) `(Id ,(caar Temp2)) Temp1)))
                       
                       (setq Temp1
                             (append1 
@@ -896,7 +896,7 @@
                                          (PrimExp
                                           (BitAndOp
                                            (FuncCallP 
-                                            (Id ,(concat 'Access (PathFuncClass (caddr QueryBody)) 'Msc))
+                                            (Id ,(concat '|Access| (PathFuncClass (caddr QueryBody)) '|Msc|))
                                             ,(ProcessIndexSpecCode (caddr QueryBody)))
                                            (Const ,(car (Build '(< P2))))))
                                          (Const "0"))
@@ -909,7 +909,7 @@
                                           (Goto (Id ,In3)))))))
 
                       (do ((Temp2 (car ScopeList) (cdr Temp2))) ((null Temp2))
-                          (setq Temp1 (subst `(FieldAcc (Id PDMCQStruct) (Id ,(caar Temp2))) `(Id ,(caar Temp2)) Temp1 :test #'equal)))
+                          (setq Temp1 (subst `(FieldAcc (Id |PDMCQStruct|) (Id ,(caar Temp2))) `(Id ,(caar Temp2)) Temp1 :test #'equal)))
 
 
                      
@@ -946,7 +946,7 @@
         (setq FuncName Command)
 
         (cond ((and (not (null DistributedOn)) (not (null CondClause)))
-               (setq FuncName (concat 'Dist Command))
+               (setq FuncName (concat '|Dist| Command))
                (cond ((equal (car CondClause) 'AndPred)
                       (setq DistributedCond (cadr CondClause))
                       (setq CondClause (caddr CondClause)))
@@ -956,12 +956,12 @@
 
         (cond ((not (null OrderBy))
                (setq Argument 
-							`(ArgExpList (Id ,(SetSpecialCompareFunc (cadaddaddddr Node) CondClause)) (Id PDMCQStruct)))))
+							`(ArgExpList (Id ,(SetSpecialCompareFunc (cadaddaddddr Node) CondClause)) (Id |PDMCQStruct|)))))
 
         (cond ((member FuncName '(DistInit DistNext))
                (setq Temp (ProcessIndexSpecCode (caddr DistributedCond)))
                (do ((ScopeList (car ScopeList) (cdr ScopeList))) ((null ScopeList))
-                   (setq Temp (subst `(FieldAcc (Id PDMCQStruct) (Id ,(caar ScopeList))) `(Id ,(caar ScopeList)) Temp :test #'equal)))
+                   (setq Temp (subst `(FieldAcc (Id |PDMCQStruct|) (Id ,(caar ScopeList))) `(Id ,(caar ScopeList)) Temp :test #'equal)))
                (cond ((null Argument)
                       (setq Argument Temp))
                      (t
@@ -969,10 +969,10 @@
 
         (cond ((null Argument)
                (setq Argument 
-                     `(ArgExpList (Id PDMCSchema) (AddrOp (PrimExp (FieldAcc (Id PDMCQStruct) (Id ,(cadadaddddr Node))))))))
+                     `(ArgExpList (Id |PDMCSchema|) (AddrOp (PrimExp (FieldAcc (Id |PDMCQStruct|) (Id ,(cadadaddddr Node))))))))
               (t
-               (setq Argument `(ArgExpList (Id PDMCSchema) 
-                                        (ArgExpList (AddrOp (PrimExp (FieldAcc (Id PDMCQStruct) (Id ,(cadadaddddr Node)))))
+               (setq Argument `(ArgExpList (Id |PDMCSchema|) 
+                                        (ArgExpList (AddrOp (PrimExp (FieldAcc (Id |PDMCQStruct|) (Id ,(cadadaddddr Node)))))
                                                     ,Argument)))))
         (cond ((member FuncName '(Init DistInit))
                (return
@@ -981,7 +981,7 @@
                  (SetRefer (cadddr Node) 'Put)
                  (list (cadddr Node) (caddr Node))
                  `(StmtList
-                   (ExprStmt (AssignOp (FieldAcc (Id PDMCQStruct) (Id ,(concat (cadadaddddr Node) 'Cut))) (Const "0")))
+                   (ExprStmt (AssignOp (FieldAcc (Id |PDMCQStruct|) (Id ,(concat (cadadaddddr Node) '|Cut|))) (Const "0")))
                    (If (FuncCallP (Id ,(concat FuncName (cadaddaddddr Node))) ,Argument)
                        (Goto (Id ,(SetRefer (caddr Node) 'Put))))))))
               (t
@@ -991,7 +991,7 @@
                  (SetRefer (cadddr Node) 'Put)
                  (list (cadddr Node) (cadddr Node) (caddr Node))
                  `(StmtList 
-                   (If (FieldAcc (Id PDMCQStruct) (Id ,(concat (cadadaddddr Node) 'Cut)))
+                   (If (FieldAcc (Id |PDMCQStruct|) (Id ,(concat (cadadaddddr Node) '|Cut|)))
                        (Goto (Id ,(SetRefer (cadddr Node) 'Put))))
                    (If (FuncCallP (Id ,(concat FuncName (cadaddaddddr Node))) ,Argument)
                        (Goto (Id ,(SetRefer (caddr Node) 'Put)))))))))))
@@ -1071,7 +1071,7 @@
                    (setq Code
                          `(InlineFuncDefnWDeclSpec 
                            (IntType)
-                           (FuncVarWPIdList (Id ,(concat IndexName 'Compare))
+                           (FuncVarWPIdList (Id ,(concat IndexName '|Compare|))
                                             (IdList (Id P1) (Id P2)))
                            (FuncBodyWDeclList
                             ,(ProcessIndexSpecCode 
@@ -1098,9 +1098,9 @@
                       (return
                        `(IfElse
                          (OrPred
-                          (PrimExp (EqPred (PrimExp (BitAndOp (FuncCallP (Id ,(concat 'Access OnClass 'Msc)) (Id P1))
+                          (PrimExp (EqPred (PrimExp (BitAndOp (FuncCallP (Id ,(concat '|Access| OnClass '|Msc|)) (Id P1))
                                                               (Const ,(car (Build '(< P3)))))) (Const "0")))
-                          (PrimExp (EqPred (PrimExp (BitAndOp (FuncCallP (Id ,(concat 'Access OnClass 'Msc)) (Id P2))
+                          (PrimExp (EqPred (PrimExp (BitAndOp (FuncCallP (Id ,(concat '|Access| OnClass '|Msc|)) (Id P2))
                                                               (Const ,(car (Build '(< P3)))))) (Const "0"))))
                          (CompndStmtWSList
                           (StmtList
@@ -1108,11 +1108,11 @@
                             (StmtList
                              (StmtList
                               (If
-                               (NEPred (PrimExp (BitAndOp (FuncCallP (Id ,(concat 'Access OnClass 'Msc)) (Id P1))
+                               (NEPred (PrimExp (BitAndOp (FuncCallP (Id ,(concat '|Access| OnClass '|Msc|)) (Id P1))
                                                           (Const ,(car (Build '(< P3)))))) (Const "0"))
                                (ReturnWExp (PrimExp (UnSubOp (Const "1")))))
                               (If
-                               (NEPred (PrimExp (BitAndOp (FuncCallP (Id ,(concat 'Access OnClass 'Msc)) (Id P2))
+                               (NEPred (PrimExp (BitAndOp (FuncCallP (Id ,(concat '|Access| OnClass '|Msc|)) (Id P2))
                                                           (Const ,(car (Build '(< P3)))))) (Const "0"))
                                (ReturnWExp (PrimExp (Const "1")))))
                              (If (LTPred (Id P1) (Id P2)) (ReturnWExp (PrimExp (UnSubOp (Const "1"))))))
@@ -1131,17 +1131,17 @@
                               `(StmtList 
                                 (StmtList
                                  (If (,LessThan 
-                                      (FuncCallP (Id strcmp)
+                                      (FuncCallP (Id |strcmp|)
                                                  (ArgExpList 
-                                                  (FuncCallP (Id ,(concat 'Access OnClass (cadadar OrderBy))) (Id P1))
-                                                  (FuncCallP (Id ,(concat 'Access OnClass (cadadar OrderBy))) (Id P2))))
+                                                  (FuncCallP (Id ,(concat '|Access| OnClass (cadadar OrderBy))) (Id P1))
+                                                  (FuncCallP (Id ,(concat '|Access| OnClass (cadadar OrderBy))) (Id P2))))
                                       (Const "0"))
                                      (ReturnWExp (PrimExp (UnSubOp (Const "1")))))
                                  (If (,GreaterThan 
-                                      (FuncCallP (Id strcmp)
+                                      (FuncCallP (Id |strcmp|)
                                                  (ArgExpList 
-                                                  (FuncCallP (Id ,(concat 'Access OnClass (cadadar OrderBy))) (Id P1))
-                                                  (FuncCallP (Id ,(concat 'Access OnClass (cadadar OrderBy))) (Id P2))))
+                                                  (FuncCallP (Id ,(concat '|Access| OnClass (cadadar OrderBy))) (Id P1))
+                                                  (FuncCallP (Id ,(concat '|Access| OnClass (cadadar OrderBy))) (Id P2))))
                                       (Const "0"))
                                      (ReturnWExp (PrimExp (Const "1")))))
                                 ,(CompareFuncStmt (cdr OrderBy) OnClass))))
@@ -1150,12 +1150,12 @@
                               `(StmtList
                                 (StmtList
                                  (If (, LessThan
-                                        (FuncCallP (Id ,(concat 'Access OnClass (cadadar OrderBy))) (Id P1))
-                                        (FuncCallP (Id ,(concat 'Access OnClass (cadadar OrderBy))) (Id P2)))
+                                        (FuncCallP (Id ,(concat '|Access| OnClass (cadadar OrderBy))) (Id P1))
+                                        (FuncCallP (Id ,(concat '|Access| OnClass (cadadar OrderBy))) (Id P2)))
                                      (ReturnWExp (PrimExp (UnSubOp (Const "1")))))
                                  (If (, GreaterThan
-                                        (FuncCallP (Id ,(concat 'Access OnClass (cadadar OrderBy))) (Id P1))
-                                        (FuncCallP (Id ,(concat 'Access OnClass (cadadar OrderBy))) (Id P2)))
+                                        (FuncCallP (Id ,(concat '|Access| OnClass (cadadar OrderBy))) (Id P1))
+                                        (FuncCallP (Id ,(concat '|Access| OnClass (cadadar OrderBy))) (Id P2)))
                                      (ReturnWExp (PrimExp (Const "1")))))
                                 ,(CompareFuncStmt (cdr OrderBy) OnClass)))))))))))
 
@@ -1192,16 +1192,16 @@
                                  (setq Return1 `(ReturnWExp (PrimExp (UnSubOp (Const "1")))))))
 
                           (do ((ScopeList (car ScopeList) (cdr ScopeList))) ((null ScopeList))
-                              (setq FirstArg (subst `(FieldAcc (Id PDMCQStruct) (Id ,(caar ScopeList))) `(Id ,(caar ScopeList)) FirstArg :test #'equal))
+                              (setq FirstArg (subst `(FieldAcc (Id |PDMCQStruct|) (Id ,(caar ScopeList))) `(Id ,(caar ScopeList)) FirstArg :test #'equal))
                               (setq SecondArg (subst `(Id P) `(Id ,(caar ScopeList)) SecondArg :test #'equal)))
 
                           (CMatch `(* (Type ,(cadaddadar Cond) > P1 *) *) InfoList)
                           (cond ((equal (Build '(< P1)) '(String))
-                                 (setq Stmt1  `(LTPred (FuncCallP (Id strcmp) (ArgExpList ,FirstArg ,SecondArg)) (Const "0")))
-                                 (setq Stmt2  `(LEPred (FuncCallP (Id strcmp) (ArgExpList ,FirstArg ,SecondArg)) (Const "0")))
-                                 (setq Stmt3  `(EqPred (FuncCallP (Id strcmp) (ArgExpList ,FirstArg ,SecondArg)) (Const "0")))
-                                 (setq Stmt4  `(GEPred (FuncCallP (Id strcmp) (ArgExpList ,FirstArg ,SecondArg)) (Const "0")))
-                                 (setq Stmt5  `(GTPred (FuncCallP (Id strcmp) (ArgExpList ,FirstArg ,SecondArg)) (Const "0"))))
+                                 (setq Stmt1  `(LTPred (FuncCallP (Id |strcmp|) (ArgExpList ,FirstArg ,SecondArg)) (Const "0")))
+                                 (setq Stmt2  `(LEPred (FuncCallP (Id |strcmp|) (ArgExpList ,FirstArg ,SecondArg)) (Const "0")))
+                                 (setq Stmt3  `(EqPred (FuncCallP (Id |strcmp|) (ArgExpList ,FirstArg ,SecondArg)) (Const "0")))
+                                 (setq Stmt4  `(GEPred (FuncCallP (Id |strcmp|) (ArgExpList ,FirstArg ,SecondArg)) (Const "0")))
+                                 (setq Stmt5  `(GTPred (FuncCallP (Id |strcmp|) (ArgExpList ,FirstArg ,SecondArg)) (Const "0"))))
                                 (t
                                  (setq Stmt1 `(LTPred ,FirstArg ,SecondArg))
                                  (setq Stmt2 `(LEPred ,FirstArg ,SecondArg))
@@ -1224,7 +1224,7 @@
 
                          ((equal (caar Cond) 'INPred)
                           (CMatch `(* (Msc ,(cadaddar Cond) > P1 > P2) *) InfoList)
-                          (setq Temp `(If (EqPred (PrimExp (BitAndOp (FuncCallP (Id ,(concat 'Access Class 'Msc)) (Id P))
+                          (setq Temp `(If (EqPred (PrimExp (BitAndOp (FuncCallP (Id ,(concat '|Access| Class '|Msc|)) (Id P))
                                                                      (Const ,(car (Build '(< P2)))))) (Const "0"))
                                           (ReturnWExp (PrimExp (UnSubOp (Const "1")))))))
 
@@ -1248,12 +1248,12 @@
                      `(InlineFuncDefnWDeclSpec 
                        (IntType)
                        (FuncVarWPIdList (Id ,FuncName)
-                                        (IdList (Id P) (Id PDMCQStruct)))
+                                        (IdList (Id P) (Id |PDMCQStruct|)))
                        (FuncBodyWDeclList
                         ,(ProcessIndexSpecCode 
                           `(DeclList 
                             (DeclSpecWVars (Prop (Id ,Class)) (Id P))
-                            (DeclSpecWVars (StructWId (Id ,(concat CurrentQuery 'Struct))) (PtrVar (Ptr) (Id PDMCQStruct)))))
+                            (DeclSpecWVars (StructWId (Id ,(concat CurrentQuery '|Struct|))) (PtrVar (Ptr) (Id |PDMCQStruct|)))))
                         (CompndStmtWSList ,Code))))
                (cond ((null CompareFuncCode)
                       (setq CompareFuncCode Code))
@@ -1317,7 +1317,7 @@
 		  (setq Code '(Id P) IndexClass DistClass)
         (do ((Path Path (cdr Path))) ((null Path))
 				(CMatch `(* (Type ,DistClass > P1 *) *) InfoList)
-				(setq Code `(FuncCallP (Id ,(concat 'Access (car (Build '(< P1))) (car Path))) ,Code))
+				(setq Code `(FuncCallP (Id ,(concat '|Access| (car (Build '(< P1))) (car Path))) ,Code))
 				(setq DistClass (car Path)))
 		  (setq Code `(CompndStmtWSList (ReturnWExp (PrimExp ,Code))))
         (CMatch `(* (Reference ,IndexClass > P1) *) InfoList)
@@ -1334,7 +1334,7 @@
 					(setq Pointer '(PtrPtr (Ptr)))))
 		  (setq Code `(InlineFuncDefnWDeclSpec 
 							(StructWId (Id ,(car (Build '(< P1))))) 
-							(PtrVar ,Pointer (FuncVarWPIdList (Id ,(concat 'DistPath IndexName)) (Id P))) ,Code))
+							(PtrVar ,Pointer (FuncVarWPIdList (Id ,(concat '|DistPath| IndexName)) (Id P))) ,Code))
 		  
 		  (return (list DistClass Code))))
 
@@ -1403,7 +1403,7 @@
 (defun FixSubstitution (Code)
   (prog (Temp)
         (cond ((equal (car Code) 'SubstitutionList)
-               (cond ((member (cadr Code) '((Id Assign) (Id Access)))
+               (cond ((member (cadr Code) '((Id |Assign|) (Id |Access|)))
                       (setq Temp (FixSubstitution (caddr Code)))
                       (cond ((Match `(* (Type ,Temp > P1 *) *) InfoList)
                              (setq Temp (car (Build '(< P1))))))
@@ -1412,7 +1412,7 @@
                       (return (concat (FixSubstitution (cadr Code)) (FixSubstitution (caddr Code)))))))
               ((equal (car Code) 'Substitution)
                (cond ((not (Match `(* (,(cadr Code) > P1) *) SubstitutionMatch))
-                      (ErrorMsg `("***PDMC Error: Couldn't be able to substitute" ,(cadr Code) "in the Specification file"))))
+                      (ErrorMsg `("***PDMC Error: Unable to substitute" ,(cadr Code) "in the Specification file"))))
                (return (car (Build '(< P1)))))
               ((equal (car Code) 'Id)
                (return (cadr Code)))
@@ -1563,10 +1563,10 @@
         (cond ((equal (caadr Code) 'At)
                (CMatch `(* (Type ,(cadaddadr Code) > P1 *) *) InfoList)
                (return 
-                `(FuncCallP (Id ,(concat 'Access (car (Build '(< P1))) (cadaddr Code))) ,(AccessCode (cadr Code)))))
+                `(FuncCallP (Id ,(concat '|Access| (car (Build '(< P1))) (cadaddr Code))) ,(AccessCode (cadr Code)))))
               (t
                (return
-                `(FuncCallP (Id, (concat 'Access (PathFuncClass (cadr Code)) (cadaddr Code))) ,(cadr Code)))))))
+                `(FuncCallP (Id, (concat '|Access| (PathFuncClass (cadr Code)) (cadaddr Code))) ,(cadr Code)))))))
 
 
 

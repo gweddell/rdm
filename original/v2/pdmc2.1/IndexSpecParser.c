@@ -26,6 +26,21 @@ loop:
 exit:;
 }
 
+void escape_symbol() {
+   int len;
+   int i;
+   if (Result[0] == '\0' || Result[0] == ' ') {
+      yyerror("No identifier to escape");
+   }
+   else {
+      len = strlen(Result);
+      i = len - 1;
+      while (i >= 0 && Result[i] != ' ') i--;
+      memmove(&Result[i+2], &Result[i+1], len - i);
+      Result[i+1] = '|';
+      strcat(Result, "|");
+   }
+}
 
 int check_type()
 {
@@ -38,9 +53,11 @@ Start:
    if (yytext[P1] == '\0') {
       if (Result[0] == '\0') yyerror("Substition variable error");
       if (Status == 1) yyerror("Substitution variable error");
-      if (Result[strlen(Result)-1] != ' ') 
+      if (Result[strlen(Result)-1] != ' ') {
+         escape_symbol();
          if (First == 1) strcat(Result, " Id 1 ");
          else strcat(Result, " Id 1 SubstitutionList 2 ");
+      }
       return(IDENTIFIER);
    }
    if (yytext[P1] == '$') {
@@ -51,11 +68,14 @@ Start:
          if (First == 1) {
             if (Result[0] != '\0') {
                First = 0;
+               escape_symbol();
                strcat(Result, " Id 1 ");
             }
          }
-         else 
+         else { 
+            escape_symbol();
             strcat(Result, " Id 1 SubstitutionList 2 ");
+         }
       }
       else if (Status == -1) {
          Status = 1;
@@ -65,11 +85,14 @@ Start:
          if (First == 1) { 
             if (Result[0] != '\0') {
                First = 0;
+               escape_symbol();
                strcat(Result, " Substitution 1 ");
             }
 			}
-         else
+         else {
+            escape_symbol();
             strcat(Result, " Substitution 1 SubstitutionList 2 ");
+         }
       }
       goto Start;
    }
