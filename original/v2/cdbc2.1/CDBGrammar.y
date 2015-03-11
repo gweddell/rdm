@@ -19,7 +19,7 @@ PrimaryExpr
    | CONSTANT
       { printf("\"%s\" Const 1 ", yytext); }
    | STRING_LITERAL
-      { printf("%s StrLit 1 ", yytext); }
+      { int i, j; char* e = malloc(strlen(yytext) * 2); for (i = 0, j = 0; i < strlen(yytext); i++) { if ((yytext[i] == '\\' || yytext[i] == '"') && i != 0 && i != (strlen(yytext) - 1)) { e[j++] = '\\'; } e[j++] = yytext[i]; } printf("%s StrLit 1 ", e); free(e); }
    | '(' Expr ')'
       { printf("PrimExp 1 "); }
    ;

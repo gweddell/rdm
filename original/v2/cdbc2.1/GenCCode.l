@@ -833,7 +833,9 @@
 
 
 (defun StrLit (L)
-   (print (car L) OutPort))
+   (princ "\"" OutPort)
+   (princ (car L) OutPort)
+   (princ "\"" OutPort))
 
 
 (defun StructDecl (L)

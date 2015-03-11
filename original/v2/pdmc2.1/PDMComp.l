@@ -958,7 +958,7 @@
                (setq Argument 
 							`(ArgExpList (Id ,(SetSpecialCompareFunc (cadaddaddddr Node) CondClause)) (Id |PDMCQStruct|)))))
 
-        (cond ((member FuncName '(DistInit DistNext))
+        (cond ((member FuncName '(|DistInit| |DistNext|))
                (setq Temp (ProcessIndexSpecCode (caddr DistributedCond)))
                (do ((ScopeList (car ScopeList) (cdr ScopeList))) ((null ScopeList))
                    (setq Temp (subst `(FieldAcc (Id |PDMCQStruct|) (Id ,(caar ScopeList))) `(Id ,(caar ScopeList)) Temp :test #'equal)))
@@ -974,7 +974,7 @@
                (setq Argument `(ArgExpList (Id |PDMCSchema|) 
                                         (ArgExpList (AddrOp (PrimExp (FieldAcc (Id |PDMCQStruct|) (Id ,(cadadaddddr Node)))))
                                                     ,Argument)))))
-        (cond ((member FuncName '(Init DistInit))
+        (cond ((member FuncName '(|Init| |DistInit|))
                (return
                 (list
                  (cadr Node)
