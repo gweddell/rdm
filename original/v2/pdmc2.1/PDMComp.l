@@ -627,7 +627,7 @@
   (prog ()
         (cond ((equal (caadddr Action) 'ENDIF)
                (return 
-                (list 'If 
+                (list 'IfStmt 
                       (CheckMscPred (cadr Action)) 
                       (list 'CompndStmtWSList
                             (ProcessTransAction (caddr Action) List1 List2)))))
@@ -789,9 +789,9 @@
                                                           ,(caddddar NodeList)))))
 
                      ((equal (caar NodeList) 'IndexInit)
-                      (setq BodyList (append1 BodyList (QueryIndexInitNext (car NodeList) 'Init))))
+                      (setq BodyList (append1 BodyList (QueryIndexInitNext (car NodeList) '|Init|))))
                      ((equal (caar NodeList) 'IndexNext)
-                      (setq BodyList (append1 BodyList (QueryIndexInitNext (car NodeList) 'Next))))
+                      (setq BodyList (append1 BodyList (QueryIndexInitNext (car NodeList) '|Next|))))
                      ((equal (caar NodeList) 'Select)
                       (SetRefer (caddar NodeList) 'Put)
                       (SetRefer (cadddar NodeList) 'Put)
@@ -811,7 +811,7 @@
 
            (setq BodyCode `(StmtList 
                             (StmtList 
-                             (If (EqPred (FieldAcc (Id |PDMCQStruct|) (Id |First|)) (Const "0")) (Goto (Id 2)))
+                             (IfStmt (EqPred (FieldAcc (Id |PDMCQStruct|) (Id |First|)) (Const "0")) (Goto (Id 2)))
                              (ExprStmt (AssignOp (FieldAcc (Id |PDMCQStruct|) (Id |First|)) (Const "0"))))
                             ,BodyCode))
 
@@ -851,7 +851,7 @@
                (setq LevelCounter (add1 LevelCounter))
                (return (TravelQueryBody In1 In2 Temp1 In4 (caddr QueryBody) 
                                         (append1 NodeList (list 'Select Temp1 In3 In2 
-                                                                `(If ,(ProcessIndexSpecCode (CheckStringPred (cadr QueryBody)))
+                                                                `(IfStmt ,(ProcessIndexSpecCode (CheckStringPred (cadr QueryBody)))
                                                                      (Goto (Id ,In3))))))))
 
               ((equal 'Compliment (car QueryBody))
@@ -876,7 +876,7 @@
                       (cond ((equal (caadr QueryBody) 'At) (PrintMsg "*****warning: from TravelQueryBody")))
                       (setq Temp1 (ProcessIndexSpecCode `(ExprStmt (AssignOp ,(cadr QueryBody) ,(caddr QueryBody))))) 
                       (do ((Temp2 (car ScopeList) (cdr Temp2))) ((null Temp2))
-                          (setq Temp1 (subst `(FieldAcc (Id |PDMCQStruct|) (Id ,(caar Temp2)) :test #'equal) `(Id ,(caar Temp2)) Temp1)))
+                          (setq Temp1 (subst `(FieldAcc (Id |PDMCQStruct|) (Id ,(caar Temp2))) `(Id ,(caar Temp2)) Temp1 :test #'equal)))
                       
                       (setq Temp1
                             (append1 
@@ -892,7 +892,7 @@
                             (t
                              (setq Temp2 '(PtrPtr (Ptr))))) 
                       (setq Temp1 (ProcessIndexSpecCode
-                                   `(If (NEPred 
+                                   `(IfStmt (NEPred 
                                          (PrimExp
                                           (BitAndOp
                                            (FuncCallP 
@@ -982,7 +982,7 @@
                  (list (cadddr Node) (caddr Node))
                  `(StmtList
                    (ExprStmt (AssignOp (FieldAcc (Id |PDMCQStruct|) (Id ,(concat (cadadaddddr Node) '|Cut|))) (Const "0")))
-                   (If (FuncCallP (Id ,(concat FuncName (cadaddaddddr Node))) ,Argument)
+                   (IfStmt (FuncCallP (Id ,(concat FuncName (cadaddaddddr Node))) ,Argument)
                        (Goto (Id ,(SetRefer (caddr Node) 'Put))))))))
               (t
                (return
@@ -991,9 +991,9 @@
                  (SetRefer (cadddr Node) 'Put)
                  (list (cadddr Node) (cadddr Node) (caddr Node))
                  `(StmtList 
-                   (If (FieldAcc (Id |PDMCQStruct|) (Id ,(concat (cadadaddddr Node) '|Cut|)))
+                   (IfStmt (FieldAcc (Id |PDMCQStruct|) (Id ,(concat (cadadaddddr Node) '|Cut|)))
                        (Goto (Id ,(SetRefer (cadddr Node) 'Put))))
-                   (If (FuncCallP (Id ,(concat FuncName (cadaddaddddr Node))) ,Argument)
+                   (IfStmt (FuncCallP (Id ,(concat FuncName (cadaddaddddr Node))) ,Argument)
                        (Goto (Id ,(SetRefer (caddr Node) 'Put)))))))))))
 
 
@@ -1089,8 +1089,8 @@
 (defun CompareFuncStmt (OrderBy OnClass)
   (prog (LessThan GreaterThan)
         (cond ((null OrderBy)
-               (return `(StmtList (StmtList (If (LTPred (Id P1) (Id P2)) (ReturnWExp (PrimExp (UnSubOp (Const "1")))))
-                                            (If (GTPred (Id P1) (Id P2)) (ReturnWExp (PrimExp (Const "1")))))
+               (return `(StmtList (StmtList (IfStmt (LTPred (Id P1) (Id P2)) (ReturnWExp (PrimExp (UnSubOp (Const "1")))))
+                                            (IfStmt (GTPred (Id P1) (Id P2)) (ReturnWExp (PrimExp (Const "1")))))
                                   (ReturnWExp (PrimExp (Const "0"))))))
               (t
                (cond ((equal (caar OrderBy) 'Id)
@@ -1107,16 +1107,16 @@
                            (StmtList
                             (StmtList
                              (StmtList
-                              (If
+                              (IfStmt
                                (NEPred (PrimExp (BitAndOp (FuncCallP (Id ,(concat '|Access| OnClass '|Msc|)) (Id P1))
                                                           (Const ,(car (Build '(< P3)))))) (Const "0"))
                                (ReturnWExp (PrimExp (UnSubOp (Const "1")))))
-                              (If
+                              (IfStmt
                                (NEPred (PrimExp (BitAndOp (FuncCallP (Id ,(concat '|Access| OnClass '|Msc|)) (Id P2))
                                                           (Const ,(car (Build '(< P3)))))) (Const "0"))
                                (ReturnWExp (PrimExp (Const "1")))))
-                             (If (LTPred (Id P1) (Id P2)) (ReturnWExp (PrimExp (UnSubOp (Const "1"))))))
-                            (If (GTPred (Id P1) (Id P2)) (ReturnWExp (PrimExp (Const "1")))))
+                             (IfStmt (LTPred (Id P1) (Id P2)) (ReturnWExp (PrimExp (UnSubOp (Const "1"))))))
+                            (IfStmt (GTPred (Id P1) (Id P2)) (ReturnWExp (PrimExp (Const "1")))))
                            (ReturnWExp (PrimExp (Const "0")))))
                          (CompndStmtWSList
                           ,(CompareFuncStmt (cdr OrderBy) (cadar OrderBy))))))
@@ -1130,14 +1130,14 @@
                              (return 
                               `(StmtList 
                                 (StmtList
-                                 (If (,LessThan 
+                                 (IfStmt (,LessThan 
                                       (FuncCallP (Id |strcmp|)
                                                  (ArgExpList 
                                                   (FuncCallP (Id ,(concat '|Access| OnClass (cadadar OrderBy))) (Id P1))
                                                   (FuncCallP (Id ,(concat '|Access| OnClass (cadadar OrderBy))) (Id P2))))
                                       (Const "0"))
                                      (ReturnWExp (PrimExp (UnSubOp (Const "1")))))
-                                 (If (,GreaterThan 
+                                 (IfStmt (,GreaterThan 
                                       (FuncCallP (Id |strcmp|)
                                                  (ArgExpList 
                                                   (FuncCallP (Id ,(concat '|Access| OnClass (cadadar OrderBy))) (Id P1))
@@ -1149,11 +1149,11 @@
                              (return
                               `(StmtList
                                 (StmtList
-                                 (If (, LessThan
+                                 (IfStmt (, LessThan
                                         (FuncCallP (Id ,(concat '|Access| OnClass (cadadar OrderBy))) (Id P1))
                                         (FuncCallP (Id ,(concat '|Access| OnClass (cadadar OrderBy))) (Id P2)))
                                      (ReturnWExp (PrimExp (UnSubOp (Const "1")))))
-                                 (If (, GreaterThan
+                                 (IfStmt (, GreaterThan
                                         (FuncCallP (Id ,(concat '|Access| OnClass (cadadar OrderBy))) (Id P1))
                                         (FuncCallP (Id ,(concat '|Access| OnClass (cadadar OrderBy))) (Id P2)))
                                      (ReturnWExp (PrimExp (Const "1")))))
@@ -1210,21 +1210,21 @@
                                  (setq Stmt5 `(GTPred ,FirstArg ,SecondArg))))
 
                           (cond ((equal (caar Cond) 'EqPred)
-                                 (setq Temp `(StmtList (If ,Stmt1 ,Return2) (If ,Stmt5 ,Return1))))
+                                 (setq Temp `(StmtList (IfStmt ,Stmt1 ,Return2) (IfStmt ,Stmt5 ,Return1))))
                                 ((equal (caar Cond) 'LTPred)
-                                 (setq Temp `(If ,Stmt2 ,Return2)))
+                                 (setq Temp `(IfStmt ,Stmt2 ,Return2)))
                                 ((equal (caar Cond) 'GTPred)
-                                 (setq Temp `(If ,Stmt4 ,Return1)))
+                                 (setq Temp `(IfStmt ,Stmt4 ,Return1)))
                                 ((equal (caar Cond) 'LEPred)
-                                 (setq Temp `(If ,Stmt1 ,Return2)))
+                                 (setq Temp `(IfStmt ,Stmt1 ,Return2)))
                                 ((equal (caar Cond) 'GEPred)
-                                 (setq Temp `(If ,Stmt5 ,Return1)))
+                                 (setq Temp `(IfStmt ,Stmt5 ,Return1)))
                                 (t
                                  (PrintMsg "*****warning: from SetSpecialCompareFunc"))))
 
                          ((equal (caar Cond) 'INPred)
                           (CMatch `(* (Msc ,(cadaddar Cond) > P1 > P2) *) InfoList)
-                          (setq Temp `(If (EqPred (PrimExp (BitAndOp (FuncCallP (Id ,(concat '|Access| Class '|Msc|)) (Id P))
+                          (setq Temp `(IfStmt (EqPred (PrimExp (BitAndOp (FuncCallP (Id ,(concat '|Access| Class '|Msc|)) (Id P))
                                                                      (Const ,(car (Build '(< P2)))))) (Const "0"))
                                           (ReturnWExp (PrimExp (UnSubOp (Const "1")))))))
 
@@ -1403,7 +1403,7 @@
 (defun FixSubstitution (Code)
   (prog (Temp)
         (cond ((equal (car Code) 'SubstitutionList)
-               (cond ((member (cadr Code) '((Id |Assign|) (Id |Access|)))
+               (cond ((member (cadr Code) '((Id |Assign|) (Id |Access|)) :test #'equal)
                       (setq Temp (FixSubstitution (caddr Code)))
                       (cond ((Match `(* (Type ,Temp > P1 *) *) InfoList)
                              (setq Temp (car (Build '(< P1))))))
@@ -1465,7 +1465,7 @@
                        UnionWId 
                        VarWParens)) 1)
         ((member KeyWord
-                     `(AbstDeclWPtrAbsDecl 
+                     '(AbstDeclWPtrAbsDecl 
                        Access 
                        AndPred 
                        ArgExpList 

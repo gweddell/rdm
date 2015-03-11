@@ -171,14 +171,14 @@
 		  (if (equal (PathFuncClass Temp) 'String)
 				(cond ((equal (car Code) 'EqPred)
 						 (setq Result
-						  `(EqPred (FuncCallP (Id strcmp) (ArgExpList ,(cadr Code) ,(caddr Code))) (Const "0"))))
+						  `(EqPred (FuncCallP (Id |strcmp|) (ArgExpList ,(cadr Code) ,(caddr Code))) (Const "0"))))
 						((equal (car Code) 'NEPred)
 						 (setq Result
-						  `(NEPred (FuncCallP (Id strcmp) (ArgExpList ,(cadr Code) ,(caddr Code))) (Const "0"))))
+						  `(NEPred (FuncCallP (Id |strcmp|) (ArgExpList ,(cadr Code) ,(caddr Code))) (Const "0"))))
 						(t
 						 (PrintMsg "*****warning: from CheckStringPred"))))
 		  (setq Result (ProcessIndexSpecCode Result))
 		  (do ((Temp (car ScopeList) (cdr Temp))) ((null Temp))
-				(setq Result (subst `(FieldAcc (Id PDMCQStruct) (Id ,(caar Temp))) `(Id ,(caar Temp)) Result)))
+				(setq Result (subst `(FieldAcc (Id |PDMCQStruct|) (Id ,(caar Temp))) `(Id ,(caar Temp)) Result :test #'equal)))
 		  (return Result)))
 
