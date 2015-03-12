@@ -22,16 +22,6 @@ PDMParser: PDMParser.c PDMGrammar.y PDMScanner.l
 	gcc -w PDMParser.c -o PDMParser
 	rm lex.yy.c PDMGrammar.tab.c PDMGrammar.tab.h
 
-PosSlash: PosSlash.l
-	lex PosSlash.l
-	cc -w lex.yy.c -ll -o PosSlash
-	rm lex.yy.c
-
-PreSlash: PreSlash.l
-	lex PreSlash.l
-	cc -w lex.yy.c -ll -o PreSlash
-	rm lex.yy.c
-
 cdbc: CDBCompControl.c PDMParser CDBParser CDBRun
 	gcc -o cdbc -g CDBCompControl.c
 
