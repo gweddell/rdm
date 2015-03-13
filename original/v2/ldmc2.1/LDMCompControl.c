@@ -14,7 +14,7 @@
 int  Error();
 char Result[NameSize], *FixExtension();
 
-Error()
+int Error()
 {
 	fprintf( stderr, "ldmc [-o OutputFileName] LDMFileName\n");
 	exit(0);
@@ -32,7 +32,7 @@ char *A, *B;
 	return(Result);
 }
 
-main (argc, argv, envp) 
+int main (argc, argv, envp) 
 int  argc; 
 char *argv[], *envp[];
 {
