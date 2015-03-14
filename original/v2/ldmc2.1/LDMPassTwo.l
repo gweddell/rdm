@@ -363,7 +363,7 @@
    (AltFind (<< FList))
    (Bindq FList
       (sort
-         '(<< FList1 << FList2)
+         (copy-list '(<< FList1 << FList2))
          #'(lambda (F1 F2) (lessp (caadr F1) (caadr F2))))))
 
 (PostAltFind
