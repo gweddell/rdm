@@ -258,8 +258,8 @@
 
 (defun CostInit (IndexName)
    (case (IndexType IndexName)
-      (gList			10.0)
-      (gArray
+      (List			10.0)
+      (Array
 	 (times			10.0
 	    (log (SizeEst (IndexClass IndexName)))))
       (BinaryTree
@@ -272,8 +272,8 @@
 
 (defun CostCont (IndexName)
    (case (IndexType IndexName)
-      (gList			0.5)
-      (gArray			0.5)
+      (List			0.5)
+      (Array			0.5)
       (BinaryTree		1.0)
       (DistList			0.5)
       (DistPointer		0.0)
