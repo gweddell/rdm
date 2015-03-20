@@ -247,7 +247,7 @@
               `(File ,Code (File 
                             (File
                              (Comment "Structure for Store") 
-                             (DeclSpecWVars (IntType) (InitDecl (PtrVar (Ptr) (Id |PDMCellStore|)) (Const "0"))))
+                             (DeclSpecWVars (VoidType) (InitDecl (PtrVar (Ptr) (Id |PDMCellStore|)) (Const "0"))))
                             (DeclSpec (StructWIdDecl (Id |StoreTemplate|) 
                                                      (StructDecl (StructWId (Id |StoreTemplate|)) (PtrVar (Ptr) (Id |Next|))))))))
         (do ((StoreList StoreList (cdr StoreList))) ((null StoreList))
@@ -553,13 +553,13 @@
         (return  `(IfElse (EqPred (Id |PDMCellStore|) (Const "0"))
                           (ExprStmt 
 									(AssignOp ,Var (CastExp (TypeSpecListWAbsDecl (StructWId (Id ,StructName)) (PtrPtr (Ptr))) 
-																	(FuncCallP (Id |malloc|) (SizeTypeOp (TypeSpecListWAbsDecl (IntType) (Ptr))))))) 
+																	(FuncCallP (Id |malloc|) (SizeTypeOp (TypeSpecListWAbsDecl (VoidType) (Ptr))))))) 
                           (CompndStmtWSList
                            (StmtList
                             (ExprStmt (AssignOp ,Var (CastExp (TypeSpecListWAbsDecl (StructWId (Id ,StructName)) (PtrPtr (Ptr)))
                                                               (Id |PDMCellStore|))))
                             (ExprStmt (AssignOp (Id |PDMCellStore|) 
-																(CastExp (TypeSpecListWAbsDecl (IntType) (Ptr)) (BangOp (Id |PDMCellStore|)))))))))))
+																(BangOp (CastExp (TypeSpecListWAbsDecl (VoidType) (PtrPtr (Ptr))) (Id |PDMCellStore|)))))))))))
 
 
 (defun TransFree (Action)
@@ -611,7 +611,7 @@
 												  (CastExp 
 													(TypeSpecListWAbsDecl (StructWId (Id ,(PathFuncClass (cadr Action)))) (Ptr)) 
 													(Id |PDMCellStore|))))
-									(ExprStmt (AssignOp (Id |PDMCellStore|) (CastExp (TypeSpecListWAbsDecl (IntType) (Ptr)) ,(cadr Action)))))))
+									(ExprStmt (AssignOp (Id |PDMCellStore|) (CastExp (TypeSpecListWAbsDecl (VoidType) (Ptr)) ,(cadr Action)))))))
               (t
                (return
                 `(StmtList 
@@ -620,7 +620,7 @@
 									  (CastExp (TypeSpecListWAbsDecl (StructWId (Id ,(PathFuncClass (cadadr Action)))) (Ptr)) 
 												  (Id |PDMCellStore|))))
 						(ExprStmt 
-						 (AssignOp (Id |PDMCellStore|) (CastExp (TypeSpecListWAbsDecl (IntType) (Ptr)) ,(cadadr Action))))))))))
+						 (AssignOp (Id |PDMCellStore|) (CastExp (TypeSpecListWAbsDecl (VoidType) (Ptr)) ,(cadadr Action))))))))))
 
 
 (defun TransIf (Action List1 List2)
