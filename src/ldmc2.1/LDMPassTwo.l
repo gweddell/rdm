@@ -806,13 +806,11 @@
                   OrderAndHeap))))
             RemoveSort
             (Rep AndHeapDelete)
+            (Rep SCIterDel)
             InsertCuts
             FindOneCuts
             (Rep LookUpIntro)
-            (Rep SCLookUpIntro)
-            (Rep FindExpand)
-            (Rep SCIterDel)
-            (Rep SCLookUpDel))))))
+            (Rep FindExpand))))))
 
 
 (LoadRules '(
