@@ -18,7 +18,7 @@
 
 
 (defun MAIN () 
-  (prog (PDMCode CDBCode CCode Port NumPDMFile Temp)
+  (prog (PDMCode CDBCode CCode Port NumPDMFile)
         (setq @SchemaVar 0)
         (setq Port (open "cdbc.pdm.number"))
         (setq NumPDMFile (read Port))
@@ -82,7 +82,7 @@
 
 
 (defun ProcessPDMCode (PDMCode) 
-  (prog (Temp FieldList) 
+  (prog (FieldList)
         (setq PDMCode (caddr PDMCode))
         (do ((PDMCode PDMCode (caddr PDMCode))) ((null PDMCode))
             (cond ((equal (caadr PDMCode) 'ClassSpec) 
@@ -564,7 +564,7 @@
 
 
 (defun CheckScopeList (N)
-  (prog (Temp1 Temp2 Result)
+  (prog (Result)
         (cond ((equal (car N) 'ArrayExp) 
                (setq N (list 'Array (cadadr N))))
               (t
