@@ -23,6 +23,18 @@
 (defvar FreeMatchVars nil)
 (defvar MatchVar nil)
 
+(defun Diagnostic (Msg)
+   (cond
+      ((null Msg)
+	 (terpri *error-output*)
+	 t)
+      ((atom Msg)
+	 (princ Msg *error-output*)
+	 (Diagnostic nil))
+      (t
+	 (princ (car Msg) *error-output*)
+	 (Diagnostic (cdr Msg)))))
+
 ;***********************************************************************
 ; PushMatchVar and PopMatchVar are used to maintain MatchVarStack and
 ; FreeMatchVars.  The latter are used for encoding matched pattern

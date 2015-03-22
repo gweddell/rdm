@@ -44,6 +44,9 @@
 ;    the elements (i.e. logical disjunction).
 ;***********************************************************************
 
+; Set to list of rules to trace
+(defvar TraceRules '())
+
 (defun add (&rest args) (apply #'+ args))
 (defun diff (&rest args) (apply #'- args))
 (defun minus (&rest args) (apply #'- args))
@@ -62,16 +65,21 @@
    (cond
       ((atom Control)
          (PushMatchVar)
-         (let ((Rule (get Control 'RWRule)))
+         (let ((Rule (get Control 'RWRule)) (Trace? (member Control TraceRules)))
+            (if Trace? (Diagnostic `("*** Rule: " ,Control)))
             (if (Match (car Rule) Form)
                (prog (NewForm)
                   (mapc 'eval (mapcar 'Build (cddr Rule)))
+                  (if Trace? (progn (princ "*** Initial is:" *error-output*) (pprint Form *error-output*) (terpri *error-output*)))
                   (setq NewForm (Build (cadr Rule)))
                   (rplaca Form (car NewForm))
                   (rplacd Form (cdr NewForm))
+                  (if Trace? (progn (princ "*** Result is:" *error-output*) (pprint Form *error-output*) (terpri *error-output*)))
                   (PopMatchVar)
                   (return t))
-               (PopMatchVar))))
+               (progn
+                  (if Trace? (progn (princ "*** Not Applied." *error-output*) (terpri *error-output*)))
+                  (PopMatchVar)))))
       ((eq (car Control) 'Call)
          (ApplyRuleControl (get (cadr Control) 'RuleControl) Form))
       ((eq (car Control) 'Not)

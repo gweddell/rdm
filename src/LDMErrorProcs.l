@@ -2,25 +2,6 @@
 ; Copyright (C) 1989, G. E. Weddell.
 ;***********************************************************************
 
-;(declare
-;   (special Schema)
-;   (special Classes)
-;   (special BuiltInClasses)
-;   (special Properties)
-;   (special Queries)
-;   (special Indices)
-;   (special Stores)
-;   (special Transactions)
-;   (special QueryName?)
-;   (special QueryOrTransName)
-;   (special Source)
-;   (special PDMPort)
-;   (special DefaultRCntEst)
-;   (special VarStack)
-;   (special MatchVarStack)
-;   (special FreeMatchVars)
-;   (special MatchVar))
-
 ;***********************************************************************
 ; Reports syntax and semantic errors to the standard error file.
 ;
@@ -81,20 +62,6 @@
          (t
             (princ (car Text) *error-output*))))
    (exit))
-
-
-(defun Diagnostic (Msg)
-   (cond
-      ((null Msg)
-	 (terpri *error-output*)
-	 t)
-      ((atom Msg)
-	 (princ Msg *error-output*)
-	 (Diagnostic nil))
-      (t
-	 (princ (car Msg) *error-output*)
-	 (Diagnostic (cdr Msg)))))
-
 
 (defun ReportWarning (Msg)
    (princ "** warning: " *error-output*)
