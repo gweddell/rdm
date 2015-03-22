@@ -629,6 +629,7 @@
 (defun LabeledStmt (L)
   (evalfexpr (car L))
   (princ ": " OutPort)
+  (terpri OutPort)
   (evalfexpr (cadr L)))
 
 
