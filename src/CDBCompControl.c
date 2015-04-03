@@ -99,11 +99,9 @@ char *argv[], *envp[];
 			}	
 				
 		fprintf(stderr,"   %s\n", CDBFileName);
-    	//sprintf(Command, "PreSlash < %s | ./CDBParser > cdbc.cdb.input", CDBFileName);
     	sprintf(Command, "./CDBParser < %s > cdbc.cdb.input", CDBFileName);
 		CSystem(Command);
-		CSystem("./CDBRun");
-		//sprintf(Command, "PosSlash < cdbc.output | cb -s > %s", OutputFileName);
+		CSystem("sbcl --noinform --load CDBRun");
 		sprintf(Command, "indent cdbc.output -kr -o %s", OutputFileName);
 		CSystem(Command);
 		CSystem("rm cdbc.pdm.*");

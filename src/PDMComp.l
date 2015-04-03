@@ -36,7 +36,8 @@
         (setq CompareFuncCode nil)
         (setq PDMCode (PhaseOne "pdmc.pdm.input"))
         (setq HeaderCode (PhaseTwo PDMCode))
-        (PhaseThree HeaderCode "pdmc.output")))
+        (PhaseThree HeaderCode "pdmc.output")
+        (quit)))
 
 
 (defun LoadSource ()

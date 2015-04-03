@@ -61,7 +61,7 @@
             (princ "          " *error-output*))
          (t
             (princ (car Text) *error-output*))))
-   (exit))
+   (quit))
 
 (defun ReportWarning (Msg)
    (princ "** warning: " *error-output*)

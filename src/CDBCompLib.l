@@ -89,7 +89,7 @@
                (5 (rplaca S (list (car S) (cadddddr S) (caddddr S) (cadddr S) (caddr S) (cadr S))) (rplacd S (cddddddr S))) 
                (6 (rplaca S (list (car S) (caddddddr S) (cadddddr S) (caddddr S) (cadddr S) (caddr S) (cadr S))) 
                   (rplacd S (cdddddddr S))) 
-               (**error** (exit))
+               (**error** (quit))
                (t (setq S (cons (car F) S)))) 
         (setq F (cdr F)) 
         (go loop))) 
@@ -106,7 +106,7 @@
             (princ (car Temp) *error-output*)
             (princ " " *error-output*))
         (terpri *error-output*)
-        (exit)))
+        (quit)))
 
 
 (defun CMatch (Pat L)

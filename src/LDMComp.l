@@ -34,6 +34,7 @@
     :if-exists :supersede))
   (PassFive)
   (close PDMPort)
+  (quit)
 )
 
 (defun LoadSource ()

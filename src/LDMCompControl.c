@@ -25,7 +25,8 @@ char *A, *B;
 {  	
 	char Ext[NameSize];
 	strcpy(Result, A);
-	strcat(Ext, B);
+	strcpy(Ext, ".");
+	strcpy(Ext, B);
 	if ((strlen(Result) < strlen(Ext)) ||
 		 (strcmp(Result + strlen(Result) - strlen(Ext), Ext)))
 		strcat(Result, Ext);
@@ -43,7 +44,7 @@ char *argv[], *envp[];
 		Command[256];
 	
 	if (argc == 1) Error();
-	strcpy (LDMFileName, FixExtension(argv[argc-1], ".ldm"));
+	strcpy (LDMFileName, FixExtension(argv[argc-1], "ldm"));
 	for (Counter = 0; Counter <= (strlen(LDMFileName) - 5); Counter++)
 		OutputFileName[Counter] = LDMFileName[Counter];
 	OutputFileName[Counter] = '\0';
@@ -60,7 +61,7 @@ char *argv[], *envp[];
 		else { 
 			if (argv[Counter][0] == '-') Error();
 			if (State == Init) Error();
-			strcpy(OutputFileName, FixExtension(argv[Counter], ".pdm"));
+			strcpy(OutputFileName, FixExtension(argv[Counter], "pdm"));
 		}
 		
 	fprintf(stderr, "LDM Compiler - Version 2.1\n");
@@ -70,7 +71,7 @@ char *argv[], *envp[];
 
   	sprintf(Command, "./LDMParser < %s > ldmc.in", LDMFileName);
 	if (system(Command) != 0) system("rm ldmc.*");
-	if (system("./LDMRun > ldmc.diag") != 0)
+	if (system("sbcl --noinform --load LDMRun > ldmc.diag") != 0)
 		system("rm ldmc.*");
 	sprintf(Command, "mv ldmc.out %s", OutputFileName);
 	system(Command);

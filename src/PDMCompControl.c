@@ -63,7 +63,7 @@ char *argv[], *envp[];
 	sprintf(Command, "./PDMParser < %s > pdmc.pdm.input", PDMFileName);
 	CSystem(Command);
 			
-	CSystem("./PDMRun");
+	CSystem("sbcl --noinform --load PDMRun");
 	sprintf(Command, "indent pdmc.output -kr -o %s", OutputFileName);
 	CSystem(Command);
 	CSystem("rm pdmc.*");

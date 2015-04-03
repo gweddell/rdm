@@ -7,10 +7,6 @@
 (defvar SchemaVarName)
 (defvar @SchemaVar)
 
-(load "PatMatch.l")
-(load "CDBCompLib.l")
-(load "GenCCode.l")
-
 (setq MatchVar (gensym "B") MatchVarStack nil FreeMatchVars nil)
 
 ;***********************************************************************************************************************************
@@ -33,7 +29,7 @@
         (setq CDBCode (PhaseTwo "cdbc.cdb.input")) 
         (setq CCode (PhaseFour CDBCode))
         (PhaseFive CCode "cdbc.output")
-        (exit)))
+        (quit)))
 
 
 ;***********************************************************************************************************************************

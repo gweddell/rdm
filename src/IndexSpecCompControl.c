@@ -35,7 +35,7 @@ char *argv[], *envp[];
 	sprintf(Command, "./IndexSpecParser < %s > isc.internal.in", IndexSpecFileName);
 	CSystem(Command);
 	strcat(IndexSpecFileName, ".internal");
-	CSystem("./FixLispInput");
+	CSystem("sbcl --noinform --load FixLispInput");
 	sprintf(Command, "mv isc.internal.out %s", IndexSpecFileName);
 	CSystem(Command);
 	CSystem("rm isc.*");

@@ -15,7 +15,7 @@
                      :if-exists :supersede))
 		  (pprint Code Port)
 		  (close Port)
-		  (exit)))
+		  (quit)))
 
 (defun FixInput (PDMcode) 
   (prog (F S) 
