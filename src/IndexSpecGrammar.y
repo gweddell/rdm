@@ -617,6 +617,8 @@ InlineFunctionDefinition
       { printf("InlineFuncDefn 2 "); }
    | INLINE DeclarationSpecifiers Declarator FunctionBody
       { printf("InlineFuncDefnWDeclSpec 3 "); }
+   | STATIC INLINE DeclarationSpecifiers Declarator FunctionBody
+      { printf("StaticInlineFuncDefnWDeclSpec 3 "); }
    ;
 
 FunctionBody

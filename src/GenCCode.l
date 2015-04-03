@@ -7,7 +7,7 @@
 ;***********************************************************************************************************************************
 ;***********************************************************************************************************************************
 
-(defvar TokenList '(AbstDeclParens AbstDeclWPtrAbsDecl Access AddrOp AndPred ArgExpList ArrayExp ArrayVar ArrayVarWSize AssignAddOp AssignBitAndOp AssignBitOrOp AssignBitXOrOp AssignDivOp AssignLeftShiftOp AssignModOp AssignMultOp AssignOp AssignRightShiftOp AssignSubOp At Auto BangOp BinAddOp BinSubOp BitAndOp BitOrOp BitXOrOp BreakStmt CaseStmt CastExp CharType CompndArrayAbstDecl CompndArrayWSizeAbstDecl CompndFuncAbstDecl CompndFuncAbstDeclWPList CompndStmt CompndStmtWDList CompndStmtWDListSList CompndStmtWSList CondExp Const ConstType ContinueStmt DeclList DeclSpec DeclSpecWVars DefaultStmt DivOp DoStmt DoubleType EnumList EnumWEnumList EnumWId EnumWIdEnumList EnumWInit EqPred ExprList ExprStmt Extern FieldAcc File FloatType For ForWF ForWI ForWIF ForWIS ForWISF ForWS ForWSF FuncBodyWDeclList FuncCall FuncCallP FuncDefn FuncDefnWDeclSpec FuncVar FuncVarWPIdList FuncVarWPTList GEPred GTPred Goto Id IdList IfStmt IfElse InitDecl InitDeclList InitList InitListHdr InitListHdrWCom InlineFuncDefn InlineFuncDefnWDeclSpec IntType LEPred LTPred LabeledStmt LeftShiftOp LongType ModOp MultOp NEPred NotOp NullStmt OnesComp OrPred ParamDecl ParamList PostDec PostInc PreDec PreInc Preprocessor PrimExp Ptr PtrPtr PtrTSList PtrTSListPtr PtrVar Register ReturnStmt ReturnWExp RightShiftOp ShortType SignedType SimpArrayAbstDecl SimpArrayWSizeAbst SimpFuncAbstDecl SimpFuncAbstDeclWPList SizeExpOp SizeTypeOp Static StmtList StorDeclSpec StrLit StructDecl StructDeclList StructFiller StructPacked StructVarList StructWDecl StructWId StructWIdDecl Switch TypeDeclSpec TypeDef TypeSpecList TypeSpecListWAbsDecl UnAddOp UnSubOp UnionWDecl UnionWId UnionWIdDecl UnsignedType VarWParens VoidType VolatileType While Constant Comment DefineStore EmptyStmt ExternDeclSpecWVars EvalFirstParm FuncVarDecl Preprocessor1))
+(defvar TokenList '(AbstDeclParens AbstDeclWPtrAbsDecl Access AddrOp AndPred ArgExpList ArrayExp ArrayVar ArrayVarWSize AssignAddOp AssignBitAndOp AssignBitOrOp AssignBitXOrOp AssignDivOp AssignLeftShiftOp AssignModOp AssignMultOp AssignOp AssignRightShiftOp AssignSubOp At Auto BangOp BinAddOp BinSubOp BitAndOp BitOrOp BitXOrOp BreakStmt CaseStmt CastExp CharType CompndArrayAbstDecl CompndArrayWSizeAbstDecl CompndFuncAbstDecl CompndFuncAbstDeclWPList CompndStmt CompndStmtWDList CompndStmtWDListSList CompndStmtWSList CondExp Const ConstType ContinueStmt DeclList DeclSpec DeclSpecWVars DefaultStmt DivOp DoStmt DoubleType EnumList EnumWEnumList EnumWId EnumWIdEnumList EnumWInit EqPred ExprList ExprStmt Extern FieldAcc File FloatType For ForWF ForWI ForWIF ForWIS ForWISF ForWS ForWSF FuncBodyWDeclList FuncCall FuncCallP FuncDefn FuncDefnWDeclSpec FuncVar FuncVarWPIdList FuncVarWPTList GEPred GTPred Goto Id IdList IfStmt IfElse InitDecl InitDeclList InitList InitListHdr InitListHdrWCom InlineFuncDefn InlineFuncDefnWDeclSpec StaticInlineFuncDefnWDeclSpec IntType LEPred LTPred LabeledStmt LeftShiftOp LongType ModOp MultOp NEPred NotOp NullStmt OnesComp OrPred ParamDecl ParamList PostDec PostInc PreDec PreInc Preprocessor PrimExp Ptr PtrPtr PtrTSList PtrTSListPtr PtrVar Register ReturnStmt ReturnWExp RightShiftOp ShortType SignedType SimpArrayAbstDecl SimpArrayWSizeAbst SimpFuncAbstDecl SimpFuncAbstDeclWPList SizeExpOp SizeTypeOp Static StmtList StorDeclSpec StrLit StructDecl StructDeclList StructFiller StructPacked StructVarList StructWDecl StructWId StructWIdDecl Switch TypeDeclSpec TypeDef TypeSpecList TypeSpecListWAbsDecl UnAddOp UnSubOp UnionWDecl UnionWId UnionWIdDecl UnsignedType VarWParens VoidType VolatileType While Constant Comment DefineStore EmptyStmt ExternDeclSpecWVars EvalFirstParm FuncVarDecl Preprocessor1))
 
 (defun evalfexpr (L)
    (if (member (car L) TokenList)
@@ -604,6 +604,15 @@
   (terpri OutPort)
   (terpri OutPort)
   (cond ((equal InlineFlag 1) (princ "inline " OutPort)))
+  (evalfexpr (car L))
+  (evalfexpr (cadr L))
+  (evalfexpr (caddr L)))
+
+
+(defun StaticInlineFuncDefnWDeclSpec (L)
+  (terpri OutPort)
+  (terpri OutPort)
+  (cond ((equal InlineFlag 1) (princ "static inline " OutPort)))
   (evalfexpr (car L))
   (evalfexpr (cadr L))
   (evalfexpr (caddr L)))

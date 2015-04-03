@@ -10,21 +10,21 @@ generic names
 generic functions
 
 
-inline void Create$Index$(Schema, A)
+static inline void Create$Index$(Schema, A)
 struct $SchemaName$Struct *Schema;
 prop $Class$ A;
 { 
 }
 
 
-inline void Destroy$Index$(Schema, A)
+static inline void Destroy$Index$(Schema, A)
 struct $SchemaName$Struct *Schema;
 prop $Class$ A;
 { 
 }
 
 
-inline void Add$Index$(Schema, A)
+static inline void Add$Index$(Schema, A)
 struct $SchemaName$Struct *Schema;
 prop $Class$ A;
 {
@@ -41,7 +41,7 @@ prop $Class$ A;
 }
 
 
-inline void Sub$Index$(Schema, A)
+static inline void Sub$Index$(Schema, A)
 struct $SchemaName$Struct *Schema;
 prop $Class$ A;
 {
@@ -54,7 +54,7 @@ prop $Class$ A;
 }
 
 
-inline int Init$Index$(Schema, A)
+static inline int Init$Index$(Schema, A)
 struct $SchemaName$Struct *Schema;
 prop $Class$ *A;
 {
@@ -65,7 +65,7 @@ prop $Class$ *A;
 } 
 
 
-inline int Next$Index$(Schema, A)
+static inline int Next$Index$(Schema, A)
 struct $SchemaName$Struct *Schema;
 prop $Class$ *A;
 {
