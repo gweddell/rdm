@@ -480,7 +480,7 @@
       (All >* AllArgs)
       >* FEList
       (Scan (EVar > V > C) > ScanSpec)
-         where (member '(EVar < V < C) <q EVarList)
+         where (member '(EVar < V < C) <q EVarList :test #'equal)
       > ScanHeap
       > AndHeap)
    (Find (-1 < GlobalDGraph < DGraph < BoundVars
@@ -555,8 +555,8 @@
       (AndHeap << PList1 << NewPList2)
       << NewFEList2)
    (Bindq
-      NewEVarList (remove <q V <q EVarList)
-      NewProject (remove <q V <q Project)
+      NewEVarList (remove <q V <q EVarList :test #'equal)
+      NewProject (remove <q V <q Project :test #'equal)
       NewPList2 (SubstituteVar <q PList2 <q V <q T)
       NewFEList2 (SubstituteVar <q FEList2 <q V <q T)))
 
@@ -591,7 +591,7 @@
          (Find () (One) (AndHeap) (Scan < V < ScanSpec) < AndHeap))
       < ScanEntry
       << FEList2)
-   (Bindq NewProject (remove <q V '(<< Project))))
+   (Bindq NewProject (remove <q V '(<< Project) :test #'equal)))
 
 (IndependentScan2
    (Find > QInfo (One)

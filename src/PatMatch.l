@@ -153,11 +153,11 @@
          (PutBindVal (cadr Pat) (list (car L)))
          (Match (cons '>++ (cdr Pat)) (cdr L)))
       ((eq (car Pat) 'or)
-         (if (member (car L) (cadr Pat))
+         (if (member (car L) (cadr Pat) :test #'equal)
             (Match (cddr Pat) (cdr L))
             nil))
       ((eq (car Pat) '>or)
-         (if (member (car L) (cadr Pat))
+         (if (member (car L) (cadr Pat) :test #'equal)
             (progn
                (PutBindVal (caddr Pat) (car L))
                (Match (cdddr Pat) (cdr L)))

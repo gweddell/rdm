@@ -64,7 +64,7 @@
 (defun Locate (DGraph Term)
    (if (IsVar Term)			; case: Term variable or const
       (or
-	 (cdr (assoc Term (cdar DGraph)))	;  subcase var or const existing
+	 (cdr (assoc Term (cdar DGraph) :test #'equal))	;  subcase var or const existing
 	 (let* ((VarSym (gensym "T")))		;  otherwise generate new symbol
 	    (rplacd (car DGraph)
 	       (cons (cons Term VarSym) (cdar DGraph)))
@@ -209,7 +209,7 @@
       nil
       (cons
 	 (cons
-	    (cdr (assoc (car VarArgs) DGraphVList))
+	    (cdr (assoc (car VarArgs) DGraphVList :test #'equal))
 	    (car VarArgs))
 	 (FindBoundVList DGraphVList (cdr VarArgs)))))
 

@@ -34,21 +34,21 @@
 (defun SetUnion (L1 L2)
    (if (null L1)
       L2
-      (if (member (car L1) L2)
+      (if (member (car L1) L2 :test #'equal)
          (SetUnion (cdr L1) L2)
          (SetUnion (cdr L1) (cons (car L1) L2)))))
 
 (defun SetIntersection (L1 L2)
    (if (null L1)
       nil
-      (if (member (car L1) L2)
+      (if (member (car L1) L2 :test #'equal)
          (cons (car L1) (SetIntersection (cdr L1) L2))
          (SetIntersection (cdr L1) L2))))
 
 (defun SetDifference (L1 L2)
    (if (null L1)
       nil
-      (if (member (car L1) L2)
+      (if (member (car L1) L2 :test #'equal)
 	 (SetDifference (cdr L1) L2)
 	 (cons (car L1) (SetDifference (cdr L1) L2)))))
 
@@ -77,7 +77,7 @@
    (cond
       ((null Form) t)
       ((atom Form) t)
-      ((member Form VList) nil)
+      ((member Form VList :test #'equal) nil)
       ((Free (car Form) VList) (Free (cdr Form) VList))
       (t nil)))
 
