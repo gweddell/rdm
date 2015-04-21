@@ -5,7 +5,8 @@
 (defvar InlineFlag)
 (defvar LevelCounter)
 (defvar CurrentQuery)
-(defvar SchemaName)
+(defvar DeclCode)
+(defvar ImplCode)
 (defvar SchemaVarName)
 (defvar ScopeList)
 (defvar SubstitutionMatch)
@@ -23,20 +24,19 @@
 
 
 (defun MAIN ()
-  (prog (HeaderCode PDMCode Port)
+  (prog (PDMCode Port)
 	(setq InfoList '((Reference |StoreTemplate| Direct)))
-        (setq InlineFlag 1
+        (setq InlineFlag 0
               @SchemaVar 0
               @Dummy 0
               @Compare 0
               @Label 0)
-        (setq Port (open "pdmc.schemaname"))
-        (setq SchemaName (read Port))
-        (close Port)
         (setq CompareFuncCode nil)
         (setq PDMCode (PhaseOne "pdmc.pdm.input"))
-        (setq HeaderCode (PhaseTwo PDMCode))
-        (PhaseThree HeaderCode "pdmc.output")
+        (setq SchemaName (cadr PDMCode))
+        (PhaseTwo PDMCode)
+        (PhaseThree DeclCode "pdmc.h.output")
+        (PhaseThree ImplCode "pdmc.c.output")
         (quit)))
 
 
@@ -62,9 +62,8 @@
 
 
 (defun PhaseTwo (PDMCode)
-  (prog () 
-        (PrintMsg "processing PDM code.")
-        (return (ProcessPDMCode PDMCode))))
+  (PrintMsg "processing PDM code.")
+  (ProcessPDMCode PDMCode))
 
 
 (defun PhaseThree (HeaderCode OutputFile)
@@ -77,7 +76,7 @@
 
 
 (defun ProcessPDMCode (PDMCode) 
-  (prog (Code QueryCode PDMClass PDMProp PDMIndex PDMStore PDMCQuery PDMTrans FieldList) 
+  (prog (QueryCode PDMClass PDMProp PDMIndex PDMStore PDMCQuery PDMTrans FieldList) 
         (setq PDMCode (caddr PDMCode))
         (do ((PDMCode PDMCode (caddr PDMCode))) ((null PDMCode))
             (cond ((equal (caadr PDMCode) 'ClassSpec) 
@@ -116,23 +115,29 @@
                    (setq PDMCQuery (append PDMCQuery (list (cadr PDMCode)))))
                   ((equal (caadr PDMCode) 'TransSpec)
                    (setq PDMTrans (append1 PDMTrans (cadr PDMCode))))))
-
-        (setq Code (SetClassDecl PDMClass PDMProp)) 
-        (setq Code (SetAccessFunctions Code))
-        (setq Code (SetStoreDecl Code PDMStore))
-        (setq Code (SetQueryStruct Code PDMCQuery))
+        (PrintMsg " generating implementation.")
+        (setq ImplCode (SetClassDecl PDMClass PDMProp)) 
+        (setq ImplCode `(File (File (File (Preprocessor "include <stdio.h>") (Preprocessor "include <stdlib.h>")) (Preprocessor "include <string.h>")) ,ImplCode))
+        (setq ImplCode (SetAccessFunctions ImplCode))
+        (setq ImplCode (SetStoreDecl ImplCode PDMStore))
+        (setq ImplCode (SetQueryStruct ImplCode PDMCQuery))
 
         (SetBasicCompareFuncs PDMIndex)
         (setq QueryCode (SetQuery PDMCQuery))
-        (if (not (null CompareFuncCode)) (setq Code `(File ,Code ,CompareFuncCode)))
+        (if (not (null CompareFuncCode)) (setq ImplCode `(File ,ImplCode ,CompareFuncCode)))
 
-        (setq Code (SetIndex Code PDMIndex))
-        (setq Code (SetTransaction Code PDMTrans))
+        (setq ImplCode (SetIndex ImplCode PDMIndex))
+        (setq ImplCode (SetTransaction ImplCode PDMTrans))
 
-        (setq Code `(File ,Code ,QueryCode))
+        (setq ImplCode `(File ,ImplCode ,QueryCode))
 
-
-        (return Code)))
+        (PrintMsg " generating headers.")
+        (setq DeclCode (SetClassDecl PDMClass PDMProp)) 
+        (setq DeclCode (SetStoreStruct DeclCode))
+        (setq DeclCode (SetQueryStruct DeclCode PDMCQuery))
+        (setq DeclCode (SetAccessFunctionsDecl DeclCode))
+        (setq DeclCode (SetTransactionDecl DeclCode PDMTrans))
+        (setq DeclCode (SetQueryDecl DeclCode PDMCQuery))))
 
 
 ;***********************************************************************************************************************************
@@ -195,7 +200,7 @@
                    (CMatch `(* (Type ,Property > P2 *) *) InfoList)
                    (setq Reference (car (Build '(< P1))) Type (car (Build '(< P2))))
                    (setq TempCode1 `(FuncVarWPIdList (Id ,(concat '|Access| Class Property)) (Id P)))
-                   (setq TempCode1 (GenStructDeclCode TempCode1 Property 'StaticInlineFuncDefnWDeclSpec))
+                   (setq TempCode1 (GenStructDeclCode TempCode1 Property 'InlineFuncDefnWDeclSpec))
                    (cond ((equal Reference 'Direct)
                           (setq TempCode2 `(CompndStmtWSList (ReturnWExp (PrimExp (FieldAcc (Id P) (Id ,Property)))))))
                          (t
@@ -226,13 +231,23 @@
                                        `(CompndStmtWSList 
                                          (ExprStmt (AssignOp (FieldAcc (PrimExp (BangOp (Id P))) (Id ,Property)) (Id |Val|)))))))))
                    (setq Code `(File ,Code
-                                     (StaticInlineFuncDefnWDeclSpec
+                                     (InlineFuncDefnWDeclSpec
                                       (VoidType)
                                       (FuncVarWPIdList (Id ,(concat '|Assign| Class Property)) (IdList (Id P) (Id |Val|)))
                                       (FuncBodyWDeclList ,TempCode1 ,TempCode2)))))))
         (return Code)))
 
-
+(defun SetAccessFunctionsDecl (Code)
+  (prog (TempCode1 TempCode2 Class Property Reference Type)
+        (PrintMsg "   generating Access functions.")
+        (do ((Temp InfoList (cdr Temp))) ((null Temp))
+            (cond ((equal (caar Temp) 'Field)
+                   (setq Class (cadar Temp) Property (caddar Temp))
+            (setq ParaDecl `(ParamDecl (StructWId (Id ,(concat SchemaName '|Struct|))) (PtrVar (Ptr) (Id |PDMCSchema|))))
+                   (setq TempCode1 `(FuncVarWPTList (Id ,(concat '|Access| Class Property)) ,(GenStructDeclCode 'P Class 'ParamDecl)))
+                   (setq TempCode1 (GenStructDeclCode TempCode1 Property 'ExternDeclSpecWVars))
+                   (setq Code `(File ,Code ,TempCode1)))))
+        (return Code)))
 
 
 
@@ -253,6 +268,15 @@
                                                      (StructDecl (StructWId (Id |StoreTemplate|)) (PtrVar (Ptr) (Id |Next|))))))))
         (do ((StoreList StoreList (cdr StoreList))) ((null StoreList))
             (setq Code `(File ,Code (DefineStore ,(concat (cadar StoreList) '|Size|) ,(RestoreList (cadddar StoreList))))))
+        (return Code)))
+
+(defun SetStoreStruct (Code)
+  (prog ()
+        (setq Code 
+              `(File ,Code (File 
+                             (Comment "Structure for Store") 
+                            (DeclSpec (StructWIdDecl (Id |StoreTemplate|) 
+                                                     (StructDecl (StructWId (Id |StoreTemplate|)) (PtrVar (Ptr) (Id |Next|))))))))
         (return Code)))
 
 
@@ -318,7 +342,7 @@
                   (t
                    (setq FuncHead `(FuncVarWPIdList (Id ,(cadar PDMTrans)) (IdList (Id |PDMCSchema|) ,(cadaddar PDMTrans))))))
             (cond ((equal (caaddddar PDMTrans) 'Procedure)
-                   (setq FuncHead `(StaticInlineFuncDefnWDeclSpec (VoidType) ,FuncHead)))
+                   (setq FuncHead `(InlineFuncDefnWDeclSpec (VoidType) ,FuncHead)))
                   (t
                    (setq Temp (cadaddaddddar PDMTrans))
                    (setq List1 (append (RestoreList (cadaddar PDMTrans)) (RestoreList (cadadddar PDMTrans)))) 
@@ -327,7 +351,7 @@
                        (cond ((equal Temp (car List1))
                               (setq Temp1 (car List2))
                               (setq List1 nil))))
-                   (setq FuncHead (GenStructDeclCode FuncHead Temp1 'StaticInlineFuncDefnWDeclSpec))))
+                   (setq FuncHead (GenStructDeclCode FuncHead Temp1 'InlineFuncDefnWDeclSpec))))
 
             ;parameter declarations
             (setq ParaDecl `(DeclSpecWVars (StructWId (Id ,(concat SchemaName '|Struct|))) (PtrVar (Ptr) (Id |PDMCSchema|))))
@@ -377,7 +401,40 @@
 
         (return Code)))
 
+(defun SetTransactionDecl (Code PDMTrans)
+  (prog (FuncHead ParaDecl LocalDecl Body List1 List2 Temp Temp1)
+        (PrintMsg "   processing transactions.")
+        (setq Code (list 'File Code (list 'Comment "==== Function Decl ====")))
 
+        (do ((PDMTrans PDMTrans (cdr PDMTrans))) ((null PDMTrans))
+            (princ "      transaction: " *error-output*)
+            (PrintMsg (cadar PDMTrans))
+
+            ;parameter declarations
+            (setq ParaDecl `(ParamDecl (StructWId (Id ,(concat SchemaName '|Struct|))) (PtrVar (Ptr) (Id |PDMCSchema|))))
+            (setq List1 (RestoreList (cadaddar PDMTrans)))
+            (setq List2 (RestoreList (caddaddar PDMTrans)))
+            (do ((List1 List1 (cdr List1)) (List2 List2 (cdr List2))) ((null List1))
+                (setq ParaDecl (list 'ParamList ParaDecl (GenStructDeclCode (car List1) (car List2) 'ParamDecl)))) 
+
+            ;function header
+            (setq FuncHead `(FuncVarWPTList (Id ,(cadar PDMTrans)) ,ParaDecl))
+
+            (cond ((equal (caaddddar PDMTrans) 'Procedure)
+                   (setq FuncHead `(ExternDeclSpecWVars (VoidType) ,FuncHead)))
+                  (t
+                   (setq Temp (cadaddaddddar PDMTrans))
+                   (setq List1 (append (RestoreList (cadaddar PDMTrans)) (RestoreList (cadadddar PDMTrans)))) 
+                   (setq List2 (append (RestoreList (caddaddar PDMTrans)) (RestoreList (caddadddar PDMTrans)))) 
+                   (do ((List1 List1 (cdr List1)) (List2 List2 (cdr List2))) ((null List1)) 
+                       (cond ((equal Temp (car List1))
+                              (setq Temp1 (car List2))
+                              (setq List1 nil))))
+                   (setq FuncHead (GenStructDeclCode FuncHead Temp1 'ExternDeclSpecWVars))))
+
+            (setq Code (list 'File Code FuncHead)))
+
+        (return Code)))
 
 
 
@@ -826,7 +883,7 @@
                (setq BodyCode (subst (GenerateName 'Label) Num BodyCode)))
         
            (setq Code `(File ,Code
-                             (StaticInlineFuncDefnWDeclSpec 
+                             (InlineFuncDefnWDeclSpec 
                               (VoidType) (FuncVarWPIdList (Id ,CurrentQuery) (IdList (Id |PDMCSchema|) (Id |PDMCQStruct|)))
                               (FuncBodyWDeclList 
                                (DeclList 
@@ -835,7 +892,27 @@
                                (CompndStmtWSList ,BodyCode))))))
        (return Code)))
 
+(defun SetQueryDecl (Code PDMCQuery)
+  (prog (Temp CurrentQuery)
+       (setq Temp `(Comment "========== Queries ====================="))
+       (PrintMsg "   processing queries.")
 
+       (do ((PDMCQuery PDMCQuery (cdr PDMCQuery))) ((null PDMCQuery))
+           (princ "      query: " *error-output*)
+           (PrintMsg (cadadar PDMCQuery))
+
+           (setq CurrentQuery (cadadar PDMCQuery)) 
+        
+           (setq Temp `(File ,Temp
+              (ExternDeclSpecWVars
+                 (VoidType)
+                 (FuncVarWPTList
+                    (Id ,CurrentQuery)
+                    (ParamList
+                       (ParamDecl (StructWId (Id ,(concat SchemaName '|Struct|))) (PtrVar (Ptr) (Id |PDMCSchema|)))
+                       (ParamDecl (StructWId (Id ,(concat CurrentQuery '|Struct|))) (PtrVar (Ptr) (Id |PDMCQStruct|)))))))))
+       (setq Code (list 'File Code Temp))
+       (return Code)))
 
 (defun TravelQueryBody (In1 In2 In3 In4 QueryBody NodeList)
   (prog (Temp1 Temp2)
@@ -1070,7 +1147,7 @@
             (cond ((not (null OrderBy))
                    (setq Code (CompareFuncStmt OrderBy OnClass))
                    (setq Code
-                         `(StaticInlineFuncDefnWDeclSpec 
+                         `(InlineFuncDefnWDeclSpec 
                            (IntType)
                            (FuncVarWPIdList (Id ,(concat IndexName '|Compare|))
                                             (IdList (Id P1) (Id P2)))
@@ -1246,7 +1323,7 @@
                       (setq Code `(StmtList ,Code (ReturnWExp (PrimExp (Const "0")))))))
         
                (setq Code
-                     `(StaticInlineFuncDefnWDeclSpec 
+                     `(InlineFuncDefnWDeclSpec 
                        (IntType)
                        (FuncVarWPIdList (Id ,FuncName)
                                         (IdList (Id P) (Id |PDMCQStruct|)))
@@ -1333,7 +1410,7 @@
 					(setq Pointer '(Ptr)))
 				  (t
 					(setq Pointer '(PtrPtr (Ptr)))))
-		  (setq Code `(StaticInlineFuncDefnWDeclSpec 
+		  (setq Code `(InlineFuncDefnWDeclSpec 
 							(StructWId (Id ,(car (Build '(< P1))))) 
 							(PtrVar ,Pointer (FuncVarWPIdList (Id ,(concat '|DistPath| IndexName)) (Id P))) ,Code))
 		  
@@ -1380,7 +1457,7 @@
                       (t
                        (return `(DeclSpecWVars ,(ProcessIndexSpecCode (cadr IndexSpecCode)) 
                                                ,(ProcessIndexSpecCode (caddr IndexSpecCode)))))))
-               ((member (car IndexSpecCode) '(FuncDefnWDeclSpec InlineFuncDefnWDeclSpec StaticInlineFuncDefnWDeclSpec)) 
+               ((member (car IndexSpecCode) '(FuncDefnWDeclSpec InlineFuncDefnWDeclSpec InlineFuncDefnWDeclSpec)) 
                 (cond ((equal (caadr IndexSpecCode) 'Prop)
                        (return 
                         (append (GenStructDeclCode (ProcessIndexSpecCode (caddr IndexSpecCode)) 

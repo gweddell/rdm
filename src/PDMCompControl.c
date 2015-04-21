@@ -48,11 +48,6 @@ char *argv[], *envp[];
 	for (Counter = 0; Counter <=  (strlen(PDMFileName) - 5); Counter++)
 		OutputFileName[Counter] = PDMFileName[Counter];
 	OutputFileName[Counter] = '\0';
-	char* SchemaName = strdup(OutputFileName);
-	sprintf(Command, "echo \\|%s\\| > pdmc.schemaname", basename(SchemaName));
-	free(SchemaName);
-	CSystem(Command);
-
 	strcat(OutputFileName, ".h");
 		
 	fprintf(stderr, "PDM Compiler - Version 2.1\n");
@@ -64,7 +59,10 @@ char *argv[], *envp[];
 	CSystem(Command);
 			
 	CSystem("sbcl --noinform --load PDMRun");
-	sprintf(Command, "indent pdmc.output -kr -o %s", OutputFileName);
+	sprintf(Command, "indent pdmc.h.output -kr -o %s", OutputFileName);
+	CSystem(Command);
+	OutputFileName[Counter+1] = 'c';
+	sprintf(Command, "indent pdmc.c.output -kr -o %s", OutputFileName);
 	CSystem(Command);
 	CSystem("rm pdmc.*");
 }

@@ -10,7 +10,7 @@ generic names
 generic functions
 
 
-static inline void Copy$Index$(Schema, A, B)
+void Copy$Index$(Schema, A, B)
 struct $SchemaName$Struct *Schema;
 prop $DistClass$ A;
 prop $DistClass$ B;
@@ -18,20 +18,20 @@ prop $DistClass$ B;
    Assign$DistClass$$Index$First(B, Access$DistClass$$Index$First(A));   
 }
 
-static inline void Create$Index$(Schema, A)
+void Create$Index$(Schema, A)
 struct $SchemaName$Struct *Schema;
 prop $DistClass$ A;
 { 
    Assign$DistClass$$Index$First(A, 0);
 }
 
-static inline void Destroy$Index$(Schema, A)
+void Destroy$Index$(Schema, A)
 struct $SchemaName$Struct *Schema;
 prop $DistClass$ A;
 { 
 }
 
-static inline void Add$Index$(Schema, A)
+void Add$Index$(Schema, A)
 struct $SchemaName$Struct *Schema;
 prop $Class$ A;
 {
@@ -58,7 +58,7 @@ prop $Class$ A;
     }
 }
 
-static inline void Sub$Index$(Schema, A)
+void Sub$Index$(Schema, A)
 struct $SchemaName$Struct *Schema;
 prop $Class$ A;
 {
@@ -77,7 +77,7 @@ prop $Class$ A;
 }
 
 
-static inline int DistInit$Index$(Schema, A, D)
+int DistInit$Index$(Schema, A, D)
 struct $SchemaName$Struct *Schema;
 prop $Class$ *A;
 prop $DistClass$ D;
@@ -89,7 +89,7 @@ prop $DistClass$ D;
     return(1);
 }
 
-static inline int DistNext$Index$(Schema, A, D)
+int DistNext$Index$(Schema, A, D)
 struct $SchemaName$Struct *Schema;
 prop $Class$ *A;
 prop $DistClass$ D;
@@ -101,7 +101,7 @@ prop $DistClass$ D;
 }
 
 
-static inline int Init$Index$(Schema, A)
+int Init$Index$(Schema, A)
 struct $SchemaName$Struct *Schema;
 prop $Class$ *A;
 {
@@ -112,7 +112,7 @@ prop $Class$ *A;
 } 
 
 
-static inline int Next$Index$(Schema, A)
+int Next$Index$(Schema, A)
 struct $SchemaName$Struct *Schema;
 prop $Class$ *A;
 {

@@ -158,6 +158,7 @@
                       (setq Temp `(,Name3 (StructWId (Id ,(car (Build '(<< P))))) (PtrVar (Ptr) ,Name1))))
                      (t
                       (setq Temp `(,Name3 (StructWId (Id ,(car (Build '(<< P))))) (PtrVar (PtrPtr (Ptr)) ,Name1)))))))
+
         (return Temp)))
 
 

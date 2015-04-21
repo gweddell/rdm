@@ -9,7 +9,7 @@ generic names
 generic functions
 
 
-static inline void $Index$TreeInsert(new, pointer, CompFunc)
+void $Index$TreeInsert(new, pointer, CompFunc)
 prop $Class$ new, pointer;
 int (* CompFunc) ();
 {
@@ -39,7 +39,7 @@ int (* CompFunc) ();
  }
                  
 
-static inline prop $Class$ $Index$TreeNext(pointer)
+prop $Class$ $Index$TreeNext(pointer)
 prop $Class$ pointer;
 {
    if (Access$Class$$Index$Mark(pointer) == 0 && Access$Class$$Index$RSon(pointer) != NULL) {
@@ -53,7 +53,7 @@ prop $Class$ pointer;
 }
 
 
-static inline prop $Class$ $Index$TreeSearch(pointer, CompFunc, P)
+prop $Class$ $Index$TreeSearch(pointer, CompFunc, P)
 prop $Class$ pointer;
 int (* CompFunc) ();
 void *P;
@@ -73,7 +73,7 @@ void *P;
 
 
 
-static inline prop $Class$ $Index$FindParent(pointer,child, CompFunc)
+prop $Class$ $Index$FindParent(pointer,child, CompFunc)
 prop $Class$ pointer, child;
 int (* CompFunc) ();
 {
@@ -87,7 +87,7 @@ int (* CompFunc) ();
                  
 
                   
-static inline void $Index$TreeRemove(Schema, pointer, CompFunc)
+void $Index$TreeRemove(Schema, pointer, CompFunc)
 struct $SchemaName$Struct *Schema;
 prop $Class$ pointer;
 int (* CompFunc) ();
@@ -130,7 +130,7 @@ int (* CompFunc) ();
 /**************************************************************************************/
 
 
-static inline void Add$Index$(Schema, A, CompFunc)
+void Add$Index$(Schema, A, CompFunc)
 struct $SchemaName$Struct *Schema;
 prop $Class$ A;
 int (* CompFunc) ();
@@ -145,7 +145,7 @@ int (* CompFunc) ();
 }
                  
                   
-static inline void Sub$Index$(Schema, A, CompFunc)
+void Sub$Index$(Schema, A, CompFunc)
 struct $SchemaName$Struct *Schema;
 prop $Class$ A;
 int (* CompFunc) ();
@@ -154,7 +154,7 @@ int (* CompFunc) ();
 }
 
 
-static inline int Init$Index$(Schema, A, CompFunc, P)
+int Init$Index$(Schema, A, CompFunc, P)
 struct $SchemaName$Struct *Schema;
 prop $Class$ *A;
 int (* CompFunc) ();
@@ -170,7 +170,7 @@ void *P;
                   
                   
                   
-static inline int Next$Index$(Schema, A, CompFunc, P)
+int Next$Index$(Schema, A, CompFunc, P)
 struct $SchemaName$Struct *Schema;
 prop $Class$ *A;
 int (* CompFunc) ();
