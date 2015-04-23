@@ -2,11 +2,11 @@
 
 all: ldmc pdmc isc cdbc
 
-LDMRun: PatMatch.l RuleUse.l LDMComp.l CostProb.l LDMCompLib.l FuncDep.l LDMErrorProcs.l LDMSchemaAccess.l SelCond.l LDMSchemaMaint.l LDMPassOne.l LDMPassTwo.l LDMPassThree.l LDMPassFour.l LDMPassFive.l
-	cat PatMatch.l RuleUse.l LDMComp.l CostProb.l LDMCompLib.l FuncDep.l LDMErrorProcs.l LDMSchemaAccess.l SelCond.l LDMSchemaMaint.l LDMPassOne.l LDMPassTwo.l LDMPassThree.l LDMPassFour.l LDMPassFive.l > LDMRun.l
-	echo "(main)" >> LDMRun.l
-	sbcl --noinform --eval "(compile-file \"LDMRun.l\")" --eval "(quit)"
-	rm -f LDMRun.l
+LDMRun: PatMatch.cl RuleUse.cl LDMComp.cl CostProb.cl LDMCompLib.cl FuncDep.cl LDMErrorProcs.cl LDMSchemaAccess.cl SelCond.cl LDMSchemaMaint.cl LDMPassOne.cl LDMPassTwo.cl LDMPassThree.cl LDMPassFour.cl LDMPassFive.cl
+	cat $^ > LDMRun.cl
+	echo "(main)" >> LDMRun.cl
+	sbcl --noinform --eval "(compile-file \"LDMRun.cl\")" --eval "(quit)"
+	rm -f LDMRun.cl
 	mv LDMRun.fasl LDMRun
 	chmod +x LDMRun
 	
@@ -19,16 +19,16 @@ LDMParser: LDMParser.c LDMGrammar.y LDMScanner.l
 ldmc: LDMCompControl.c LDMParser LDMRun
 	gcc -o ldmc LDMCompControl.c
 
-FixLispInput: FixLispInput.l
-	sbcl --noinform --eval "(compile-file \"FixLispInput.l\")" --eval "(quit)"
+FixLispInput: FixLispInput.cl
+	sbcl --noinform --eval "(compile-file \"FixLispInput.cl\")" --eval "(quit)"
 	mv FixLispInput.fasl FixLispInput
 	chmod +x FixLispInput
 
-PDMRun: PatMatch.l RuleUse.l PDMComp.l PDMCompLib.l GenCCode.l
-	cat PatMatch.l RuleUse.l PDMComp.l PDMCompLib.l GenCCode.l > PDMRun.l
-	echo "(main)" >> PDMRun.l
-	sbcl --noinform --eval "(compile-file \"PDMRun.l\")" --eval "(quit)"
-	rm -f PDMRun.l
+PDMRun: PatMatch.cl RuleUse.cl PDMComp.cl PDMCompLib.cl GenCCode.cl
+	cat $^ > PDMRun.cl
+	echo "(main)" >> PDMRun.cl
+	sbcl --noinform --eval "(compile-file \"PDMRun.cl\")" --eval "(quit)"
+	rm -f PDMRun.cl
 	mv PDMRun.fasl PDMRun
 	chmod +x PDMRun
 
@@ -50,12 +50,11 @@ pdmc: PDMCompControl.c PDMParser PDMRun
 isc: IndexSpecCompControl.c IndexSpecParser FixLispInput
 	gcc -o isc -g IndexSpecCompControl.c
 
-
-CDBRun: PatMatch.l CDBComp.l CDBCompLib.l GenCCode.l
-	cat PatMatch.l CDBComp.l CDBCompLib.l GenCCode.l > CDBRun.l
-	echo "(main)" >> CDBRun.l
-	sbcl --noinform --eval "(compile-file \"CDBRun.l\")" --eval "(quit)"
-	rm -f CDBRun.l
+CDBRun: PatMatch.cl CDBComp.cl CDBCompLib.cl GenCCode.cl
+	cat $^ > CDBRun.cl
+	echo "(main)" >> CDBRun.cl
+	sbcl --noinform --eval "(compile-file \"CDBRun.cl\")" --eval "(quit)"
+	rm -f CDBRun.cl
 	mv CDBRun.fasl CDBRun
 	chmod +x CDBRun
 
