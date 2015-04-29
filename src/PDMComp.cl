@@ -7,7 +7,7 @@
 (defvar CurrentQuery)
 (defvar DeclCode)
 (defvar ImplCode)
-(defvar SchemaVarName)
+(defvar SchemaName)
 (defvar ScopeList)
 (defvar SubstitutionMatch)
 (defvar CompareFuncCode)
@@ -24,7 +24,7 @@
 
 
 (defun MAIN ()
-  (prog (PDMCode Port)
+  (prog (PDMCode)
 	(setq InfoList '((Reference |StoreTemplate| Direct)))
         (setq InlineFlag 0
               @SchemaVar 0
@@ -238,15 +238,14 @@
         (return Code)))
 
 (defun SetAccessFunctionsDecl (Code)
-  (prog (TempCode1 TempCode2 Class Property Reference Type)
+  (prog (TempCode Class Property)
         (PrintMsg "   generating Access functions.")
         (do ((Temp InfoList (cdr Temp))) ((null Temp))
             (cond ((equal (caar Temp) 'Field)
                    (setq Class (cadar Temp) Property (caddar Temp))
-            (setq ParaDecl `(ParamDecl (StructWId (Id ,(concat SchemaName '|Struct|))) (PtrVar (Ptr) (Id |PDMCSchema|))))
-                   (setq TempCode1 `(FuncVarWPTList (Id ,(concat '|Access| Class Property)) ,(GenStructDeclCode 'P Class 'ParamDecl)))
-                   (setq TempCode1 (GenStructDeclCode TempCode1 Property 'ExternDeclSpecWVars))
-                   (setq Code `(File ,Code ,TempCode1)))))
+                   (setq TempCode `(FuncVarWPTList (Id ,(concat '|Access| Class Property)) ,(GenStructDeclCode 'P Class 'ParamDecl)))
+                   (setq TempCode (GenStructDeclCode TempCode Property 'ExternDeclSpecWVars))
+                   (setq Code `(File ,Code ,TempCode)))))
         (return Code)))
 
 
@@ -402,7 +401,7 @@
         (return Code)))
 
 (defun SetTransactionDecl (Code PDMTrans)
-  (prog (FuncHead ParaDecl LocalDecl Body List1 List2 Temp Temp1)
+  (prog (FuncHead ParaDecl List1 List2 Temp Temp1)
         (PrintMsg "   processing transactions.")
         (setq Code (list 'File Code (list 'Comment "==== Function Decl ====")))
 
