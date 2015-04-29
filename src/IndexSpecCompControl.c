@@ -3,36 +3,33 @@
 #include <stdlib.h>
 #define NameSize 50
 
-int  Error(), CSystem();
-
-Error()
+int Error()
 {
 	fprintf(stderr, "isc IndexSpecFileName\n");
 	exit(0);
 }
 
-CSystem(Command)
-char *Command;
+int CSystem(char *Command)
 {
-	if (system(Command) != 0) exit(0);
+	if (system(Command) != 0)
+		exit(0);
 }
 
-main (argc, argv, envp) 
-int  argc; 
-char *argv[], *envp[];
+int main(int argc, char *argv[])
 {
-   int   Counter;
-	char  IndexSpecFileName[NameSize],
-	      Command[256];
-	
-	if (argc != 2) Error();
-	strcpy (IndexSpecFileName, argv[1]);
+	int Counter;
+	char IndexSpecFileName[NameSize], Command[256];
+
+	if (argc != 2)
+		Error();
+	strcpy(IndexSpecFileName, argv[1]);
 
 	fprintf(stderr, "Index Spec Compiler - Version 2.1\n");
-	fprintf(stderr,"--------------------------\n");
-	fprintf(stderr,"checking syntax.\n");
-	fprintf(stderr,"   %s\n", IndexSpecFileName);
-	sprintf(Command, "./IndexSpecParser < %s > isc.internal.in", IndexSpecFileName);
+	fprintf(stderr, "--------------------------\n");
+	fprintf(stderr, "checking syntax.\n");
+	fprintf(stderr, "   %s\n", IndexSpecFileName);
+	sprintf(Command, "./IndexSpecParser < %s > isc.internal.in",
+		IndexSpecFileName);
 	CSystem(Command);
 	strcat(IndexSpecFileName, ".internal");
 	CSystem("sbcl --noinform --load FixLispInput");
