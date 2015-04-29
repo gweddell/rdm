@@ -26,6 +26,7 @@
 %token   DYNAMIC
 %token   EACH
 %token   ELSE
+%token   ELSEIF
 %token   END
 %token   ENDIF
 %token   EXTENSION
@@ -217,7 +218,7 @@ PDMIndexSpec
 PDMIndexDistSpec
       :
          { printf("nil "); }
-      | DISTRIBUTED ON PDMpath
+      | DISTRIBUTED ON PDMPath
       ;
 
 PDMIndexSizeSpec
@@ -239,7 +240,7 @@ PDMIndexSearchCondList
       ;
 
 PDMIndexSearchCond 
-      : PDMpath PDMIndexSearchDescript
+      : PDMPath PDMIndexSearchDescript
       ;
 
 PDMIndexSearchDescript
@@ -323,9 +324,9 @@ PDMQueryTupleExpr
          { printf("Select 2 "); }
       | CUT Identifier PDMQueryTupleExpr
          { printf("Cut 2 "); }
-      | ASSIGN Id AS PDMTerm
+      | ASSIGN Id AS PDMExpr
          { printf("Assign 2 "); }
-      | ASSIGN Id AS PDMTerm IN Id 
+      | ASSIGN Id AS PDMExpr IN Id
          { printf("Assign 3 "); }
       | ASSIGN Id AS FIRST OF Id 
          { printf("AssignIndexFirst 2 "); }
@@ -376,39 +377,39 @@ PDMTransStmtList
          { printf("StmtList 2 "); }
       ;
 
-PDMTransStmt      
-      : PDMTerm COLONEQ PDMTerm
+PDMTransStmt
+      : PDMExpr COLONEQ PDMExpr
          { printf("COLONEQ 2 "); }
-      | Id LABELID COLONEQ PDMTerm
+      | Id LABELID COLONEQ PDMExpr
          { printf("COLONEQID 2 "); }
-      | REMOVE PDMTerm FROM Id
+      | REMOVE PDMExpr FROM Id
          { printf("REMOVE 2 "); }
-      | INSERT PDMTerm IN Id
+      | INSERT PDMExpr IN Id
          { printf("INSERT 2 "); }
-      | CREATE PDMTerm FOR Id
+      | CREATE PDMExpr FOR Id
          { printf("CREATE 2 "); }
-      | DESTROY PDMTerm FOR Id
+      | DESTROY PDMExpr FOR Id
          { printf("DESTROY 2 "); }
-      | ALLOCATE PDMTerm FROM Id
+      | ALLOCATE PDMExpr FROM Id
          { printf("ALLOCATE 2 "); }
-      | ALLOCATE INDIRECT PDMTerm FROM Id
+      | ALLOCATE INDIRECT PDMExpr FROM Id
          { printf("ALLOCATEINDIRECT 2 "); }
-      | FREE PDMTerm TO Id
+      | FREE PDMExpr TO Id
          { printf("FREE 2 "); }
-      | FREE INDIRECT PDMTerm TO Id
+      | FREE INDIRECT PDMExpr TO Id
          { printf("FREEINDIRECT 2 "); }
-      | COPY PDMTerm TO PDMTerm FOR Id
+      | COPY PDMExpr TO PDMExpr FOR Id
          { printf("COPY 3 "); }
-      | IF PDMPred THEN PDMTransStmtList PDMTransElsePart
-         { printf("IF 3 "); }
       | ALLOC LABELID Id 
          { printf("ALLOCID 1 "); }
       | FREE LABELID Id 
          { printf("FREEID 1 "); }
-		| INIT INDEX Id
-			{ printf("INITINDEX 1 "); }
-		| INIT STORE Id
-			{ printf("INITSTORE 1 "); }
+      | INIT INDEX Id
+         { printf("INITINDEX 1 "); }
+      | INIT STORE Id
+         { printf("INITSTORE 1 "); }
+      | IF PDMPred THEN PDMTransStmtList PDMTransElsePart
+         { printf("IF 3 "); }
       ;
 
 PDMTransElsePart
@@ -416,7 +417,7 @@ PDMTransElsePart
          { printf("ENDIF 0 "); }
       | ELSE PDMTransStmtList ENDIF
          { printf("ELSE 1 "); }
-      | ELSE IF PDMPred THEN PDMTransStmtList PDMTransElsePart
+      | ELSEIF PDMPred THEN PDMTransStmtList PDMTransElsePart
          { printf("ELSEIF 3 "); }
       ;
 
@@ -428,30 +429,26 @@ PDMPredList
       ;
 
 PDMPred
-      : PDMTerm EQ PDMTerm
+      : PDMExpr EQ PDMExpr
          { printf("EqPred 2 "); }
-      | PDMTerm LT PDMTerm
+      | PDMExpr LT PDMExpr
          { printf("LTPred 2 "); }
-      | PDMTerm GT PDMTerm
+      | PDMExpr GT PDMExpr
          { printf("GTPred 2 "); }
-      | PDMTerm LE PDMTerm
+      | PDMExpr LE PDMExpr
          { printf("LEPred 2 "); }
-      | PDMTerm GE PDMTerm
+      | PDMExpr GE PDMExpr
          { printf("GEPred 2 "); }
-      | PDMTerm NE PDMTerm
+      | PDMExpr NE PDMExpr
          { printf("NEPred 2 "); }
-      | PDMTerm IS PDMTerm
+      | PDMExpr IS PDMExpr
          { printf("ISPred 2 "); }
-      | PDMTerm IN PDMTerm
+      | PDMExpr IN PDMExpr
          { printf("INPred 2 "); }
       ;
 
-PDMTerm    
-      : PDMpath
-      | FormattedInteger 
-      | FormattedReal
-      | String
-      | LEFTP PDMTerm RIGHTP
+PDMExpr
+      : PDMPath
       | MINUS PDMTerm
          { printf("UnSubOp 1 "); }
       | PDMTerm PLUS PDMTerm
@@ -468,10 +465,17 @@ PDMTerm
          { printf("AS 2 "); }
       ;
 
+PDMTerm
+      : FormattedInteger
+      | FormattedReal
+      | String
+      | LEFTP PDMExpr RIGHTP
+      ;
+
 /*<<<<<<<<<<<<<<<<<<<<   others   >>>>>>>>>>>>>>>>>>>>>*/
-PDMpath
+PDMPath
       : Id
-      | PDMpath DOT Id
+      | PDMPath DOT Id
          { printf("At 2 "); } 
       ; 
 

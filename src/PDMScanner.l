@@ -45,6 +45,7 @@ spaces		{blanktab}+
 "dynamic"				{ strcat(LineBuffer, yytext); return( DYNAMIC ); }
 "each"					{ strcat(LineBuffer, yytext); return( EACH ); }
 "else"					{ strcat(LineBuffer, yytext); return( ELSE ); }
+"elseif"					{ strcat(LineBuffer, yytext); return( ELSEIF ); }
 "end"						{ strcat(LineBuffer, yytext); return( END ); }
 "endif"					{ strcat(LineBuffer, yytext); return( ENDIF ); }
 "extension"				{ strcat(LineBuffer, yytext); return( EXTENSION ); } 

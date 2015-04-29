@@ -503,10 +503,12 @@
 	 (if (cadddr Stmt)
 	    (progn (PrintLF)
 	    (PrintIndent Indent)
-	    (PrintString "else ")
 	    (if (eq (caadddr Stmt) 'If)
-	       (PrintStmt (cons 'ElseIf (cdadddr Stmt)) Indent)
 	     (progn
+	       (PrintString "elseif")
+	       (PrintStmt (cons 'ElseIf (cdadddr Stmt)) Indent))
+	     (progn
+	       (PrintString "else")
 	       (PrintLF)
 	       (PrintIndent (add1 Indent))
 	       (PrintStmt (cadddr Stmt) (add1 Indent))))))
@@ -514,7 +516,6 @@
 	 (PrintIndent Indent)
 	 (PrintString "endif"))
       (ElseIf
-	 (PrintString "if ")
 	 (PrintPred (cadr Stmt))
 	 (PrintString " then")
 	 (PrintLF)
@@ -523,10 +524,12 @@
 	 (if (cadddr Stmt)
 	    (progn (PrintLF)
 	    (PrintIndent Indent)
-	    (PrintString "else ")
 	    (if (eq (caadddr Stmt) 'If)
-	       (PrintStmt (cons 'ElseIf (cdadddr Stmt)) Indent)
 	     (progn
+	       (PrintString "elseif")
+	       (PrintStmt (cons 'ElseIf (cdadddr Stmt)) Indent))
+	     (progn
+	       (PrintString "else")
 	       (PrintLF)
 	       (PrintIndent (add1 Indent))
 	       (PrintStmt (cadddr Stmt) (add1 Indent)))))))

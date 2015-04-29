@@ -198,9 +198,9 @@ LDMPrimaryPred
 		{ printf("HasMax 2 "); }
 	| Identifier HAS MIN LDMPathFunction
 		{ printf("HasMin 2 "); }
-	| Identifier HAS MAX LDMPathFunction WHERE LDMPred
+	| Identifier HAS MAX LDMPathFunction WHERE LDMPrimaryPred
 		{ printf("HasMaxPred 3 "); }
-	| Identifier HAS MIN LDMPathFunction WHERE LDMPred
+	| Identifier HAS MIN LDMPathFunction WHERE LDMPrimaryPred
 		{ printf("HasMinPred 3 "); }
 	| Identifier '{' LDMAsOpList '}'
 		{ printf("Pred 2 "); }
