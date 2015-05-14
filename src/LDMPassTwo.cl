@@ -195,8 +195,8 @@
 ;   PreAltScan - Initializes selection of index.
 ;   QualPFIntro - Add QualPF selection condition.
 ;   QualSCIntro - Add QualSC selection condition.
-;   FindMinCostI - Selection index and selection condition with which
-;                  the least cost is incurred.
+;   ExpandIndexScanList - Generate subgoals from index list.
+;   MergeIndexSubGoals - Subgoals generated from index list are merged.
 ;   PostAltScan - Rebuild proper Find statement after selection.
 ;   PostScanIntroControl - Optimize subgoal.
 ;
@@ -263,15 +263,15 @@
          
 (LoadControl
    '(IndexIntroControl
-       (Env caddddr
-          (And
-             PreAltScan
-             (Seq
-                (Env cadr (Map
-                   (Rep (Or QualPFIntro QualSCIntro))))
-                FindMinCostI)
-             PostAltScan
-             (Call PostScanIntroControl)))))
+      (And
+         (Env caddddr
+            (And
+               (Seq PreAltScan
+                  (Env cadadr (Map
+                     (Rep (Or QualPFIntro QualSCIntro)))))
+               (Rep ExpandIndexScanList)
+               (Env cddr (Map (And PostAltScan (Call PostScanIntroControl))))))
+         MergeIndexSubGoals)))
 
 (LoadControl
    '(PostScanIntroControl
@@ -433,8 +433,8 @@
       >* FEList1
       (Scan < V (Log) where (not (null (SupIndices* (ExpressionType <q V)))))
       >* FEList2)
-   (AltScan < IndexScanList
-      < DGraph < EVarList < Project < Type < FEList1 < FEList2)
+   (AltIndex (AltScan < IndexScanList
+      < DGraph < EVarList < Project < Type < FEList1 < FEList2))
    (Bindq IndexScanList
       (mapcar
          (lambda (I)                   ; function not to be compiled!
@@ -476,10 +476,24 @@
       < BoundVars)
    (Bindq NewIterType (if (eq <q C (ExpressionType <q V)) 'Iter 'SCIter)))
 
-(FindMinCostI
-   (AltScan (>+ IndexScanList) >* OtherDetails)
-   (AltScan < BestIndexScan << OtherDetails)
-   (Bindq BestIndexScan (FindMinCost <q IndexScanList)))
+(ExpandIndexScanList
+   (AltIndex
+      (AltScan (> IndexScan >* IndexScanList) > DGraph >* OtherDetails)
+      >* SubGoalList)
+   (AltIndex
+      (AltScan (<< IndexScanList) < DGraph << OtherDetails)
+      (AltScan < IndexScan < CopyDGraph << OtherDetails)
+      << SubGoalList)
+   (Bindq
+      CopyDGraph (copy-tree <q DGraph)))
+
+(MergeIndexSubGoals
+   (AltFind > GoalList > Find > N
+      (AltIndex ? >* IndexSubGoalList)
+      >* SubGoalList)
+   (AltFind < GoalList < Find < N
+      << IndexSubGoalList
+      << SubGoalList))
 
 (PostAltScan
    (AltScan
@@ -783,23 +797,6 @@
             (CountOccurrence Term (cdr Form))))))
 
    
-;***********************************************************************
-; Finding the index to scan a variable incurring minimal cost.
-; Format of IndexStruct:
-;  (IndexScan <ScanEntry> <SCList> <GlobalDGraph> <BoundVars>)
-;***********************************************************************
-
-(defun FindMinCost (IndexStList)
-   (if (null IndexStList)
-      nil
-      (cdr (Mincar (mapcar
-         #'(lambda (IndexStruct)
-            (cons
-               (CostQuery
-                  `(Find () (All) ,(cadr IndexStruct)))
-               IndexStruct))
-         IndexStList)))))
-
 (defun Mincar (List)
    (cond
       ((null (cdr List)) (car List))
