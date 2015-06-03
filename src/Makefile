@@ -1,6 +1,6 @@
 .PHONY: all clean
 
-all: ldmc pdmc isc cdbc
+all: LDMParser LDMRun IndexSpecParser FixLispInput PDMParser PDMRun cdbc
 
 LDMRun: PatMatch.cl RuleUse.cl LDMComp.cl CostProb.cl LDMCompLib.cl FuncDep.cl LDMErrorProcs.cl LDMSchemaAccess.cl SelCond.cl LDMSchemaMaint.cl LDMPassOne.cl LDMPassTwo.cl LDMPassThree.cl LDMPassFour.cl LDMPassFive.cl
 	cat $^ > LDMRun.cl
@@ -15,9 +15,6 @@ LDMParser: LDMParser.c LDMGrammar.y LDMScanner.l
 	flex LDMScanner.l
 	gcc -w LDMParser.c -o LDMParser
 	rm -f lex.yy.c LDMGrammar.tab.c LDMGrammar.tab.h 
-
-ldmc: LDMCompControl.c LDMParser LDMRun
-	gcc -o ldmc LDMCompControl.c
 
 FixLispInput: FixLispInput.cl
 	sbcl --noinform --eval "(compile-file \"FixLispInput.cl\")" --eval "(quit)"
@@ -44,12 +41,6 @@ PDMParser: PDMParser.c PDMGrammar.y PDMScanner.l
 	gcc -w PDMParser.c -o PDMParser
 	rm -f lex.yy.c PDMGrammar.tab.c PDMGrammar.tab.h 
 
-pdmc: PDMCompControl.c PDMParser PDMRun
-	gcc -o pdmc -g PDMCompControl.c
-
-isc: IndexSpecCompControl.c IndexSpecParser FixLispInput
-	gcc -o isc -g IndexSpecCompControl.c
-
 CDBRun: PatMatch.cl CDBComp.cl CDBCompLib.cl GenCCode.cl
 	cat $^ > CDBRun.cl
 	echo "(main)" >> CDBRun.cl
@@ -68,7 +59,7 @@ cdbc: CDBCompControl.c PDMParser CDBParser CDBRun
 	gcc -o cdbc -g CDBCompControl.c
 
 clean:
-	rm -f ldmc LDMRun LDMParser
-	rm -f FixLispInput PDMRun IndexSpecParser PDMParser pdmc isc
+	rm -f LDMRun LDMParser
+	rm -f FixLispInput PDMRun IndexSpecParser PDMParser
 	rm -f CDBRun CDBParser PDMParser PosSlash PreSlash cdbc
 	rm -f lex.yy.c *.tab.c *.tab.h *.fasl

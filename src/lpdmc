@@ -1,0 +1,130 @@
+#!/bin/bash
+#
+# Copyright (C) 1989, G. E. Weddell.
+#
+# This file is part of RDM.
+#
+# RDM is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# RDM is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with RDM.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+set -e
+trap clean_up EXIT
+
+clean_up() {
+	rm -f ldmc.*
+	rm -f pdmc.*
+	rm -f isc.*
+	rm -f *.internal
+}
+
+show_help() {
+	echo "lpdmc [-o OutputFileName] [-l LibraryPath] LDMFileName"
+}
+
+schema_name=
+ldm_file=
+pdm_file=
+library_path=../library
+
+OPTIND=1
+while getopts "hf:" opt; do
+	case "$opt" in
+		h)
+			show_help
+			exit 0
+		;;
+
+		l)
+			library_path=$OPTARG
+		;;
+
+		o)
+			pdm_file=$OPTARG
+		;;
+
+		'?')
+			show_help >&2
+			exit 1
+		;;
+	esac
+done
+shift "$((OPTIND-1))"
+
+if ! [[ -e "$*" ]]; then
+	echo "Invalid LDM file." >&2
+	exit 1
+else
+	if [[ "$*" == *.ldm ]]; then
+		ldm_file="$*"
+		schema_name=${ldm_file%.*}
+	else
+		ldm_file="$*".ldm
+		schema_name="$*"
+	fi
+fi
+
+if [[ -z "$pdm_file" ]]; then
+	pdm_file=${schema_name}.pdm
+fi
+
+# LDMC
+
+echo "LDM Compiler - Version 2.1"
+echo "Copyright (C) 1989, G. E. Weddell"
+echo "---------------------------------"
+echo "checking syntax."
+
+
+./LDMParser < $ldm_file > ldmc.in
+
+sbcl --noinform --load LDMRun > ldmc.diag
+mv ldmc.out $pdm_file
+
+echo
+echo
+
+# ISC
+
+for f in $library_path/* ; do
+	if [[ "$f" == *.internal ]]; then
+		continue
+	fi
+        echo "Index Spec Compiler - Version 2.1"
+	echo "--------------------------"
+        echo "checking syntax."
+	./IndexSpecParser < $f > isc.internal.in
+	sbcl --noinform --load FixLispInput
+	mv isc.internal.out $(basename $f).internal
+	echo "mv isc.internal.out $(basename $f).internal"
+done
+
+echo
+echo
+
+# PDMC
+
+echo "PDM Compiler - Version 2.1"
+echo "--------------------------"
+echo "checking syntax."
+
+c_file=${schema_name}.c
+h_file=${schema_name}.h
+
+./PDMParser < $pdm_file > pdmc.pdm.input
+sbcl --noinform --load PDMRun
+indent pdmc.h.output -kr -o $h_file
+indent pdmc.c.output -kr -o $c_file
+
+echo
+echo
